@@ -2,7 +2,7 @@ import React from "react"
 import styled from "styled-components"
 import { WindupChildren, Pace, CharWrapper } from "windups"
 
-export const Logo = () => {
+export const AnimatedLogo = () => {
     const FadeChar = ({ children }: any) => {
         return <StyledChar>{children}</StyledChar>
     }

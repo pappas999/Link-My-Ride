@@ -1,7 +1,7 @@
 import React from "react"
 import styled from "styled-components"
 import bgSvg from "./web3-streets.svg"
-import { Logo } from "./Logo"
+import { AnimatedLogo } from "../../components/logo"
 
 export const AnimatedVisual = ({ ...rest }) => {
 
@@ -9,7 +9,7 @@ export const AnimatedVisual = ({ ...rest }) => {
     <Scroller svg={bgSvg} />
     <Overlay />
     <LogoWrapper>
-      <Logo />
+      <AnimatedLogo />
     </LogoWrapper>
   </Container>
 }

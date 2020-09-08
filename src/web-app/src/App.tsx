@@ -1,41 +1,40 @@
 import React from 'react';
-import styled from "styled-components"
-import './App.css';
+import styled, { ThemeProvider } from "styled-components"
 import {
   BrowserRouter as Router,
   Switch,
   Route
 } from "react-router-dom"
-import { AnimatedVisual } from "./features/header"
+import { ThemeProvider as MuiThemeProvider } from "@material-ui/core/styles"
+import { theme } from "./theme"
+import { Home } from "./features/home"
+import { RentalForm, RentalFormProvider } from "./features/renter"
+import { SecondaryPageLayout } from "./features/layout/SecondaryPageLayout"
 
 export const App = () => {
   return (
-    <Router>
-      <Main>
-        <Switch>
-          <Route path="/rent-a-car">
-            <div>rental form</div>
-          </Route>
-          <Route path="/">
-            <StyledAnimatedVisual />
-            <Content />
-          </Route>
-        </Switch>
-      </Main>
-    </Router>
+    <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <Main>
+            <Switch>
+              <Route exact path="/">
+                <Home />
+              </Route>
+              <SecondaryPageLayout>
+                <Route path="/rent-a-car">
+                  <RentalFormProvider>
+                    <RentalForm />
+                  </RentalFormProvider>
+                </Route>
+              </SecondaryPageLayout>
+            </Switch>
+          </Main>
+        </Router>
+      </ThemeProvider>
+    </MuiThemeProvider>
   )
 }
-
-const StyledAnimatedVisual = styled(AnimatedVisual)`
-  height: 40rem;
-  width: 100%;
-`
-
-const Content = styled.div`
-  min-height: calc(100vh - 40rem);
-  background: rgba(36,93,232,1);
-  background: linear-gradient(0deg, rgba(21,57,145,1) 0%, rgba(36,93,232,1) 100%);
-`
 
 const Main = styled.main`
   background: rgba(36,93,232,1);
