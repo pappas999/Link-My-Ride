@@ -5,23 +5,27 @@ import { AnimatedVisual } from "./features/header"
 
 export const App = () => {
   return (
-    <>
-      <Header>
-        <AnimatedVisual />
-      </Header>
-      <Main />
-    </>
+    <Main>
+      <StyledAnimatedVisual />
+      <Content />
+    </Main>
   )
 }
 
-const Header = styled.header`
-  height: 60rem;
+const StyledAnimatedVisual = styled(AnimatedVisual)`
+  height: 40rem;
   width: 100%;
 `
 
+const Content = styled.div`
+  min-height: calc(100vh - 40rem);
+  background: rgba(36,93,232,1);
+  background: linear-gradient(0deg, rgba(21,57,145,1) 0%, rgba(36,93,232,1) 100%);
+`
+
 const Main = styled.main`
-  background: rgb(15,43,112);
+  background: rgba(36,93,232,1);
   background: linear-gradient(0deg, rgba(15,43,112,1) 0%, rgba(36,93,232,1) 100%);
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
 `

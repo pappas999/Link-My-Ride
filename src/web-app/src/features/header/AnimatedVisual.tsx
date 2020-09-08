@@ -3,19 +3,19 @@ import styled from "styled-components"
 import bgSvg from "./web3-streets.svg"
 import { Logo } from "./Logo"
 
-export const AnimatedVisual = () => {
+export const AnimatedVisual = ({ ...rest }) => {
 
-    return <Container>
-        <Scroller svg={bgSvg} />
-        <Overlay />
-        <LogoWrapper>
-            <Logo />
-        </LogoWrapper>
-    </Container>
+  return <Container {...rest}>
+    <Scroller svg={bgSvg} />
+    <Overlay />
+    <LogoWrapper>
+      <Logo />
+    </LogoWrapper>
+  </Container>
 }
 
 const LogoWrapper = styled.div`
-    height: 40rem;
+    height: 25rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -25,7 +25,7 @@ const LogoWrapper = styled.div`
 const Container = styled.div`
     position: relative;
     width: 100%;
-    height: 60rem;
+    height: 40rem;
     overflow: hidden;
     display: flex;
     flex-direction: column;
