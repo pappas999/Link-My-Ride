@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'Dolphins';
+  src: url(./fonts/Dolphins.ttf) format("truetype"),
+       url(./fonts/Dolphins.woff) format("woff");
+}
+

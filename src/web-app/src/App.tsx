@@ -1,12 +1,23 @@
 import React from 'react';
 import styled from "styled-components"
 import './App.css';
+import { AnimatedVisual } from "./features/header"
 
 export const App = () => {
   return (
-    <Main />
+    <>
+      <Header>
+        <AnimatedVisual />
+      </Header>
+      <Main />
+    </>
   )
 }
+
+const Header = styled.header`
+  height: 60rem;
+  width: 100%;
+`
 
 const Main = styled.main`
   background: rgb(15,43,112);
