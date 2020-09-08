@@ -17,6 +17,7 @@ contract RentalAgreementFactory {
     using SafeMath_Chainlink for uint;
     
     address public dappWallet = msg.sender;
+    enum RentalAgreementStatus {PROPOSED, APPROVED, REJECTED, ACTIVE, COMPLETED, ENDED_ERROR}
     uint public constant DAY_IN_SECONDS = 60; //How many seconds in a day. 60 for testing, 86400 for Production
     bytes32 job_id = "abcdef"; //jobID of oracle to use for gets & posts?
     address public constant LINK_ROPSTEN = 0x20fE562d797A42Dcb3399062AE9546cd06f63280; //address of LINK token on Ropsten
@@ -46,44 +47,78 @@ contract RentalAgreementFactory {
     //mapping (address => RentalAgreement) rentalAgreements; 
     
     constructor() public payable {
-        
+        //this code adds a vehicle so we don't have to keep doing it manually as part of development, then it creates a simple contract for the vehicle
+        newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123,'sadfasfasdfsda',0.1 * 1 ether,1 ether,VehicleModels.Model_S,'harrys car');
+        newRentalAgreement(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,0xaF9aA280435E8C13cf8ebE1827CBB402CE65bBf7,1599565516,1599569916,100000000000000000,1000000000000000000);
     }
     
     /**
      * @dev Prevents a function being run unless it's called by DAPP owner
      */
     modifier onlyOwner() {
-		require(dappWallet == msg.sender,'Only Insurance provider can do this');
+        require(dappWallet == msg.sender,'Only Insurance provider can do this');
         _;
     }
     
     //List of events
     event rentalAgreementCreated(address _newAgreement, uint _totalFundsHeld);
+    event vehicleAdded( uint _vehicleId, address _vehicleOwner, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, VehicleModels _vehicleModel, string _description);
     
     /**
      * @dev Create a new Rental Agreement. Once it's created, all logic & flow is handled from within the RentalAgreement Contract
      */ 
     function newRentalAgreement(address _vehicleOwner, address _renter, uint _startDateTime, uint _endDateTime, uint _totalRentCost, uint _totalBond) public payable returns(address) {
-           
-       //to do extra validation to ensure preimium paid matches with total _totalCover
-       //require (msg.value > _totalCover.div(100),'Incorrect premium paid');
+       //vehicle owner must be different to renter
+       require (_vehicleOwner != _renter,'Owner & Renter must be different');
+       
+       //start date must be < end date and must be at least 1 hour (3600 seconds)
+       require (_endDateTime >= _startDateTime.add(3600),'Vehicle Agreement must be for a minimum of 1 hour');
+       
+       //ensure start date is now or in the future
+       //require (_startDateTime >= now,'Vehicle Agreement cannot be in the past');
+       
+       //Ensure correct amount of ETH has been sent for total rent cost & bond
+       //require (msg.value >= _totalRentCost.add(_totalBond),'Incorrect rent & bond paid');
         
-       //create contract, send payout amount plus some extra ether so contract has enough gas to do payout tranasctions 
+       //create new Rental Agreement
        RentalAgreement a = new RentalAgreement(_vehicleOwner, _renter, _startDateTime, _endDateTime, _totalRentCost, _totalBond,  
                                                  LINK_ROPSTEN, ORACLE_CONTRACT, ORACLE_PAYMENT, job_id);
-          
+       
+       //get price of ETH from price feeds to be used in calculations. or do it in web3 before solidity
+       
        //store new agreement in array of agreements
        rentalAgreements.push(a);
         
        emit rentalAgreementCreated(address(a), msg.value);
         
        //now that contract has been created, we need to fund it with enough LINK tokens to fulfil 1 Oracle request per day
-       LinkTokenInterface link = LinkTokenInterface(a.getChainlinkToken());
-       //link.transfer(address(a), ((_duration.div(DAY_IN_SECONDS)) + 2) * ORACLE_PAYMENT);
-       link.transfer(address(a), 1 ether);
+       //LinkTokenInterface link = LinkTokenInterface(a.getChainlinkToken());
+       //link.transfer(address(a), 1 ether);
         
         
        return address(a);
+        
+    }
+    
+      /**
+     * @dev Create a new Vehicle. 
+     */ 
+    function newVehicle(address _vehicleOwner, uint _vehicleId, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, VehicleModels _vehicleModel, 
+                        string _description) public  {
+           
+      //adds a vehicle and stores it in the vehicles mapping. Each vehicle is represented by 1 Ethereum address
+        
+      var v = vehicles[_vehicleOwner];
+      v.vehicleId = _vehicleId;
+      v.ownerAddress = _vehicleOwner;
+      v.apiTokenHash = _apiTokenHash;
+      v.baseHireFee = _baseHireFee;
+      v.bondRequired = _bondRequired;
+      v.vehicleModel = _vehicleModel;
+      v.renterDescription = _description;
+      
+        
+      emit vehicleAdded(_vehicleId, _vehicleOwner, _apiTokenHash, _baseHireFee, _bondRequired, _vehicleModel, _description);
         
     }
     
@@ -93,6 +128,36 @@ contract RentalAgreementFactory {
     function getVehicle(address _walletOwner) external view returns (Vehicle) {
         return vehicles[_walletOwner];
     }
+    
+    /**
+     * @dev Return a particular Rental Contract based on a rental contract address
+     */
+    function getRentalContract(address _rentalContract) external view returns (address,address,uint,uint,uint,uint,RentalAgreementStatus ) {
+        //loop through list of contracts, and find any belonging to the address
+        for (uint i = 0; i < rentalAgreements.length; i++) {
+            if (address(rentalAgreements[i]) == _rentalContract) {
+                return rentalAgreements[i].getAgreementDetails();
+            }
+        }
+
+    }
+    
+    /**
+     * @dev Return a list of rental contract addresses belonging to a particular vehicle owner or renter
+     *      ownerRenter = 0 means vehicle owner, 1 = vehicle renter
+     */
+    function getRentalContracts() external view returns (address) {
+        //loop through list of contracts, and find any belonging to the address & type (renter or vehicle owner)
+        //address[] addresses;
+        
+       // for (uint i = 0; i < rentalAgreements.length; i++) {
+           //addresses.push(address(rentalAgreements[i]));
+       // }
+        
+        return address(rentalAgreements[0]);
+    }
+    
+    
     
     /**
      * @dev Function to end provider contract, in case of bugs or needing to update logic etc, funds are returned to dapp owner, including any remaining LINK tokens
@@ -140,41 +205,41 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     address dappWallet = msg.sender;
     
     address vehicleOwner;
-	address renter;
-	uint startDateTime; 
-	uint endDateTime;
-	uint totalRentCost; 
-	uint totalBond;
-	RentalAgreementStatus agreementStatus;
+    address renter;
+    uint startDateTime; 
+    uint endDateTime;
+    uint totalRentCost; 
+    uint totalBond;
+    RentalAgreementFactory.RentalAgreementStatus agreementStatus;
     uint startOdometer = 0; 
-	int startVehicleLongitude = 0; 
-	int startVehicleLatitide = 0; 
-	uint endOdometer = 0;
-	int endVehicleLongitude = 0; 
-	int endVehicleLatitude = 0;
-	uint rentalAgreementEndDateTime = 0;
-	int endChargeState = 0;
-	
-	//variables for calulating final fee payable
-	int totalMiles = 0;
-	int totalHoursPastEndDate = 0;
-	int longitudeDifference = 0;
-	int latitudeDifference = 0;
-	uint totalLocationPenalty = 0;
-	uint totalOdometerPenalty = 0;
-	uint totalChargePenalty = 0;
-	uint totalTimePenalty = 0;
-	uint totalPlatformFee = 0;
-	uint totalRentPayable = 0;
-	uint totalBondReturned = 0;
-	
+    int startVehicleLongitude = 0; 
+    int startVehicleLatitide = 0; 
+    uint endOdometer = 0;
+    int endVehicleLongitude = 0; 
+    int endVehicleLatitude = 0;
+    uint rentalAgreementEndDateTime = 0;
+    int endChargeState = 0;
+    
+    //variables for calulating final fee payable
+    int totalMiles = 0;
+    int totalHoursPastEndDate = 0;
+    int longitudeDifference = 0;
+    int latitudeDifference = 0;
+    uint totalLocationPenalty = 0;
+    uint totalOdometerPenalty = 0;
+    uint totalChargePenalty = 0;
+    uint totalTimePenalty = 0;
+    uint totalPlatformFee = 0;
+    uint totalRentPayable = 0;
+    uint totalBondReturned = 0;
+    
     //List of events
     event rentalAgreementCreated(address vehicleOwner, address renter,uint startDateTime,uint endDateTime,uint totalRentCost, uint totalBond);
-	
+    
    /**
      * @dev Step 01: Generate a contract in PROPOSED status
      */ 
-	 constructor(address _vehicleOwner, address _renter, uint _startDateTime, uint _endDateTime, uint _totalRentCost, uint _totalBond, 
+     constructor(address _vehicleOwner, address _renter, uint _startDateTime, uint _endDateTime, uint _totalRentCost, uint _totalBond, 
                  address _link, address _oracle, uint256 _oraclePaymentAmount, bytes32 _jobId)  payable Ownable() public {
         
        //initialize variables required for Chainlink Node interaction
@@ -194,7 +259,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
        endDateTime = _endDateTime;
        totalRentCost = _totalRentCost;
        totalBond = _totalBond;
-       agreementStatus = RentalAgreementStatus.PROPOSED;
+       agreementStatus = RentalAgreementFactory.RentalAgreementStatus.PROPOSED;
         
        emit rentalAgreementCreated(vehicleOwner,renter,startDateTime,endDateTime,totalRentCost,totalBond);
     }
@@ -205,7 +270,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      function approveContract() external returns (uint) {
          //Vehicle Owner simply looks at proposed agreement & either approves or denies it.
          //In this case, we approve. Contract becomes Approved and sits waiting until start time reaches
-         agreementStatus = RentalAgreementStatus.APPROVED;
+         agreementStatus = RentalAgreementFactory.RentalAgreementStatus.APPROVED;
          //do we transfer $ now or at star time? prob at start time
          //prob easiest to pay at this stage
      }
@@ -217,7 +282,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
          //Vehicle Owner simply looks at proposed agreement & either approves or denies it.
          //In this case, we approve. Contract becomes Rejected. No more actions should be possible on the contract in this status
          //return money to renter
-         agreementStatus = RentalAgreementStatus.REJECTED;
+         agreementStatus = RentalAgreementFactory.RentalAgreementStatus.REJECTED;
      }
      
    /**
@@ -238,11 +303,11 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         //Set contract variables to start the agreement
         //ask on discord how to get 3 int values, is best way to have a delimited string?
         startOdometer = 0; 
-	    startVehicleLongitude = 0; 
-	    startVehicleLatitide = 0; 
+        startVehicleLongitude = 0; 
+        startVehicleLatitide = 0; 
         
         //Values have been set, now set the contract to ACTIVE
-        agreementStatus = RentalAgreementStatus.ACTIVE;
+        agreementStatus = RentalAgreementFactory.RentalAgreementStatus.ACTIVE;
      }
      
      
@@ -265,10 +330,10 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      function endRentalContractFallback(string _vehicleData) external returns (uint) {
          //Store obtained vales into contract. Once again need to probably parse a delimited string
         endOdometer = 0; 
-	    endVehicleLongitude = 0; 
-	    endVehicleLatitude = 0; 
-	    endChargeState = 0;
-	    rentalAgreementEndDateTime = now;
+        endVehicleLongitude = 0; 
+        endVehicleLatitude = 0; 
+        endChargeState = 0;
+        rentalAgreementEndDateTime = now;
          
         //Now that we have all values in contract, we can calculate final fee payable
         
@@ -321,7 +386,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         }
         
         //Transfers all completed, now we just need to set contract status to successfully completed 
-        agreementStatus = RentalAgreementStatus.COMPLETED;
+        agreementStatus = RentalAgreementFactory.RentalAgreementStatus.COMPLETED;
          
      }
     
@@ -342,6 +407,26 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         return chainlinkTokenAddress();
     }
     
+    /**
+     * @dev Get address of vehicle owner
+     */ 
+    function getVehicleOwner() public view returns (address) {
+        return vehicleOwner;
+    }
+    
+    /**
+     * @dev Get address of vehicle renter
+     */ 
+    function getVehicleRenter() public view returns (address) {
+        return renter;
+    }
+    
+    /**
+     * @dev Return All Details about a Vehicle Rental Agreement
+     */ 
+    function getAgreementDetails() public view returns (address,address,uint,uint,uint,uint,RentalAgreementFactory.RentalAgreementStatus ) {
+        return (vehicleOwner,renter,startDateTime,endDateTime,totalRentCost,totalBond,agreementStatus);
+    }
     
     
 }
