@@ -26,6 +26,7 @@
     "react-scripts": "3.4.3",
     "styled-components": "^5.2.0",
     "typescript": "~3.7.2",
+    "web3": "^1.2.11",
     "windups": "^1.0.2",
     "xstate": "^4.13.0"
   },
