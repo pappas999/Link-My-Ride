@@ -1,14 +1,28 @@
 import React from 'react';
 import styled from "styled-components"
 import './App.css';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route
+} from "react-router-dom"
 import { AnimatedVisual } from "./features/header"
 
 export const App = () => {
   return (
-    <Main>
-      <StyledAnimatedVisual />
-      <Content />
-    </Main>
+    <Router>
+      <Main>
+        <Switch>
+          <Route path="/rent-a-car">
+            <div>rental form</div>
+          </Route>
+          <Route path="/">
+            <StyledAnimatedVisual />
+            <Content />
+          </Route>
+        </Switch>
+      </Main>
+    </Router>
   )
 }
 
