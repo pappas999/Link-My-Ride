@@ -1,0 +1,40 @@
+{
+  "name": "teslamock",
+  "version": "1.0.2",
+  "description": "Express app that mimics the Tesla REST API for testing ",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "colors": "^1.1.2",
+    "commander": "^2.9.0",
+    "cookie-parser": "^1.4.1",
+    "express": "^4.13.4",
+    "morgan": "^1.7.0",
+    "pug": "^2.0.0-beta6",
+    "serve-favicon": "^2.3.0"
+  },
+  "main": "teslamock.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mseminatore/teslamock.git"
+  },
+  "keywords": [
+    "Tesla",
+    "Model S",
+    "Model X",
+    "Model 3",
+    "REST",
+    "ExpressJS"
+  ],
+  "author": {
+    "name": "Mark Seminatore",
+    "url": "https://github.com/mseminatore/teslamock"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mseminatore/teslamock/issues"
+  },
+  "homepage": "https://github.com/mseminatore/teslamock"
+}

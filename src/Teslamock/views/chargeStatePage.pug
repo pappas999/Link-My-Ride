@@ -1,0 +1,60 @@
+extends layout
+
+block content
+  h1 TeslaMock
+  hr
+
+  h2 Charge State
+
+  form(method="POST", action="/chargeState")
+    p Charging State:
+      select(name="charging_state", value = charging_state)
+        if (charging_state == "Complete")
+          option(selected) Complete
+        else
+          option Complete
+        if (charging_state == "Charging")
+          option(selected) Charging
+        else
+          option Charging
+        if (charging_state == "Disconnected")
+          option(selected) Disconnected
+        else
+          option Disconnected
+    p Charger Voltage:
+      input(type='text', name="charger_voltage", value = charger_voltage)
+    p Charger Current:
+      input(type='text', name="charger_actual_current", value = charger_actual_current)
+    p Rated Range:
+      input(type='text', name="battery_range", value = battery_range)
+    p Projected Range:
+      input(type='text', name="est_battery_range", value = est_battery_range)
+    p Ideal Range:
+      input(type='text', name="ideal_battery_range", value = ideal_battery_range)
+    p Battery Percent:
+      input(type='text', name="battery_level", value = battery_level)
+    p Charge Limit Percent:
+      input(type='range', name="charge_limit_soc", min=50, max=100, value = charge_limit_soc)
+    p Charge Port Open:
+      if (charge_port_door_open)
+        input(type='checkbox', name="charge_port_door_open", CHECKED)
+      else
+        input(type='checkbox', name="charge_port_door_open")
+    p Supercharging:
+      if (fast_charger_present)
+        input(type='checkbox', name="fast_charger_present", CHECKED)
+      else
+        input(type='checkbox', name="fast_charger_present")
+    input(type='submit', value='Update')
+
+  br
+  br
+
+  input(type='button', onclick="location.href='/chargeState'", value='Refresh')
+
+  br
+  br
+
+  hr
+  input(type="button", onclick="location.href='/'", value="Go Home")
+
