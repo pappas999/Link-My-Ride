@@ -49,6 +49,7 @@ contract RentalAgreementFactory {
     constructor() public payable {
         //this code adds a vehicle so we don't have to keep doing it manually as part of development, then it creates a simple contract for the vehicle
         newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123,'sadfasfasdfsda',0.1 * 1 ether,1 ether,VehicleModels.Model_S,'harrys car');
+        newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567,'test',0.1 * 1 ether,1 ether,VehicleModels.Model_X,'second car');
         newRentalAgreement(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,0xaF9aA280435E8C13cf8ebE1827CBB402CE65bBf7,1599565516,1599569916,100000000000000000,1000000000000000000);
     }
     
@@ -128,6 +129,13 @@ contract RentalAgreementFactory {
     function getVehicle(address _walletOwner) external view returns (Vehicle) {
         return vehicles[_walletOwner];
     }
+
+    /**
+     * @dev Return all rental contract addresses
+     */    
+    function getRentalContracts() external view returns (RentalAgreement[] ) {
+       return rentalAgreements;
+    }
     
     /**
      * @dev Return a particular Rental Contract based on a rental contract address
@@ -146,17 +154,63 @@ contract RentalAgreementFactory {
      * @dev Return a list of rental contract addresses belonging to a particular vehicle owner or renter
      *      ownerRenter = 0 means vehicle owner, 1 = vehicle renter
      */
-    function getRentalContracts() external view returns (address) {
+    function getRentalContracts(uint _owner, address _address) external view returns (address ) {
         //loop through list of contracts, and find any belonging to the address & type (renter or vehicle owner)
-        //address[] addresses;
+        address[] addresses;
         
-       // for (uint i = 0; i < rentalAgreements.length; i++) {
-           //addresses.push(address(rentalAgreements[i]));
-       // }
+        //_owner variable determines if were searching for agreements for the owner or renter
+        //0 = renter & 1 = owner
+        
+        
+    //    for (uint i = 0; i < rentalAgreements.length; i++) {
+           if (_owner == 1) { //owner scenario
+              if (rentalAgreements[0].getVehicleOwner() == _address) {
+                 addresses.push(address(rentalAgreements[0]));
+              }
+            } else {  //renter scenario
+               if (rentalAgreements[0].getVehicleRenter() == _address) {
+                  addresses.push(address(rentalAgreements[0]));
+                }
+            }
+      //  }
+        
         
         return address(rentalAgreements[0]);
     }
     
+    /**
+     * @dev Function that takes a vehicle ID/address, start & end epochs and then searches through to see if
+     *      vehicle is available during those dates or not
+     */
+    function checkVehicleAvailable(address _vehicleAddress, uint _start, uint _end) public view returns (uint) {
+
+       //algorithm works as follows: loop through all rental agreemets
+       //for each agreement, check if its our vehicle
+       //if its our vehicle, check if agreement is approved or active (proposed & completed/error not included)
+       //and if its approved or active, check if overlap:  overlap = param.start < contract.end && contract.start < param.end;
+       //if overlap, return 0
+       //else return 1
+       
+       for (uint i = 0; i < rentalAgreements.length; i++) {
+          if (rentalAgreements[i].getVehicleOwner() == _vehicleAddress){
+            if (rentalAgreements[i].getAgreementStatus() == RentalAgreementFactory.RentalAgreementStatus.APPROVED || 
+                rentalAgreements[i].getAgreementStatus() == RentalAgreementFactory.RentalAgreementStatus.ACTIVE)
+               {
+                  //check for overlap
+                  if ( _start < rentalAgreements[i].getAgreementEndTime() && rentalAgreements[i].getAgreementStartTime() < _end) {
+                      //overlap found, return 0
+                      return 0;
+                  }
+                }
+            }
+       
+       }
+       
+    
+       //no clashes found, we can return  success   
+       return 1;
+       
+    }    
     
     
     /**
@@ -421,6 +475,28 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         return renter;
     }
     
+    /**
+     * @dev Get status of the agreement
+     */ 
+    function getAgreementStatus() public view returns (RentalAgreementFactory.RentalAgreementStatus) {
+        return agreementStatus;
+    }
+    
+    /**
+     * @dev Get start date/time
+     */ 
+    function getAgreementStartTime() public view returns (uint) {
+        return startDateTime;
+    }
+    
+    /**
+     * @dev Get end date/time
+     */ 
+    function getAgreementEndTime() public view returns (uint) {
+        return endDateTime;
+    }
+    
+
     /**
      * @dev Return All Details about a Vehicle Rental Agreement
      */ 
