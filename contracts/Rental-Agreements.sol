@@ -39,6 +39,8 @@ contract RentalAgreementFactory {
         string renterDescription;      // Basic description of renter
     }
     
+    address[] internal keyList;
+    
     //here is where all the cars to rent are stored. Currently each vehicle must have a unique wallet tied to it.
     mapping (address => Vehicle) vehicles; 
     
@@ -51,6 +53,12 @@ contract RentalAgreementFactory {
         newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123,'sadfasfasdfsda',0.1 * 1 ether,1 ether,VehicleModels.Model_S,'harrys car');
         newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567,'test',0.1 * 1 ether,1 ether,VehicleModels.Model_X,'second car');
         newRentalAgreement(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,0xaF9aA280435E8C13cf8ebE1827CBB402CE65bBf7,1599565516,1599569916,100000000000000000,1000000000000000000);
+    }
+    
+
+  
+    function getVehicleAddresses() public view returns (address[]) {
+        return keyList;
     }
     
     /**
@@ -120,6 +128,8 @@ contract RentalAgreementFactory {
       
         
       emit vehicleAdded(_vehicleId, _vehicleOwner, _apiTokenHash, _baseHireFee, _bondRequired, _vehicleModel, _description);
+      
+      keyList.push(_vehicleOwner);
         
     }
     
@@ -211,6 +221,35 @@ contract RentalAgreementFactory {
        return 1;
        
     }    
+    
+ /**
+     * @dev Function that takes a start & end epochs and then returns all vehicle addresses that are available
+     */
+    function returnAvailableVehicles(uint _start, uint _end) public view returns (address[]) {
+
+       //algorithm works as follows: loop through all rental agreemets
+       //for each agreement, check if its our vehicle
+       //if its our vehicle, check if agreement is approved or active (proposed & completed/error not included)
+       //and if its approved or active, check if overlap:  overlap = param.start < contract.end && contract.start < param.end;
+       //if overlap, return 0
+       //else return 1
+       
+       address[] availableVehicles;
+       
+       //loop through vehicles & call check function for each one
+       
+       for (uint i = 0; i < keyList.length; i++) {
+          //call function above for each key found
+          if (checkVehicleAvailable(keyList[i], _start, _end) > 0){
+             //vehicle is available, add to list
+             availableVehicles.push(keyList[i]);
+          }
+       
+       }
+       
+        return  availableVehicles;
+       
+    }   
     
     
     /**
