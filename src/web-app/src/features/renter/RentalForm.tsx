@@ -5,8 +5,6 @@ import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from "@material-ui/pi
 import { RentalFormContext } from "./RentalFormContext"
 import DateFnsUtils from "@date-io/date-fns"
 import { Map } from "../../components/map"
-import Web3 from "web3"
-import linkMyRideContract from "../../contract_abi.json"
 
 export const RentalForm = () => {
 
@@ -17,33 +15,7 @@ export const RentalForm = () => {
         console.log("childProps: " + JSON.stringify(childProps))
     }
 
-    const [dummyCarData, setDummyCarData] = useState({})
-
-    const loadBlockchainData = async () => {
-        const web3 = new Web3(Web3.givenProvider || "http://localhost:8545")
-
-        // @ts-ignore
-        const contract = new web3.eth.Contract(linkMyRideContract.abi,
-            "0x31f6211446868b9F814a4015FdD535d8f27785B7"
-        )
-
-        const getVehicleAddresses = async () => contract.methods.getVehicleAddresses().call()
-
-        const getVehicleByAddress = async (address: string) => contract.methods.getVehicle(address).call()
-
-        const addresses = await getVehicleAddresses()
-
-        const vehicleData = await Promise.all(addresses.map(async (address: string) => await getVehicleByAddress(address)))
-
-        setDummyCarData(vehicleData)
-    }
-
-    useEffect(() => {
-        loadBlockchainData()
-    }, [])
-
     return <FormWrapper>
-        {JSON.stringify(dummyCarData)}
         <FormField>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <DatePicker

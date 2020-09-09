@@ -10,27 +10,30 @@ import { theme } from "./theme"
 import { Home } from "./features/home"
 import { RentalForm, RentalFormProvider } from "./features/renter"
 import { SecondaryPageLayout } from "./features/layout/SecondaryPageLayout"
+import { Web3Provider } from "./features/web3"
 
 export const App = () => {
   return (
     <MuiThemeProvider theme={theme}>
       <ThemeProvider theme={theme}>
-        <Router>
-          <Main>
-            <Switch>
-              <Route exact path="/">
-                <Home />
-              </Route>
-              <SecondaryPageLayout>
-                <Route path="/rent-a-car">
-                  <RentalFormProvider>
-                    <RentalForm />
-                  </RentalFormProvider>
+        <Web3Provider>
+          <Router>
+            <Main>
+              <Switch>
+                <Route exact path="/">
+                  <Home />
                 </Route>
-              </SecondaryPageLayout>
-            </Switch>
-          </Main>
-        </Router>
+                <SecondaryPageLayout>
+                  <Route path="/rent-a-car">
+                    <RentalFormProvider>
+                      <RentalForm />
+                    </RentalFormProvider>
+                  </Route>
+                </SecondaryPageLayout>
+              </Switch>
+            </Main>
+          </Router>
+        </Web3Provider>
       </ThemeProvider>
     </MuiThemeProvider>
   )
