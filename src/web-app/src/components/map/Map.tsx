@@ -38,7 +38,9 @@ export const Map = ({
         options={createMapOptions}>
         {
             cars
-                .map((car: Car) => <MapPin lat={car.lat}
+                .map((car: Car) => <MapPin
+                    key={car.id}
+                    lat={car.lat}
                     lng={car.lng} />)
         }
     </GoogleMapReact>

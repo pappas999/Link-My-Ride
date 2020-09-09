@@ -11,7 +11,7 @@ export const initRentalFormMachineOptions = (
             availableCars: event.data
         })),
         cacheSelectedCar: assign((_, event: any) => ({
-            selectedCar: event.data.selectedCar
+            selectedCar: event.selectedCar
         }))
     },
     services: {

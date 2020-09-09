@@ -1,0 +1,1 @@
+export { CarDetailsCard } from "./CarDetailsCard"

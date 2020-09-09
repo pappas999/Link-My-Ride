@@ -1,18 +1,18 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext } from "react"
 import styled from "styled-components"
 import { Typography, CircularProgress } from "@material-ui/core"
 import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from "@material-ui/pickers"
 import { RentalFormContext } from "./RentalFormContext"
 import DateFnsUtils from "@date-io/date-fns"
 import { Map } from "../../components/map"
+import { CarDetailsCard } from "../../components/car"
 
 export const RentalForm = () => {
 
-    const { current, setSelectedDate } = useContext(RentalFormContext)
+    const { current, setSelectedDate, setSelectedCar } = useContext(RentalFormContext)
 
     const handleChildClick = (key: any, childProps: any) => {
-        console.log("key: " + key)
-        console.log("childProps: " + JSON.stringify(childProps))
+        setSelectedCar(current.context.availableCars && current.context.availableCars.filter((car: Car) => car.id === key)[0])
     }
 
     return <FormWrapper>
@@ -23,7 +23,10 @@ export const RentalForm = () => {
                     value={current.context.selectedDate}
                     onChange={setSelectedDate}
                     animateYearScrolling
+                    minutesStep={60}
+                    views={["date", "hours"]}
                     disablePast
+                    disableToolbar
                 />
             </MuiPickersUtilsProvider>
         </FormField>
@@ -40,6 +43,7 @@ export const RentalForm = () => {
                 }
             </MapSection>
         }
+        <CarDetailsCard car={current.context.selectedCar} />
     </FormWrapper>
 }
 

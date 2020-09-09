@@ -4,7 +4,7 @@ interface Car {
     apiTokenHash: string,
     baseHireFee: number,
     bondRequired: number,
-    model: string,
+    model: Model,
     description: string,
     lat: number,
     lng: number

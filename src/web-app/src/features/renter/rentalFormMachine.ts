@@ -4,7 +4,7 @@ export const rentalFormMachine = createMachine({
     id: "rentalForm",
     initial: "dateUnselected",
     context: {
-        selectedDate: null,
+        selectedDate: new Date().setMinutes(0),
         availableCars: []
     },
     states: {
