@@ -1,13 +1,87 @@
 {
-	"address": "0x31f6211446868b9F814a4015FdD535d8f27785B7",
+	"address": "0x77717b821eC65a80b0B2Ca0304D1690f76564e5A",
 	"abi": [
 		{
-			"constant": false,
+			"constant": true,
 			"inputs": [],
-			"name": "endContractProvider",
-			"outputs": [],
-			"payable": true,
-			"stateMutability": "payable",
+			"name": "getRentalContracts",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address[]"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "ORACLE_CONTRACT",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_vehicleAddress",
+					"type": "address"
+				},
+				{
+					"name": "_start",
+					"type": "uint256"
+				},
+				{
+					"name": "_end",
+					"type": "uint256"
+				}
+			],
+			"name": "checkVehicleAvailable",
+			"outputs": [
+				{
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "dappWallet",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "DAY_IN_SECONDS",
+			"outputs": [
+				{
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
 			"type": "function"
 		},
 		{
@@ -50,6 +124,101 @@
 			"type": "function"
 		},
 		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_start",
+					"type": "uint256"
+				},
+				{
+					"name": "_end",
+					"type": "uint256"
+				}
+			],
+			"name": "returnAvailableVehicles",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address[]"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [],
+			"name": "endContractProvider",
+			"outputs": [],
+			"payable": true,
+			"stateMutability": "payable",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_walletOwner",
+					"type": "address"
+				}
+			],
+			"name": "getVehicle",
+			"outputs": [
+				{
+					"components": [
+						{
+							"name": "vehicleId",
+							"type": "uint256"
+						},
+						{
+							"name": "ownerAddress",
+							"type": "address"
+						},
+						{
+							"name": "apiTokenHash",
+							"type": "string"
+						},
+						{
+							"name": "baseHireFee",
+							"type": "uint256"
+						},
+						{
+							"name": "bondRequired",
+							"type": "uint256"
+						},
+						{
+							"name": "vehicleModel",
+							"type": "uint8"
+						},
+						{
+							"name": "renterDescription",
+							"type": "string"
+						}
+					],
+					"name": "",
+					"type": "tuple"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "LINK_ROPSTEN",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
 			"constant": false,
 			"inputs": [
 				{
@@ -85,6 +254,86 @@
 			"outputs": [],
 			"payable": false,
 			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_owner",
+					"type": "uint256"
+				},
+				{
+					"name": "_address",
+					"type": "address"
+				}
+			],
+			"name": "getRentalContracts",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address[]"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_rentalContract",
+					"type": "address"
+				}
+			],
+			"name": "getRentalContract",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address"
+				},
+				{
+					"name": "",
+					"type": "address"
+				},
+				{
+					"name": "",
+					"type": "uint256"
+				},
+				{
+					"name": "",
+					"type": "uint256"
+				},
+				{
+					"name": "",
+					"type": "uint256"
+				},
+				{
+					"name": "",
+					"type": "uint256"
+				},
+				{
+					"name": "",
+					"type": "uint8"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "getVehicleAddresses",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address[]"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
 			"type": "function"
 		},
 		{
@@ -156,255 +405,6 @@
 			],
 			"name": "vehicleAdded",
 			"type": "event"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_vehicleAddress",
-					"type": "address"
-				},
-				{
-					"name": "_start",
-					"type": "uint256"
-				},
-				{
-					"name": "_end",
-					"type": "uint256"
-				}
-			],
-			"name": "checkVehicleAvailable",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "dappWallet",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "DAY_IN_SECONDS",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_rentalContract",
-					"type": "address"
-				}
-			],
-			"name": "getRentalContract",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
-				},
-				{
-					"name": "",
-					"type": "address"
-				},
-				{
-					"name": "",
-					"type": "uint256"
-				},
-				{
-					"name": "",
-					"type": "uint256"
-				},
-				{
-					"name": "",
-					"type": "uint256"
-				},
-				{
-					"name": "",
-					"type": "uint256"
-				},
-				{
-					"name": "",
-					"type": "uint8"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "getRentalContracts",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address[]"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_owner",
-					"type": "uint256"
-				},
-				{
-					"name": "_address",
-					"type": "address"
-				}
-			],
-			"name": "getRentalContracts",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_walletOwner",
-					"type": "address"
-				}
-			],
-			"name": "getVehicle",
-			"outputs": [
-				{
-					"components": [
-						{
-							"name": "vehicleId",
-							"type": "uint256"
-						},
-						{
-							"name": "ownerAddress",
-							"type": "address"
-						},
-						{
-							"name": "apiTokenHash",
-							"type": "string"
-						},
-						{
-							"name": "baseHireFee",
-							"type": "uint256"
-						},
-						{
-							"name": "bondRequired",
-							"type": "uint256"
-						},
-						{
-							"name": "vehicleModel",
-							"type": "uint8"
-						},
-						{
-							"name": "renterDescription",
-							"type": "string"
-						}
-					],
-					"name": "",
-					"type": "tuple"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "getVehicleAddresses",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address[]"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "LINK_ROPSTEN",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "ORACLE_CONTRACT",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_start",
-					"type": "uint256"
-				},
-				{
-					"name": "_end",
-					"type": "uint256"
-				}
-			],
-			"name": "returnAvailableVehicles",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address[]"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
 		}
 	]
 }
