@@ -74,8 +74,8 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
             addresses[0],
             +startDate,
             +endDate,
-            +100,
-            +100
+            hireFee.toString(),
+            context.selectedCar.bondRequired.toString()
         ).send({
             from: addresses[0]
         })
