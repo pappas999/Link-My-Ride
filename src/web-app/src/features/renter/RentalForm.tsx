@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
 import styled from "styled-components"
-import { Typography, CircularProgress } from "@material-ui/core"
+import { Typography, CircularProgress, FormControl, InputLabel, Select, MenuItem, Button } from "@material-ui/core"
 import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from "@material-ui/pickers"
 import { RentalFormContext } from "./RentalFormContext"
 import DateFnsUtils from "@date-io/date-fns"
@@ -9,10 +9,18 @@ import { CarDetailsCard } from "../../components/car"
 
 export const RentalForm = () => {
 
-    const { current, setSelectedDate, setSelectedCar } = useContext(RentalFormContext)
+    const { current, setSelectedDate, setSelectedCar, setSelectedHireDuration, submitRentalForm } = useContext(RentalFormContext)
 
     const handleChildClick = (key: any, childProps: any) => {
         setSelectedCar(current.context.availableCars && current.context.availableCars.filter((car: Car) => car.id === key)[0])
+    }
+
+    const handleHireDurationSelected = (event: any) => {
+        setSelectedHireDuration(event.target.value)
+    }
+
+    const handleSubmit = () => {
+        submitRentalForm()
     }
 
     return <FormWrapper>
@@ -43,7 +51,23 @@ export const RentalForm = () => {
                 }
             </MapSection>
         }
-        <CarDetailsCard car={current.context.selectedCar} />
+        {
+            current.matches("dateSelected") && <>
+                <CarDetailsCard car={current.context.selectedCar} />
+                <HireDurationFormControl>
+                    <InputLabel id="demo-simple-select-label">Hire Duration</InputLabel>
+                    <Select
+                        value={current.context.hireDuration}
+                        onChange={handleHireDurationSelected}
+                    >
+                        <MenuItem value={1}>1 hour</MenuItem>
+                        <MenuItem value={2}>2 hours</MenuItem>
+                        <MenuItem value={3}>3 hours</MenuItem>
+                    </Select>
+                </HireDurationFormControl>
+                <Button color="primary" onClick={handleSubmit}>Send request to car owner</Button>
+            </>
+        }
     </FormWrapper>
 }
 
@@ -83,4 +107,8 @@ const MapWrapper = styled.div`
 
 const MapLabel = styled(Typography)`
 
+`
+
+const HireDurationFormControl = styled(FormControl)`
+    width: ${({ theme }) => theme.typography.pxToRem(160)};
 `

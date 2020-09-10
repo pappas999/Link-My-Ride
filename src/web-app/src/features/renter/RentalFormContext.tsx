@@ -8,12 +8,16 @@ type ContextProps = {
     current: any,
     setSelectedDate: (date: any) => void
     setSelectedCar: (car: Car) => void
+    setSelectedHireDuration: (hours: number) => void
+    submitRentalForm: () => void
 }
 
 const defaultValues = {
     current: {},
     setSelectedDate: () => { },
-    setSelectedCar: () => { }
+    setSelectedCar: () => { },
+    setSelectedHireDuration: () => { },
+    submitRentalForm: () => { }
 }
 
 export const RentalFormContext = createContext<ContextProps>(defaultValues)
@@ -24,7 +28,7 @@ type ProviderProps = {
 
 export const RentalFormProvider = ({ children }: ProviderProps) => {
 
-    const { linkMyRideContract } = useContext(Web3Context)
+    const { linkMyRideContract, web3 } = useContext(Web3Context)
 
     const getAvailableCars = async (context: any, event: any): Promise<Car[]> => {
         const getVehicleAddresses = async () => linkMyRideContract.methods.getVehicleAddresses().call()
@@ -42,13 +46,42 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
             baseHireFee: vehicle[3],
             bondRequired: vehicle[4],
             model: vehicle[5],
-            description: vehicle[6], 
+            description: vehicle[6],
             lat: vehicle[0] === "123" ? 36.1407 : 36.1507,
             lng: vehicle[0] === "123" ? -115.1187 : -115.1587,
         }))
     }
 
-    const machineOptions = initRentalFormMachineOptions(getAvailableCars)
+    const createRentalAgreement = async (context: any, event: any): Promise<any> => {
+
+        const toEpochSeconds = (dateTime: Date) => dateTime.getTime() / 1000
+
+        const startDate = toEpochSeconds(context.selectedDate)
+        const endDate = toEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + 2)))
+        const hireFee = +(context.hireDuration) * context.selectedCar.baseHireFee
+
+        const addresses = await web3.eth.getAccounts()
+
+        console.log(context.selectedCar.address)
+        console.log(addresses[0])
+        console.log(startDate)
+        console.log(endDate)
+        console.log(hireFee)
+        console.log(context.selectedCar.bondRequired)
+
+        return linkMyRideContract.methods.newRentalAgreement(
+            context.selectedCar.address,
+            addresses[0],
+            +startDate,
+            +endDate,
+            +100,
+            +100
+        ).send({
+            from: addresses[0]
+        })
+    }
+
+    const machineOptions = initRentalFormMachineOptions(getAvailableCars, createRentalAgreement)
     const [current, send] = useMachine(rentalFormMachine, machineOptions)
 
     const setSelectedDate = (date: any) => {
@@ -65,7 +98,18 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
         })
     }
 
-    return <RentalFormContext.Provider value={{ current, setSelectedDate, setSelectedCar }}>
+    const setSelectedHireDuration = (hours: number) => {
+        send({
+            type: "SET_SELECTED_HIRE_DURATION",
+            duration: hours
+        })
+    }
+
+    const submitRentalForm = () => {
+        send("SUBMIT")
+    }
+
+    return <RentalFormContext.Provider value={{ current, setSelectedDate, setSelectedCar, setSelectedHireDuration, submitRentalForm }}>
         {children}
     </RentalFormContext.Provider>
 }
