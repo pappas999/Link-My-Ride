@@ -56,11 +56,6 @@ contract RentalAgreementFactory {
     }
     
 
-  
-    function getVehicleAddresses() public view returns (address[]) {
-        return keyList;
-    }
-    
     /**
      * @dev Prevents a function being run unless it's called by DAPP owner
      */
@@ -129,6 +124,7 @@ contract RentalAgreementFactory {
         
       emit vehicleAdded(_vehicleId, _vehicleOwner, _apiTokenHash, _baseHireFee, _bondRequired, _vehicleModel, _description);
       
+      //store the key in an array where we can loop through
       keyList.push(_vehicleOwner);
         
     }
@@ -164,28 +160,44 @@ contract RentalAgreementFactory {
      * @dev Return a list of rental contract addresses belonging to a particular vehicle owner or renter
      *      ownerRenter = 0 means vehicle owner, 1 = vehicle renter
      */
-    function getRentalContracts(uint _owner, address _address) external view returns (address ) {
+    function getRentalContracts(uint _owner, address _address) external view returns (address[] ) {
         //loop through list of contracts, and find any belonging to the address & type (renter or vehicle owner)
-        address[] addresses;
-        
         //_owner variable determines if were searching for agreements for the owner or renter
         //0 = renter & 1 = owner
+        uint finalResultCount = 0;
         
-        
-    //    for (uint i = 0; i < rentalAgreements.length; i++) {
+        //because we need to know exact size of final memory array, first we need to iterate and count how many will be in the final result
+        for (uint i = 0; i < rentalAgreements.length; i++) {
            if (_owner == 1) { //owner scenario
               if (rentalAgreements[0].getVehicleOwner() == _address) {
-                 addresses.push(address(rentalAgreements[0]));
+                 finalResultCount = finalResultCount + 1;
               }
             } else {  //renter scenario
                if (rentalAgreements[0].getVehicleRenter() == _address) {
-                  addresses.push(address(rentalAgreements[0]));
+                 finalResultCount = finalResultCount + 1;
                 }
             }
-      //  }
+        }
+        
+        //now we have the total count, we can create a memory array with the right size and then populate it
+        address[] memory addresses = new address[](finalResultCount);
+        uint addrCountInserted = 0;
+        
+        for (uint j = 0; j < rentalAgreements.length; j++) {
+           if (_owner == 1) { //owner scenario
+              if (rentalAgreements[j].getVehicleOwner() == _address) {
+                 addresses[addrCountInserted] = address(rentalAgreements[j]);
+              }
+            } else {  //renter scenario
+               if (rentalAgreements[j].getVehicleRenter() == _address) {
+                  addresses[addrCountInserted] = address(rentalAgreements[j]);
+                }
+            }
+            addrCountInserted = addrCountInserted + 1;
+        }
         
         
-        return address(rentalAgreements[0]);
+        return addresses;
     }
     
     /**
@@ -234,22 +246,40 @@ contract RentalAgreementFactory {
        //if overlap, return 0
        //else return 1
        
-       address[] availableVehicles;
        
-       //loop through vehicles & call check function for each one
-       
+       uint finalResultCount = 0;
+       //because we need to know exact size of final memory array, first we need to iterate and count how many will be in the final result
        for (uint i = 0; i < keyList.length; i++) {
           //call function above for each key found
           if (checkVehicleAvailable(keyList[i], _start, _end) > 0){
-             //vehicle is available, add to list
-             availableVehicles.push(keyList[i]);
+             //vehicle is available, add to final result count
+            finalResultCount = finalResultCount+ 1;
           }
+        }
        
+        //now we have the total count, we can create a memory array with the right size and then populate it
+        address[] memory addresses = new address[](finalResultCount);
+        uint addrCountInserted = 0;
+       
+       for (uint j = 0; j < keyList.length; j++) {
+          //call function above for each key found
+          if (checkVehicleAvailable(keyList[j], _start, _end) > 0){
+             //vehicle is available, add to list
+             addresses[addrCountInserted] = keyList[j];
+          }
+          addrCountInserted = addrCountInserted + 1;
        }
        
-        return  availableVehicles;
+        return  addresses;
        
     }   
+    
+    /**
+     * @dev Return a list of all vehicle addresses
+     */  
+    function getVehicleAddresses() public view returns (address[]) {
+        return keyList;
+    }
     
     
     /**
@@ -329,6 +359,47 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     //List of events
     event rentalAgreementCreated(address vehicleOwner, address renter,uint startDateTime,uint endDateTime,uint totalRentCost, uint totalBond);
     
+    /**
+     * @dev Modifier to check if the dapp wallet is calling the transaction
+     */
+    modifier onlyDapp() {
+		require(dappWallet == msg.sender,'Only Link-My-Rde Web App can perform this step');
+        _;
+    }
+    
+    /**
+     * @dev Modifier to check if the vehicle owner is calling the transaction
+     */
+    modifier onlyVehicleOwner() {
+		require(vehicleOwner == msg.sender,'Only Vehicle Owner can perform this step');
+        _;
+    }
+    
+    /**
+     * @dev Modifier to check if the vehicle renter is calling the transaction
+     */
+    modifier onlyRenter() {
+		require(renter == msg.sender,'Only Vehicle Renter can perform this step');
+        _;
+    }
+    
+    /**
+     * @dev Prevents a function being run unless the Vehicle Contract has ended
+     */
+    modifier onContractEnded() {
+        if (endDateTime < now && agreementStatus == RentalAgreementFactory.RentalAgreementStatus.COMPLETED) {
+          _;  
+        } 
+    }
+    
+    /**
+     * @dev Prevents a function being run unless contract is still active
+     */
+    modifier onContractActive() {
+        require(agreementStatus == RentalAgreementFactory.RentalAgreementStatus.ACTIVE ,'Contract is not active');
+        _;
+    }
+    
    /**
      * @dev Step 01: Generate a contract in PROPOSED status
      */ 
@@ -341,7 +412,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
        jobId = _jobId;
        oraclePaymentAmount = _oraclePaymentAmount;
         
-       //first ensure insurer has fully funded the contract
+       //first ensure insurer has fully funded the contract - check here. money should be transferred on creation of agreement.
        //require(msg.value > _totalCover, "Not enough funds sent to contract");
         
        //now initialize values for the contract
@@ -360,21 +431,22 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
    /**
      * @dev Step 02a: Owner ACCEPTS proposal, contract becomes APPROVED
      */ 
-     function approveContract() external returns (uint) {
+     function approveContract() external onlyVehicleOwner()  {
          //Vehicle Owner simply looks at proposed agreement & either approves or denies it.
+         //Only vehicle owner can run this
          //In this case, we approve. Contract becomes Approved and sits waiting until start time reaches
          agreementStatus = RentalAgreementFactory.RentalAgreementStatus.APPROVED;
-         //do we transfer $ now or at star time? prob at start time
-         //prob easiest to pay at this stage
      }
      
    /**
      * @dev Step 02b: Owner REJECTS proposal, contract becomes REJECTED. This is the end of the line for the Contract
      */ 
-     function rejectContract() external returns (uint) {
+     function rejectContract() external onlyVehicleOwner() {
          //Vehicle Owner simply looks at proposed agreement & either approves or denies it.
+         //Only vehicle owner can call this function
          //In this case, we approve. Contract becomes Rejected. No more actions should be possible on the contract in this status
          //return money to renter
+         renter.transfer(address(this).balance);
          agreementStatus = RentalAgreementFactory.RentalAgreementStatus.REJECTED;
      }
      
@@ -382,9 +454,16 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      * @dev Step 03a: Renter starts contract, contract becomes ACTIVE
      * Conditions for starting contract: Must be APPROVED, & Start Date/Time must be <= current Date/Time
      */ 
-     function activeteRentalContract() external returns (uint) {
+     function activateRentalContract() external onlyRenter()  {
          //First we need to wake up the vehicle & obtain some values needed in the contract before the vehicle can be unlocked & started
          //do external adapter call to wake up vehicle & get vehicle data
+         
+         //Need to check start time has reached
+         require(startDateTime <= now ,'Start Date/Time has not been reached');
+         
+         
+         //call to chainlink node job to wake up the ca
+         activeteRentalContractFallback("1,2,3");
      }
      
    /**
