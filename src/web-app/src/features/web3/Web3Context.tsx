@@ -20,7 +20,7 @@ type ProviderProps = {
 
 export const Web3Provider = ({ children }: ProviderProps) => {
 
-    const [web3, setWeb3] = useState(new Web3())
+    const [web3, setWeb3] = useState()
     const [linkMyRideContract, setLinkMyRideContract] = useState(null)
 
     useEffect(() => {
