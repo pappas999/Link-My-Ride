@@ -9,5 +9,5 @@ export const Card = ({ ...rest }) => {
 const StyledCard = styled(MuiCard)`
     width: 100%;
     margin: ${({ theme }) => theme.spacing(4)};
-    padding: ${({ theme }) => theme.spacing(2)};
+    padding: ${({ theme }) => theme.spacing(4)};
 `

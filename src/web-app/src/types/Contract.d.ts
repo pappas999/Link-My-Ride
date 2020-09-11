@@ -4,5 +4,7 @@ interface Contract {
     startDateTime: Date,
     endDateTime: Date,
     totalRentCost: number,
-    totalBond: number
+    totalBond: number,
+    vehicleModel: number,
+    vehicleDescription: string
 }

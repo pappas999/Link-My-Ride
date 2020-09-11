@@ -26,14 +26,23 @@ export const MyRentalContracts = ({
 
         const contracts = await Promise.all(contractAddresses.map(async (address: string) => await linkMyRideContract.methods.getRentalContract(address).call()))
 
-        setMyContracts(contracts.map((contract: any) => ({
-            owner: contract[0],
-            renter: contract[1],
-            startDateTime: new Date(contract[2] * 1000),
-            endDateTime: new Date(contract[3] * 1000),
-            totalRentCost: contract[4],
-            totalBond: contract[5]
-        })))
+        const vehicles = await Promise.all(contracts.map(async (contract: any) => await linkMyRideContract.methods.getVehicle(contract[0]).call()))
+
+        setMyContracts(contracts.map((contract: any) => {
+
+            const vehicle = vehicles.find((vehicle) => vehicle[1] === contract[0])
+
+            return {
+                owner: contract[0],
+                renter: contract[1],
+                startDateTime: new Date(contract[2] * 1000),
+                endDateTime: new Date(contract[3] * 1000),
+                totalRentCost: contract[4],
+                totalBond: contract[5],
+                vehicleModel: vehicle[5],
+                vehicleDescription: vehicle[6]
+            }
+        }))
     }
 
     useEffect(() => {
@@ -62,7 +71,7 @@ const Wrapper = styled.div`
 `
 
 const Heading = styled(Typography)`
-    color: ${({theme}) => theme.palette.common.white};
+    color: ${({ theme }) => theme.palette.common.white};
 `
 
 const ContractsContainer = styled.div`

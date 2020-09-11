@@ -3,7 +3,7 @@ import styled from "styled-components"
 import Web3 from "web3"
 import { Card, CardContent, Typography } from "@material-ui/core"
 import { Model } from "../../enums/Model"
-import { EtherSymbol, toEther } from "../../utils"
+import { EtherSymbol, toEther, getCarModelString } from "../../utils"
 
 
 type Props = {
@@ -13,33 +13,6 @@ type Props = {
 export const CarDetailsCard = ({ car }: Props) => {
 
     if (!car) return null
-
-    const getCarModelString = (model: Model) => {
-        let result = ""
-
-        switch (+model) {
-            case Model.Model_S:
-                result = "Model S"
-                break
-            case Model.Model_X:
-                result = "Model X"
-                break
-            case Model.Model_Y:
-                result = "Model Y"
-                break
-            case Model.Model_3:
-                result = "Model 3"
-                break
-            case Model.Cybertruck:
-                result = "Cybertruck"
-                break
-            case Model.Roadster:
-                result = "Roadster"
-                break
-        }
-
-        return result
-    }
 
     return <Card>
         <CardContent>
