@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from "react"
 import styled from "styled-components"
 import { Web3Context } from "../web3"
+import { RentalContract } from "./RentalContract"
+import { Typography } from "@material-ui/core"
 
 type Props = {
     asOwner?: boolean
@@ -40,5 +42,32 @@ export const MyRentalContracts = ({
         }
     }, [web3, linkMyRideContract])
 
-    return <div>{JSON.stringify(myContracts)}</div>
+    return <Wrapper>
+        <Heading variant="h4">My rental contracts:</Heading>
+        <ContractsContainer>
+            {
+                myContracts.map(contract => <RentalContract
+                    contract={contract}
+                />)
+            }
+        </ContractsContainer>
+    </Wrapper>
 }
+
+const Wrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+`
+
+const Heading = styled(Typography)`
+    color: ${({theme}) => theme.palette.common.white};
+`
+
+const ContractsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+`
