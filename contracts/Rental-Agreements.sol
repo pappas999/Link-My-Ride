@@ -82,7 +82,7 @@ contract RentalAgreementFactory {
        //require (_startDateTime >= now,'Vehicle Agreement cannot be in the past');
        
        //Ensure correct amount of ETH has been sent for total rent cost & bond
-       //require (msg.value >= _totalRentCost.add(_totalBond),'Incorrect rent & bond paid');
+       require (msg.value >= _totalRentCost.add(_totalBond),'Incorrect rent & bond paid');
         
        //create new Rental Agreement
        RentalAgreement a = new RentalAgreement(_vehicleOwner, _renter, _startDateTime, _endDateTime, _totalRentCost, _totalBond,  
