@@ -1,12 +1,11 @@
 import React from "react"
 import styled from "styled-components"
 import { AnimatedVisual } from "./AnimatedVisual"
-import { MyRentalContracts } from "../rentalContracts"
 
 export const Home = () => <>
   <StyledAnimatedVisual />
   <Content>
-    <MyRentalContracts />
+    
   </Content>
 </>
 

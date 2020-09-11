@@ -11,6 +11,7 @@ import { Home } from "./features/home"
 import { RentalForm, RentalFormProvider } from "./features/renter"
 import { SecondaryPageLayout } from "./features/layout/SecondaryPageLayout"
 import { Web3Provider } from "./features/web3"
+import { OwnerDashboard } from "./features/ownerDashboard"
 
 export const App = () => {
   return (
@@ -28,6 +29,9 @@ export const App = () => {
                     <RentalFormProvider>
                       <RentalForm />
                     </RentalFormProvider>
+                  </Route>
+                  <Route path="/owner-dashboard">
+                    <OwnerDashboard />
                   </Route>
                 </SecondaryPageLayout>
               </Switch>
