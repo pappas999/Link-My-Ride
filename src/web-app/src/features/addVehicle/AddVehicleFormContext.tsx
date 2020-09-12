@@ -42,8 +42,21 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
 
         // TODO: Pass the API key to the external adapter to validate it.
         // If valid, hash it and persist to SC, else error.
+        const fakeApiKeyHash = "123123123"
 
-        return Promise.resolve()
+        const addresses = await web3.eth.getAccounts()
+
+        return linkMyRideContract.methods.newVehicle(
+            addresses[0],
+            current.context.vehicleId.toString(),
+            fakeApiKeyHash,
+            current.context.hireFee.toString(),
+            current.context.bond.toString(),
+            current.context.selectedVehicleModel,
+            current.context.vehicleDescription
+        ).send({
+            from: addresses[0]
+        })
     }
 
     const machineOptions = initAddVehicleFormMachineOptions(submitVehicle)

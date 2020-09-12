@@ -14,6 +14,31 @@ export const addVehicleFormMachine = createMachine({
     states: {
         initial: {
 
+        },
+        submitting: {
+            invoke: {
+                src: "submitVehicle",
+                onDone: {
+                    target: "done"
+                },
+                onError: {
+                    target: "error"
+                }
+            }
+        },
+        done: {
+            on: {
+                "": {
+                    actions: (context, event) => { console.log('done') }
+                }
+            }
+        },
+        error: {
+            on: {
+                "": {
+                    actions: (context, event) => { console.log('error') }
+                }
+            }
         }
     },
     on: {
@@ -34,6 +59,9 @@ export const addVehicleFormMachine = createMachine({
         },
         SET_BOND: {
             actions: "cacheBond"
+        },
+        SUBMIT: {
+            target: "submitting"
         }
     }
 })

@@ -1,7 +1,7 @@
 import React, { useContext } from "react"
 import styled from "styled-components"
 import { AddVehicleFormContext } from "./AddVehicleFormContext"
-import { FormControl, InputLabel, Select, MenuItem, TextField } from "@material-ui/core"
+import { FormControl, InputLabel, Select, MenuItem, TextField, Button } from "@material-ui/core"
 import { Model } from "../../enums/Model"
 import { getCarModelString } from "../../utils"
 
@@ -88,6 +88,9 @@ export const AddVehicleForm = () => {
                 label="API Key"
                 value={current.context.apiKey}
                 onChange={handleApiKeyChanged} />
+        </FormField>
+        <FormField>
+            <Button color="primary" onClick={handleSubmit}>Submit</Button>
         </FormField>
     </FormWrapper>
 }
