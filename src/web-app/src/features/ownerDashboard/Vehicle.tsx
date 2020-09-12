@@ -7,36 +7,34 @@ import { CarImage } from "../../components/car"
 import { EtherSymbol, toEther, toLongDateTime, getCarModelString } from "../../utils"
 
 type Props = {
-    contract: Contract
+    car: Car
 }
 
-export const RentalContract = ({
-    contract
+export const Vehicle = ({
+    car
 }: Props) => {
 
-    const { startDateTime, endDateTime, totalRentCost, totalBond, vehicleModel, vehicleDescription } = contract
+    const { model,
+        description,
+        baseHireFee,
+        bondRequired } = car
 
     return <Card>
         <CarDetailsWrapper>
             <CarDetailsTextWrapper>
-                <Typography variant="h5" component="span">{getCarModelString(vehicleModel)}</Typography>
-                <VehicleDescription variant="body2">{vehicleDescription}</VehicleDescription>
+                <Typography variant="h5" component="span">{getCarModelString(model)}</Typography>
+                <VehicleDescription variant="body2">{description}</VehicleDescription>
             </CarDetailsTextWrapper>
-            <StyledCarImage model={vehicleModel} />
+            <StyledCarImage model={model} />
         </CarDetailsWrapper>
         <ContractDetailsWrapper>
             <Field>
-                <Typography variant="h6" color="primary" component="span">{toLongDateTime(startDateTime)}</Typography>
-                <Typography>&nbsp;-&nbsp;</Typography>
-                <Typography variant="h6" color="primary" component="span">{toLongDateTime(endDateTime)}</Typography>
+                <Typography variant="h6" component="span">Required Bond:</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(bondRequired)}</Typography>
             </Field>
             <Field>
-                <Typography variant="h6" component="span">Bond:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(totalBond)}</Typography>
-            </Field>
-            <Field>
-                <Typography variant="h6" component="span">Total Hire Fee:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(totalRentCost)}</Typography>
+                <Typography variant="h6" component="span">Hourly Hire Fee:</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(baseHireFee)}</Typography>
             </Field>
         </ContractDetailsWrapper>
     </Card>

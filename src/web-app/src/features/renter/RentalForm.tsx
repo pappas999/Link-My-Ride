@@ -55,7 +55,7 @@ export const RentalForm = () => {
             current.matches("dateSelected") && <>
                 <CarDetailsCard car={current.context.selectedCar} />
                 <HireDurationFormControl>
-                    <InputLabel id="demo-simple-select-label">Hire Duration</InputLabel>
+                    <InputLabel>Hire Duration</InputLabel>
                     <Select
                         value={current.context.hireDuration}
                         onChange={handleHireDurationSelected}
