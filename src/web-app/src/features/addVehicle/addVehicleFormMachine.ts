@@ -4,7 +4,9 @@ export const addVehicleFormMachine = createMachine({
     id: "addVehicleForm",
     initial: "initial",
     context: {
-        selectedVehicleModel: ""
+        selectedVehicleModel: "",
+        vehicleId: "",
+        apiKey: ""
     },
     states: {
         initial: {
@@ -14,6 +16,12 @@ export const addVehicleFormMachine = createMachine({
     on: {
         SET_SELECTED_VEHICLE_MODEL: {
             actions: "cacheSelectedVehicleModel"
+        },
+        SET_VEHICLE_ID: {
+            actions: "cacheVehicleId"
+        },
+        SET_API_KEY: {
+            actions: "cacheApiKey"
         }
     }
 })

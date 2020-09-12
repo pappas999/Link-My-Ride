@@ -1,21 +1,32 @@
 import React, { useContext } from "react"
 import styled from "styled-components"
 import { AddVehicleFormContext } from "./AddVehicleFormContext"
-import { FormControl, InputLabel, Select, MenuItem } from "@material-ui/core"
+import { FormControl, InputLabel, Select, MenuItem, TextField } from "@material-ui/core"
 import { Model } from "../../enums/Model"
 import { getCarModelString } from "../../utils"
 
 export const AddVehicleForm = () => {
 
-    const { current, submitAddVehicleForm, setSelectedVehicleModel } = useContext(AddVehicleFormContext)
+    const { current, submitAddVehicleForm, setSelectedVehicleModel, setVehicleId, setApiKey } = useContext(AddVehicleFormContext)
 
     const handleVehicleModelSelected = (event: any) => {
         setSelectedVehicleModel(event.target.value)
     }
 
+    const handleVehicleIdChanged = (event: any) => {
+        setVehicleId(event.target.value)
+    }
+
+    const handleApiKeyChanged = (event: any) => {
+        setApiKey(event.target.value)
+    }
+
+
     const handleSubmit = () => {
         submitAddVehicleForm()
     }
+
+    console.log(JSON.stringify(current.context))
 
     return <FormWrapper>
         <FormField>
@@ -33,6 +44,18 @@ export const AddVehicleForm = () => {
                     <MenuItem value={Model.Roadster}>{getCarModelString(Model.Cybertruck)}</MenuItem>
                 </Select>
             </VehicleModelFormControl>
+        </FormField>
+        <FormField>
+            <TextField
+                label="Vehicle ID"
+                value={current.context.vehicleId}
+                onChange={handleVehicleIdChanged} />
+        </FormField>
+        <FormField>
+            <TextField
+                label="API Key"
+                value={current.context.apiKey}
+                onChange={handleApiKeyChanged} />
         </FormField>
     </FormWrapper>
 }
