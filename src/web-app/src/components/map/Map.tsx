@@ -34,7 +34,7 @@ export const Map = ({
             key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ""
         }}
         defaultCenter={getDefaultCenter}
-        defaultZoom={14}
+        defaultZoom={12}
         onChildClick={onChildSelected}
         options={createMapOptions}>
         {

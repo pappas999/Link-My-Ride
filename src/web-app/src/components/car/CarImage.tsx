@@ -1,5 +1,5 @@
 import React from "react"
-import { Model } from "../../enums/Model"
+import { Model } from "../../enums"
 import cybertruck from "./images/cybertruck.jpg"
 import model3 from "./images/model-3.jpg"
 import modelS from "./images/model-s.jpg"

@@ -1,4 +1,4 @@
-import { Model } from "../enums/Model"
+import { Model } from "../enums"
 
 export const getCarModelString = (model: Model) => {
     let result = ""

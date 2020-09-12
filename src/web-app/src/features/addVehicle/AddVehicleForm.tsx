@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 import styled from "styled-components"
 import { AddVehicleFormContext } from "./AddVehicleFormContext"
 import { FormControl, InputLabel, Select, MenuItem, TextField, Button } from "@material-ui/core"
-import { Model } from "../../enums/Model"
+import { Model } from "../../enums"
 import { getCarModelString } from "../../utils"
 
 export const AddVehicleForm = () => {
@@ -58,7 +58,7 @@ export const AddVehicleForm = () => {
         </FormField>
         <FormField>
             <TextField
-                label="Vehicle Description"
+                label="Vehicle Registration"
                 value={current.context.vehicleDescription}
                 onChange={handleVehicleDescriptionChanged} />
         </FormField>

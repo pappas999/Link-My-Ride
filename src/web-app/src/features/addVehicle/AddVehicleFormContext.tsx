@@ -3,7 +3,7 @@ import { useMachine } from "@xstate/react"
 import { addVehicleFormMachine } from "./addVehicleFormMachine"
 import { initAddVehicleFormMachineOptions } from "./initAddVehicleFormMachineOptions"
 import { Web3Context } from "../web3"
-import { Model } from "../../enums/Model"
+import { Model } from "../../enums"
 
 type ContextProps = {
     current: any,

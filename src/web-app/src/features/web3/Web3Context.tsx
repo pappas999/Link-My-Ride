@@ -46,7 +46,7 @@ export const Web3Provider = ({ children }: ProviderProps) => {
         }
         // Non-DApp Browsers
         else {
-            alert('You have to install MetaMask !')
+            alert('You have to install MetaMask!')
         }
     }, [])
 

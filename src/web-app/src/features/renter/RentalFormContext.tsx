@@ -39,6 +39,11 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
 
         const vehicleData = await Promise.all(addresses.map(async (address: string) => await getVehicleByAddress(address)))
 
+        // TODO: Remove. This is just for dev purposes
+        const getRandomCoord = (min: number, max: number) => {
+            return Math.random() * (max - min) + min
+        }
+
         return vehicleData.map((vehicle: any) => ({
             id: vehicle[0],
             address: vehicle[1],
@@ -47,8 +52,8 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
             bondRequired: vehicle[4],
             model: vehicle[5],
             description: vehicle[6],
-            lat: vehicle[0] === "123" ? 36.1407 : 36.1507,
-            lng: vehicle[0] === "123" ? -115.1187 : -115.1587,
+            lat: getRandomCoord(36.14, 36.16),
+            lng: getRandomCoord(-115.12, -115.16),
         }))
     }
 
@@ -77,8 +82,12 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
             hireFee.toString(),
             context.selectedCar.bondRequired.toString()
         ).send({
-            from: addresses[0]
+            from: addresses[0],
+            value: hireFee + context.selectedCar.bondRequired 
         })
+            .catch((err: any) => {
+                console.error("Failed with error: " + err);
+            })
     }
 
     const machineOptions = initRentalFormMachineOptions(getAvailableCars, createRentalAgreement)

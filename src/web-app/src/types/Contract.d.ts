@@ -1,4 +1,5 @@
 interface Contract {
+    address: string
     owner: string,
     renter: string,
     startDateTime: Date,
@@ -6,5 +7,6 @@ interface Contract {
     totalRentCost: number,
     totalBond: number,
     vehicleModel: number,
-    vehicleDescription: string
+    vehicleDescription: string,
+    status: RentalAgreementStatus
 }

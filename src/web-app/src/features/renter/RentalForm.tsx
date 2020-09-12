@@ -5,11 +5,13 @@ import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from "@material-ui/pi
 import { RentalFormContext } from "./RentalFormContext"
 import DateFnsUtils from "@date-io/date-fns"
 import { Map } from "../../components/map"
-import { CarDetailsCard } from "../../components/car"
+import { Vehicle } from "../ownerDashboard/Vehicle"
 
 export const RentalForm = () => {
 
     const { current, setSelectedDate, setSelectedCar, setSelectedHireDuration, submitRentalForm } = useContext(RentalFormContext)
+
+    console.log(JSON.stringify(current.context.availableCars))
 
     const handleChildClick = (key: any, childProps: any) => {
         setSelectedCar(current.context.availableCars && current.context.availableCars.filter((car: Car) => car.id === key)[0])
@@ -35,6 +37,7 @@ export const RentalForm = () => {
                     views={["date", "hours"]}
                     disablePast
                     disableToolbar
+                    ampm={false}
                 />
             </MuiPickersUtilsProvider>
         </FormField>
@@ -53,7 +56,7 @@ export const RentalForm = () => {
         }
         {
             current.matches("dateSelected") && <>
-                <CarDetailsCard car={current.context.selectedCar} />
+                <Vehicle car={current.context.selectedCar} />
                 <HireDurationFormControl>
                     <InputLabel>Hire Duration</InputLabel>
                     <Select

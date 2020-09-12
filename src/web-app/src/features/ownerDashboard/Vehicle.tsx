@@ -14,12 +14,14 @@ export const Vehicle = ({
     car
 }: Props) => {
 
+    if (!car) return null
+
     const { model,
         description,
         baseHireFee,
         bondRequired } = car
 
-    return <Card>
+    return <StyledCard>
         <CarDetailsWrapper>
             <CarDetailsTextWrapper>
                 <Typography variant="h5" component="span">{getCarModelString(model)}</Typography>
@@ -37,8 +39,12 @@ export const Vehicle = ({
                 <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(baseHireFee)}</Typography>
             </Field>
         </ContractDetailsWrapper>
-    </Card>
+    </StyledCard>
 }
+
+const StyledCard = styled(Card)`
+    max-width: ${({theme}) => theme.typography.pxToRem(450)};
+`
 
 const Field = styled.div`
     display: flex;
