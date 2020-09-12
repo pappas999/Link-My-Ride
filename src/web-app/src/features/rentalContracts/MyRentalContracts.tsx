@@ -34,8 +34,6 @@ export const MyRentalContracts = ({
 
         const vehicles = await Promise.all(contracts.map(async (contract: any) => await linkMyRideContract.methods.getVehicle(contract.details[0]).call()))
 
-        console.log(JSON.stringify(contracts))
-
         setMyContracts(contracts.map((contract: any) => {
 
             const vehicle = vehicles.find((vehicle) => vehicle[1] === contract.details[0])
@@ -67,7 +65,7 @@ export const MyRentalContracts = ({
             {
                 myContracts.length > 0 ? myContracts.map(contract => <RentalContract
                     contract={contract}
-                />) : <NoRentalContract />
+                />) : <NoRentalContract asOwner={asOwner} />
             }
         </ContractsContainer>
     </Wrapper>

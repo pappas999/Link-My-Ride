@@ -12,6 +12,7 @@ import { RentalForm, RentalFormProvider } from "./features/renter"
 import { SecondaryPageLayout } from "./features/layout/SecondaryPageLayout"
 import { Web3Provider } from "./features/web3"
 import { OwnerDashboard } from "./features/ownerDashboard"
+import { RenterDashboard } from "./features/renterDashboard"
 import { AddVehicleFormProvider, AddVehicleForm } from "./features/addVehicle"
 
 export const App = () => {
@@ -33,6 +34,9 @@ export const App = () => {
                   </Route>
                   <Route path="/owner-dashboard">
                     <OwnerDashboard />
+                  </Route>
+                  <Route path="/renter-dashboard">
+                    <RenterDashboard />
                   </Route>
                   <Route path="/add-vehicle">
                     <AddVehicleFormProvider>
