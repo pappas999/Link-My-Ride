@@ -35,7 +35,7 @@ export const RentalContract = ({
                 <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(totalBond)}</Typography>
             </Field>
             <Field>
-                <Typography variant="h6" component="span">Rental Cost:</Typography>
+                <Typography variant="h6" component="span">Total Hire Fee:</Typography>
                 <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(totalRentCost)}</Typography>
             </Field>
         </ContractDetailsWrapper>

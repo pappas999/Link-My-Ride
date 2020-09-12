@@ -51,8 +51,8 @@ export const AddVehicleForm = () => {
                     <MenuItem value={Model.Model_3}>{getCarModelString(Model.Model_3)}</MenuItem>
                     <MenuItem value={Model.Model_X}>{getCarModelString(Model.Model_X)}</MenuItem>
                     <MenuItem value={Model.Model_Y}>{getCarModelString(Model.Model_Y)}</MenuItem>
-                    <MenuItem value={Model.Cybertruck}>{getCarModelString(Model.Roadster)}</MenuItem>
-                    <MenuItem value={Model.Roadster}>{getCarModelString(Model.Cybertruck)}</MenuItem>
+                    <MenuItem value={Model.Roadster}>{getCarModelString(Model.Roadster)}</MenuItem>
+                    <MenuItem value={Model.Cybertruck}>{getCarModelString(Model.Cybertruck)}</MenuItem>
                 </Select>
             </VehicleModelFormControl>
         </FormField>
