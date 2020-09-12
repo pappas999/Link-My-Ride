@@ -13,58 +13,57 @@ const customError = (data) => {
 // with a Boolean value indicating whether or not they
 // should be required.
 const customParams = {
-  apiToken: false,
-  action: true
+  apiToken: ['apiToken'],
+  action: ['action'],
+  endpoint: false
 }
 
-//whitelist to reject any requests if not from node
+ 
 
-//structure for input json is as follows:
-//{ 
-//	 "apiToken": "abcdefghi",
+//TODO: whitelist to reject any requests if not from specific chainlink node IPs 
+
+//structure for input json is as follows: In this example, jobSpec is 22, & actions can be any of the ones listed below
+//{ "id": 22, "data": { 
+//   "apiToken": "abcdefghi",
 //   "vehicleId": "23423423423423423423",
 //   "action": "authenticate" , "vehicles", "wake_up", "vehicle_data", "unlock", "lock", "honk_horn",
-//}
+//} }
 
-//authenticator is used when adding vehicle to ensure all works ok
 
-const createRequest = (input, callback) => {
-  // The Validator helps you validate the Chainlink request data
-  const validator = new Validator(callback, input, customParams)
+
+const  createRequest = async (input, callback) => {
   
-  const base_url = `http://127.0.0.1:7777/`
-  //const base_url = `https://owner-api.teslamotors.com/${endpoint}`
-  const appid = process.env.API_KEY;
-  var vehicleId = input.vehicleId
+    //alternate between these 2 depending on if connecting to the mock server or an actual tesla
+    const base_url = `http://127.0.0.1:7777/`
+    //const base_url = `https://owner-api.teslamotors.com/`
   
-  const jobRunID = validator.validated.id
-  var endpoint; //= validator.validated.data.endpoint || 'price'
-  var finalUrl;
-  var authenticationToken = `Authorization: Bearer ${apiToken}`
-  //const fsym = validator.validated.data.base.toUpperCase()
-  //const tsyms = validator.validated.data.quote.toUpperCase()
-
-  const params = {
-    fsym,
-    tsyms
-  }
-
-  var config = {
-    url,
-    params
-  }
+    const token = process.env.API_KEY;
   
-  //first thing we need to always do is wake the vehicle up. If successful, then its ready to receive a request
-  //URL https://owner-api.teslamotors.com/api/1/vehicles/42555797050350366/wake_up
+    //get input values
+    var jobRunID = input.id
+    var vehicleId = input.data.vehicleId
+
+    //comment one of these 2 out depending on if you're using windows or mac/unix. For windows dev am just passing in the token in each request.
+    var authenticationToken = `Authorization: Bearer ${token}`
+    var authenticationToken = `Authorization: Bearer ${input.data.apiToken}`
+    console.log('authentincation header: ' + authenticationToken);
+  
+    var endpoint; 
+    var finalUrl;
+     
+    //first thing we need to always do is wake the vehicle up. If successful, then its ready to receive a request
 	endpoint = `api/1/vehicles/${vehicleId}/wake_up`
-	finalUrl = base_url + endpoint;
+    finalUrl = base_url + endpoint;
 	console.log('doing wakeup request to: ' + finalUrl);
 	//Create the request
 	try { 
-		await axios.post(finalUrl, jobSpec, {headers: {${authenticationToken}}})
+		await axios.post(finalUrl, {headers: {authenticationToken}})
 		.then(function (response) {
-			console.log('wakeup successful:' + response);
-			callback(response.status, Requester.success(jobRunID, response))
+			console.log('wakeup successful');
+			//Only do callback if we're doing an authenticate, otherwise there'll be other requests to come
+			if (input.data.action == 'authenticate') {
+				callback(response.status, Requester.success(jobRunID, response))
+			}
 		}); 
 	} catch(error) {
 		console.log('wakeup error: ' + error);
@@ -72,15 +71,11 @@ const createRequest = (input, callback) => {
 	}
   
   //now depending on action, do different requests
-  switch(input.action) {
+  switch(input.data.action) {
   case 'authenticate':
     // vehicle is being created. If the wakeup was successful then we don't need to do anything here
     break;
-	
-  case 'vehicles':
-    // don't think we need this one
-    break;
-	
+		
  case 'vehicle_data':
     // pull required vehicle data for contract. This includes odometer, charge level, Longitude & Latitude
 	//fields are available in the following json locations:
@@ -91,47 +86,51 @@ const createRequest = (input, callback) => {
 	
 	endpoint = `api/1/vehicles/${vehicleId}/vehicle_data`
 	finalUrl = base_url + endpoint;
-	console.log('doing wakeup request to: ' + finalUrl);
+	console.log('doing vehicle data request to: ' + finalUrl);
 	var odometer;
 	var chargeLevel;
 	var longitude;
 	var latitude;
 	var finalResponse;
-	
-	var config = {
-		finalUrl
-	}
   
 	//Create the request
-	
-	Requester.request(config, customError)
-    .then(response => {
-	  //Now we need to parse each element from the result
-	  odometer = response.response.vehicle_state.odometer
-	  charge = response.response.vehicle_state.charge
-	  longitude = response.response.vehicle_state.longitude
-	  latitude = response.response.vehicle_state.latitude
+	try { 
+		await axios.get(finalUrl, {headers: {authenticationToken}})
+		.then(function (response) {
+			console.log('get vehicle data successful');
+			//console.log(JSON.stringify(response.data));
+			
+			odometer = Math.round(response.data.response.vehicle_state.odometer)
+			charge = response.data.response.charge_state.battery_level
+			longitude = response.data.response.drive_state.longitude
+			latitude = response.data.response.drive_state.latitude
 	  
-	  finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
-	  
-	  
-      callback(response.status, Requester.success(jobRunID, finalResponse))
-    })
-    .catch(error => {
-      callback(500, Requester.errored(jobRunID, error))
-    })
-	
-	
+			finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
+			console.log('final response: ' + finalResponse);
+			//callback(response.status, Requester.success(jobRunID, finalResponse))
+			callback(response.status, 
+			  {
+					   jobRunID,
+				 data: finalResponse,
+			   result: null,
+		   statusCode: response.status
+    });
+		}); 
+	} catch(error) {
+		console.log('get vehicle data error: ' + error);
+		callback(response.status, Requester.errored(jobRunID, error))
+	}
     break;
+	
  case 'unlock':
     endpoint = `api/1/vehicles/${vehicleId}/command/door_unlock`
 	finalUrl = base_url + endpoint;
 	console.log('doing door unlock request to: ' + finalUrl);
 	//Create the request
 	try { 
-		await axios.post(finalUrl, jobSpec, {headers: {${authenticationToken}}})
+		await axios.post(finalUrl, {headers: {authenticationToken}})
 		.then(function (response) {
-			console.log('unlock successful:' + response);
+			console.log('unlock successful');
 			callback(response.status, Requester.success(jobRunID, response))
 		}); 
 	} catch(error) {
@@ -146,9 +145,9 @@ const createRequest = (input, callback) => {
 	console.log('doing door door_lock request to: ' + finalUrl);
 	//Create the request
 	try { 
-		await axios.post(finalUrl, jobSpec, {headers: {${authenticationToken}}})
+		await axios.post(finalUrl, {headers: {authenticationToken}})
 		.then(function (response) {
-			console.log('door_lock successful:' + response);
+			console.log('door_lock successful');
 			callback(response.status, Requester.success(jobRunID, response))
 		}); 
 	} catch(error) {
@@ -163,15 +162,19 @@ const createRequest = (input, callback) => {
 	console.log('doing door honk_horn request to: ' + finalUrl);
 	//Create the request
 	try { 
-		await axios.post(finalUrl, jobSpec, {headers: {${authenticationToken}}})
+		await axios.post(finalUrl, {headers: {authenticationToken}})
 		.then(function (response) {
-			console.log('honk_horn successful:' + response);
+			console.log('honk_horn successful');
 			callback(response.status, Requester.success(jobRunID, response))
 		}); 
 	} catch(error) {
 		console.log('honk_horn error: ' + error);
 		callback(response.status, Requester.errored(jobRunID, error))
 	}
+    break;
+	
+  case 'vehicles':
+    // don't think we need this one
     break;
 	
   default:
