@@ -3,6 +3,7 @@ import styled from "styled-components"
 import { Web3Context } from "../web3"
 import { Typography } from "@material-ui/core"
 import { NoVehicle } from "./NoVehicle"
+import { Vehicle } from "./Vehicle"
 
 export const MyVehicle = () => {
 
@@ -40,7 +41,7 @@ export const MyVehicle = () => {
     return <Wrapper>
         <Heading variant="h4">My vehicle:</Heading>
         {
-            myVehicle ? JSON.stringify(myVehicle) : <NoVehicle />
+            myVehicle ? <Vehicle car={myVehicle} /> : <NoVehicle />
         }
     </Wrapper>
 }
@@ -50,7 +51,7 @@ const Wrapper = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    padding: ${({theme}) => theme.spacing(6)};
+    padding: ${({ theme }) => theme.spacing(6)};
 `
 
 const Heading = styled(Typography)`
