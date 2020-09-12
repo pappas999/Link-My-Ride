@@ -7,10 +7,14 @@ import { getCarModelString } from "../../utils"
 
 export const AddVehicleForm = () => {
 
-    const { current, submitAddVehicleForm, setSelectedVehicleModel, setVehicleId, setApiKey } = useContext(AddVehicleFormContext)
+    const { current, submitAddVehicleForm, setSelectedVehicleModel, setVehicleDescription, setVehicleId, setApiKey, setHireFee, setBond } = useContext(AddVehicleFormContext)
 
     const handleVehicleModelSelected = (event: any) => {
         setSelectedVehicleModel(event.target.value)
+    }
+
+    const handleVehicleDescriptionChanged = (event: any) => {
+        setVehicleDescription(event.target.value)
     }
 
     const handleVehicleIdChanged = (event: any) => {
@@ -21,6 +25,13 @@ export const AddVehicleForm = () => {
         setApiKey(event.target.value)
     }
 
+    const handleHireFeeChanged = (event: any) => {
+        setHireFee(event.target.value)
+    }
+
+    const handleBondChanged = (event: any) => {
+        setBond(event.target.value)
+    }
 
     const handleSubmit = () => {
         submitAddVehicleForm()
@@ -47,8 +58,29 @@ export const AddVehicleForm = () => {
         </FormField>
         <FormField>
             <TextField
+                label="Vehicle Description"
+                value={current.context.vehicleDescription}
+                onChange={handleVehicleDescriptionChanged} />
+        </FormField>
+        <FormField>
+            <TextField
+                label="Hourly Hire Fee"
+                value={current.context.hireFee}
+                type="number"
+                onChange={handleHireFeeChanged} />
+        </FormField>
+        <FormField>
+            <TextField
+                label="Required Bond"
+                value={current.context.bond}
+                type="number"
+                onChange={handleBondChanged} />
+        </FormField>
+        <FormField>
+            <TextField
                 label="Vehicle ID"
                 value={current.context.vehicleId}
+                type="number"
                 onChange={handleVehicleIdChanged} />
         </FormField>
         <FormField>

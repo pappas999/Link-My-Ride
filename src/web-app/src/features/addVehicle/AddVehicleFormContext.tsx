@@ -9,16 +9,22 @@ type ContextProps = {
     current: any,
     submitAddVehicleForm: () => void,
     setSelectedVehicleModel: (model: Model) => void,
+    setVehicleDescription: (description: string) => void,
     setVehicleId: (id: string) => void,
-    setApiKey: (apiKey: string) => void
+    setApiKey: (apiKey: string) => void,
+    setHireFee: (hireFee: string) => void,
+    setBond: (bond: string) => void
 }
 
 const defaultValues = {
     current: {},
     submitAddVehicleForm: () => { },
     setSelectedVehicleModel: () => { },
+    setVehicleDescription: () => { },
     setVehicleId: () => { },
-    setApiKey: () => { }
+    setApiKey: () => { },
+    setHireFee: () => { },
+    setBond: () => { }
 }
 
 export const AddVehicleFormContext = createContext<ContextProps>(defaultValues)
@@ -50,6 +56,13 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
         })
     }
 
+    const setVehicleDescription = (description: string) => {
+        send({
+            type: "SET_VEHICLE_DESCRIPTION",
+            value: description
+        })
+    }
+
     const setVehicleId = (id: string) => {
         send({
             type: "SET_VEHICLE_ID",
@@ -64,11 +77,25 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
         })
     }
 
+    const setHireFee = (hireFee: string) => {
+        send({
+            type: "SET_HIRE_FEE",
+            value: hireFee
+        })
+    }
+
+    const setBond = (bond: string) => {
+        send({
+            type: "SET_BOND",
+            value: bond
+        })
+    }
+
     const submitAddVehicleForm = () => {
         send("SUBMIT")
     }
 
-    return <AddVehicleFormContext.Provider value={{ current, submitAddVehicleForm, setSelectedVehicleModel, setVehicleId, setApiKey }}>
+    return <AddVehicleFormContext.Provider value={{ current, submitAddVehicleForm, setSelectedVehicleModel, setVehicleDescription, setVehicleId, setApiKey, setHireFee, setBond }}>
         {children}
     </AddVehicleFormContext.Provider>
 }
