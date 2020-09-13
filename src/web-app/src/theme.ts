@@ -10,7 +10,14 @@ export const theme = createMuiTheme({
     spacing: factor => `${0.25 * factor}rem`,
     palette: {
         primary: {
-            main: "#245de8"
+            light: "#6e8aff",
+            main: "#245de8",
+            dark: "#0035b5"
+        },
+        secondary: {
+            light: "#6bffff",
+            main: "#0edae3",
+            dark: "#00a8b1"
         }
     }
 })
