@@ -30,9 +30,11 @@ export const RentalContract = ({
         web3 && setRentalContractSmartContract(new web3.eth.Contract(rentalContractSC.abi, address))
     }, [web3])
 
-    const awaitingApproval = status == RentalAgreementStatus.PROPOSED
+    const isAwaitingApproval = status == RentalAgreementStatus.PROPOSED
 
-    const approved = status == RentalAgreementStatus.APPROVED
+    const isApproved = status == RentalAgreementStatus.APPROVED
+
+    const isActive = status == RentalAgreementStatus.ACTIVE
 
     const handleRejectContract = async () => {
         if (!rentalContractSmartContract) return
@@ -67,6 +69,17 @@ export const RentalContract = ({
             })
     }
 
+    const handleCompleteContract = async () => {
+        if (!rentalContractSmartContract) return
+
+        const addresses = await web3.eth.getAccounts()
+
+        await rentalContractSmartContract.methods.endRentalContract()
+            .send({
+                from: addresses[0]
+            })
+    }
+
     return <Card>
         <CarDetailsWrapper>
             <CarDetailsTextWrapper>
@@ -94,7 +107,7 @@ export const RentalContract = ({
             </Field>
         </ContractDetailsWrapper>
         {
-            asOwner && awaitingApproval &&
+            asOwner && isAwaitingApproval &&
             <StyledCardActions>
                 <Button size="small" color="secondary" onClick={handleRejectContract}>
                     Reject
@@ -105,10 +118,18 @@ export const RentalContract = ({
             </StyledCardActions>
         }
         {
-            !asOwner && approved &&
+            !asOwner && isApproved &&
             <StyledCardActions>
                 <Button size="small" color="primary" onClick={handleActivateContract}>
                     Activate
+                </Button>
+            </StyledCardActions>
+        }
+        {
+            !asOwner && isActive &&
+            <StyledCardActions>
+                <Button size="small" color="primary" onClick={handleCompleteContract}>
+                    End contract
                 </Button>
             </StyledCardActions>
         }
