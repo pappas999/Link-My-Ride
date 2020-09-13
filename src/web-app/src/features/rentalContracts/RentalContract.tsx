@@ -9,11 +9,13 @@ import { Web3Context } from "../web3"
 import rentalContractSC from "./rentalContractSC.json"
 
 type Props = {
-    contract: Contract
+    contract: Contract,
+    asOwner: boolean
 }
 
 export const RentalContract = ({
-    contract
+    contract,
+    asOwner
 }: Props) => {
 
 
@@ -29,6 +31,8 @@ export const RentalContract = ({
     }, [web3])
 
     const awaitingApproval = status == RentalAgreementStatus.PROPOSED
+
+    const approved = status == RentalAgreementStatus.APPROVED
 
     const handleRejectContract = async () => {
         if (!rentalContractSmartContract) return
@@ -47,6 +51,17 @@ export const RentalContract = ({
         const addresses = await web3.eth.getAccounts()
 
         await rentalContractSmartContract.methods.approveContract()
+            .send({
+                from: addresses[0]
+            })
+    }
+
+    const handleActivateContract = async () => {
+        if (!rentalContractSmartContract) return
+
+        const addresses = await web3.eth.getAccounts()
+
+        await rentalContractSmartContract.methods.activateRentalContract()
             .send({
                 from: addresses[0]
             })
@@ -78,9 +93,8 @@ export const RentalContract = ({
                 <RentalAgreementStatusIndicator variant="h6" component="span">{getRentalContractStatusString(status)}</RentalAgreementStatusIndicator>
             </Field>
         </ContractDetailsWrapper>
-
         {
-            awaitingApproval &&
+            asOwner && awaitingApproval &&
             <StyledCardActions>
                 <Button size="small" color="secondary" onClick={handleRejectContract}>
                     Reject
@@ -88,6 +102,14 @@ export const RentalContract = ({
                 <Button size="small" color="primary" onClick={handleApproveContract}>
                     Approve
             </Button>
+            </StyledCardActions>
+        }
+        {
+            !asOwner && approved &&
+            <StyledCardActions>
+                <Button size="small" color="primary" onClick={handleActivateContract}>
+                    Activate
+                </Button>
             </StyledCardActions>
         }
     </Card>

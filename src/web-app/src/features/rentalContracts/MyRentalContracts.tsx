@@ -65,6 +65,7 @@ export const MyRentalContracts = ({
             {
                 myContracts.length > 0 ? myContracts.map(contract => <RentalContract
                     contract={contract}
+                    asOwner={asOwner}
                 />) : <NoRentalContract asOwner={asOwner} />
             }
         </ContractsContainer>
