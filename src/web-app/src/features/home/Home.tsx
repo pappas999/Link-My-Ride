@@ -3,14 +3,14 @@ import styled from "styled-components"
 import { AnimatedVisual } from "./AnimatedVisual"
 import { Link } from "react-router-dom"
 import { BigActionButton } from "../../components/button"
-import { PhonelinkSetup, DirectionsCar } from "@material-ui/icons"
+import { Settings, DirectionsCar } from "@material-ui/icons"
 
 export const Home = () => <>
   <StyledAnimatedVisual />
   <Content>
     <ActionButtonsWrapper>
       <BigActionButton
-        icon={<PhonelinkSetup color="primary" style={{ fontSize: 100 }} />}
+        icon={<Settings color="primary" style={{ fontSize: 100 }} />}
         label="I am a car owner"
         component={Link}
         to="/owner-dashboard"
