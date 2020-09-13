@@ -29,7 +29,6 @@ const Content = styled.div`
     justify-content: space-between;
     width: 100%;
     max-width: ${({ theme }) => theme.typography.pxToRem(300)};
-    height: ${({ theme }) => theme.typography.pxToRem(200)};
     background-color: ${({ theme }) => theme.palette.common.white};
     padding: ${({ theme }) => theme.spacing(4)};
     border-radius: ${({ theme }) => theme.typography.pxToRem(12)};

@@ -3,7 +3,7 @@ import styled from "styled-components"
 import { AnimatedVisual } from "./AnimatedVisual"
 import { Link } from "react-router-dom"
 import { BigActionButton } from "../../components/button"
-import { PhonelinkSetup, DirectionsCar } from '@material-ui/icons';
+import { PhonelinkSetup, DirectionsCar } from "@material-ui/icons"
 
 export const Home = () => <>
   <StyledAnimatedVisual />
