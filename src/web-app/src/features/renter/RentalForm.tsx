@@ -13,8 +13,6 @@ export const RentalForm = () => {
 
     const { current, setSelectedDate, setSelectedCar, setSelectedHireDuration, submitRentalForm } = useContext(RentalFormContext)
 
-    console.log(JSON.stringify(current.context.availableCars))
-
     const handleChildClick = (key: any, childProps: any) => {
         setSelectedCar(current.context.availableCars && current.context.availableCars.filter((car: Car) => car.id === key)[0])
     }

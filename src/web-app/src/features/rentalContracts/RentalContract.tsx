@@ -124,36 +124,36 @@ export const RentalContract = ({
         {
             asOwner && isAwaitingApproval &&
             <StyledCardActions>
-                <Button size="small" color="secondary" onClick={handleRejectContract}>
+                <NegativeActionButton size="small" onClick={handleRejectContract}>
                     Reject
-            </Button>
-                <Button size="small" color="primary" onClick={handleApproveContract}>
+                </NegativeActionButton>
+                <ActionButton size="small" color="primary" onClick={handleApproveContract}>
                     Approve
-            </Button>
+                </ActionButton>
             </StyledCardActions>
         }
         {
             !asOwner && isApproved &&
             <StyledCardActions>
-                <Button size="small" color="primary" onClick={handleActivateContract}>
+                <ActionButton size="small" color="primary" onClick={handleActivateContract}>
                     Activate
-                </Button>
+                </ActionButton>
             </StyledCardActions>
         }
         {
             !asOwner && isActive &&
             <StyledCardActions>
-                <Button size="small" color="primary" onClick={handleCompleteContract}>
+                <ActionButton size="small" color="primary" onClick={handleCompleteContract}>
                     End contract
-                </Button>
+                </ActionButton>
             </StyledCardActions>
         }
         {
             asOwner && ownerCanTerminateContract &&
             <StyledCardActions>
-                <Button size="small" color="primary" onClick={handleForceCompleteContract}>
+                <NegativeActionButton size="small" color="primary" onClick={handleForceCompleteContract}>
                     Terminate contract
-                </Button>
+                </NegativeActionButton>
             </StyledCardActions>
         }
     </Card>
@@ -204,3 +204,28 @@ const StyledCardActions = styled(CardActions)`
 const RentalAgreementStatusIndicator = styled(Typography)`
     text-transform: uppercase;
 ` as typeof Typography
+
+const ActionButton = styled(Button)`
+    &.MuiButton-root {
+        border: ${({ theme }) => `solid 2px ${theme.palette.primary.main}`};
+        padding: ${({ theme }) => theme.spacing(4)};
+
+        &:hover {
+            background-color: ${({ theme }) => theme.palette.primary.main};
+            color: ${({ theme }) => theme.palette.common.white};
+        }
+    }
+`
+
+const NegativeActionButton = styled(ActionButton)`
+    &.MuiButton-root {
+        border: ${({ theme }) => `solid 2px ${theme.palette.error.main}`};
+        padding: ${({ theme }) => theme.spacing(4)};
+        color: ${({ theme }) => theme.palette.error.main};
+
+        &:hover {
+            background-color: ${({ theme }) => theme.palette.error.main};
+            color: ${({ theme }) => theme.palette.common.white};
+        }
+    }
+`

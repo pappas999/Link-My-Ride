@@ -67,13 +67,6 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
 
         const addresses = await web3.eth.getAccounts()
 
-        console.log(context.selectedCar.address)
-        console.log(addresses[0])
-        console.log(startDate)
-        console.log(endDate)
-        console.log(hireFee)
-        console.log(context.selectedCar.bondRequired)
-
         return linkMyRideContract.methods.newRentalAgreement(
             context.selectedCar.address,
             addresses[0],
@@ -83,7 +76,7 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
             context.selectedCar.bondRequired.toString()
         ).send({
             from: addresses[0],
-            value: hireFee + context.selectedCar.bondRequired 
+            value: +hireFee + +context.selectedCar.bondRequired 
         })
             .catch((err: any) => {
                 console.error("Failed with error: " + err);
