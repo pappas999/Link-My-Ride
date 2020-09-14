@@ -1,23 +1,14 @@
 const { Requester, Validator } = require('@chainlink/external-adapter')
 const axios = require('axios')
 
-// Define custom error scenarios for the API.
-// Return true for the adapter to retry.
-const customError = (data) => {
-  if (data.Response === 'Error') return true
-  return false
-}
 
-// Define custom parameters to be used by the adapter.
-// Extra parameters can be stated in the extra object,
-// with a Boolean value indicating whether or not they
-// should be required.
-const customParams = {
-  apiToken: ['apiToken'],
-  action: ['action'],
-  endpoint: false
-}
-
+const Firestore = require('@google-cloud/firestore');
+const PROJECTID = 'link-my-ride';
+const COLLECTION_NAME = 'tesla-api-tokens';
+const firestore = new Firestore({
+  projectId: PROJECTID,
+  timestampsInSnapshots: true,
+});
  
 
 //TODO: whitelist to reject any requests if not from specific chainlink node IPs 
@@ -29,23 +20,37 @@ const customParams = {
 //   "action": "authenticate" , "vehicles", "wake_up", "vehicle_data", "unlock", "lock", "honk_horn",
 //} }
 
-
-
 const  createRequest = async (input, callback) => {
   
+
     //alternate between these 2 depending on if connecting to the mock server or an actual tesla
     const base_url = `http://127.0.0.1:7777/`
     //const base_url = `https://owner-api.teslamotors.com/`
   
-    const token = process.env.API_KEY;
+    var storedToken;
+	var authenticationToken;
   
     //get input values
     var jobRunID = input.id
     var vehicleId = input.data.vehicleId
 
-    //comment one of these 2 out depending on if you're using windows or mac/unix. For windows dev am just passing in the token in each request.
-    var authenticationToken = `Authorization: Bearer ${token}`
-    var authenticationToken = `Authorization: Bearer ${input.data.apiToken}`
+    //depending on the scnenario, get the authentication token from the request (authentication request), or from Google Cloud Firestore
+	if (input.data.action == 'authenticate') {  //get value from request
+		authenticationToken = `Authorization: Bearer ${input.data.apiToken}`
+	} else {   //get value from Cloud Firestore		
+		const apiTokenRef = firestore.collection(COLLECTION_NAME).doc(vehicleId);
+		const doc = await apiTokenRef.get();
+		if (!doc.exists) {
+			console.log('No such document in firestore!');
+		} else {
+			console.log('Document data:', doc.data());
+			storedToken = doc.data().tokenToStore;
+			
+		}
+		authenticationToken = `Authorization: Bearer ${storedToken}`
+
+	}
+
     console.log('authentincation header: ' + authenticationToken);
   
     var endpoint; 
@@ -58,10 +63,17 @@ const  createRequest = async (input, callback) => {
 	//Create the request
 	try { 
 		await axios.post(finalUrl, {headers: {authenticationToken}})
-		.then(function (response) {
+		.then(async function (response) {
 			console.log('wakeup successful');
 			//Only do callback if we're doing an authenticate, otherwise there'll be other requests to come
-			if (input.data.action == 'authenticate') {
+			if (input.data.action == 'authenticate' && response.status == 200) {
+				
+				//authentication was successful, store the key to be used/retrieved for future requests, then do callback
+				const tokenToStore = input.data.apiToken;
+				console.log('storing token: ' + tokenToStore);
+				const res = await firestore.collection(COLLECTION_NAME).doc(vehicleId).set({tokenToStore});
+				
+				//now that the API token has been stored in the data store, we can do the callback
 				callback(response.status, Requester.success(jobRunID, response))
 			}
 		}); 
@@ -107,7 +119,6 @@ const  createRequest = async (input, callback) => {
 	  
 			finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
 			console.log('final response: ' + finalResponse);
-			//callback(response.status, Requester.success(jobRunID, finalResponse))
 			callback(response.status, 
 			  {
 					   jobRunID,
