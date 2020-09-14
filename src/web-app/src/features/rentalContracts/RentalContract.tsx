@@ -7,6 +7,7 @@ import { EtherSymbol, toEther, toLongDateTime, getCarModelString, getRentalContr
 import { RentalAgreementStatus } from "../../enums"
 import { Web3Context } from "../web3"
 import rentalContractSC from "./rentalContractSC.json"
+import { isAfter, addHours } from "date-fns"
 
 type Props = {
     contract: Contract,
@@ -18,6 +19,7 @@ export const RentalContract = ({
     asOwner
 }: Props) => {
 
+    const CONTRACT_TERMINATION_GRACE_PERIOD_HOURS = 2
 
     const { address, startDateTime, endDateTime, totalRentCost, totalBond, vehicleModel, vehicleDescription, status } = contract
 
@@ -35,6 +37,8 @@ export const RentalContract = ({
     const isApproved = status == RentalAgreementStatus.APPROVED
 
     const isActive = status == RentalAgreementStatus.ACTIVE
+
+    const ownerCanTerminateContract = isActive && isAfter(new Date(), addHours(endDateTime, CONTRACT_TERMINATION_GRACE_PERIOD_HOURS))
 
     const handleRejectContract = async () => {
         if (!rentalContractSmartContract) return
@@ -75,6 +79,17 @@ export const RentalContract = ({
         const addresses = await web3.eth.getAccounts()
 
         await rentalContractSmartContract.methods.endRentalContract()
+            .send({
+                from: addresses[0]
+            })
+    }
+
+    const handleForceCompleteContract = async () => {
+        if (!rentalContractSmartContract) return
+
+        const addresses = await web3.eth.getAccounts()
+
+        await rentalContractSmartContract.methods.forceEndRentalContract()
             .send({
                 from: addresses[0]
             })
@@ -130,6 +145,14 @@ export const RentalContract = ({
             <StyledCardActions>
                 <Button size="small" color="primary" onClick={handleCompleteContract}>
                     End contract
+                </Button>
+            </StyledCardActions>
+        }
+        {
+            asOwner && ownerCanTerminateContract &&
+            <StyledCardActions>
+                <Button size="small" color="primary" onClick={handleForceCompleteContract}>
+                    Terminate contract
                 </Button>
             </StyledCardActions>
         }
