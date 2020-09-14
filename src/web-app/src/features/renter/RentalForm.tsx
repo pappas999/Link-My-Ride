@@ -6,7 +6,7 @@ import { RentalFormContext } from "./RentalFormContext"
 import DateFnsUtils from "@date-io/date-fns"
 import { Map } from "../../components/map"
 import { Vehicle } from "../ownerDashboard/Vehicle"
-import { StyledForm, StyledHr } from "../../components/form"
+import { StyledForm, StyledHr, SubmittingOverlay } from "../../components/form"
 import { EtherSymbol, toEther } from "../../utils"
 
 export const RentalForm = () => {
@@ -47,10 +47,10 @@ export const RentalForm = () => {
         {
             <MapSection>
                 {
-                    current.matches("dateSelecting") && <CircularProgress color="secondary" />
+                    current.matches("idle.dateSelecting") && <CircularProgress color="secondary" />
                 }
                 {
-                    current.matches("dateSelected") && current.context.selectedDate && <MapWrapper>
+                    !current.matches("idle.dateSelecting") && !current.matches("idle.dateUnselected") && current.context.selectedDate && <MapWrapper>
                         <BigFieldLabel>Here are the available cars for that date and time.<br />Select them to view more details.</BigFieldLabel>
                         <Map cars={current.context.availableCars} onChildSelected={handleChildClick} />
                     </MapWrapper>
@@ -83,10 +83,15 @@ export const RentalForm = () => {
                 <SubmitButton color="secondary" onClick={handleSubmit}>Send request to car owner</SubmitButton>
             </>
         }
+        {
+            current.matches("submitting") &&
+            <SubmittingOverlay />
+        }
     </FormWrapper >
 }
 
 const FormWrapper = styled(StyledForm)`
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
