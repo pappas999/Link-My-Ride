@@ -1,11 +1,13 @@
 import React, { useContext } from "react"
 import styled from "styled-components"
 import { Typography, CircularProgress, FormControl, InputLabel, Select, MenuItem, Button } from "@material-ui/core"
-import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from "@material-ui/pickers"
+import { MuiPickersUtilsProvider, DateTimePicker } from "@material-ui/pickers"
 import { RentalFormContext } from "./RentalFormContext"
 import DateFnsUtils from "@date-io/date-fns"
 import { Map } from "../../components/map"
 import { Vehicle } from "../ownerDashboard/Vehicle"
+import { StyledForm, StyledHr } from "../../components/form"
+import { EtherSymbol, toEther } from "../../utils"
 
 export const RentalForm = () => {
 
@@ -25,11 +27,14 @@ export const RentalForm = () => {
         submitRentalForm()
     }
 
+    const total = current.context.selectedCar && ((+current.context.hireDuration * +current.context.selectedCar.baseHireFee) + +current.context.selectedCar.bondRequired)
+
     return <FormWrapper>
+        <BigFieldLabel>When would you like to rent a car?</BigFieldLabel>
         <FormField>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <DatePicker
-                    label="When would you like to rent a car?"
+                    label="Rental start time"
                     value={current.context.selectedDate}
                     onChange={setSelectedDate}
                     animateYearScrolling
@@ -44,19 +49,21 @@ export const RentalForm = () => {
         {
             <MapSection>
                 {
-                    current.matches("dateSelecting") && <CircularProgress />
+                    current.matches("dateSelecting") && <CircularProgress color="secondary" />
                 }
                 {
-                    current.matches("dateSelected") && <MapWrapper>
-                        <MapLabel>Here are the available cars for that date and time:</MapLabel>
+                    current.matches("dateSelected") && current.context.selectedDate && <MapWrapper>
+                        <BigFieldLabel>Here are the available cars for that date and time.<br />Select them to view more details.</BigFieldLabel>
                         <Map cars={current.context.availableCars} onChildSelected={handleChildClick} />
                     </MapWrapper>
                 }
             </MapSection>
         }
         {
-            current.matches("dateSelected") && <>
+            current.context.selectedCar && <>
+                <BigFieldLabel>You selected:</BigFieldLabel>
                 <Vehicle car={current.context.selectedCar} />
+                <BigFieldLabel>How long would you like to hire it for?</BigFieldLabel>
                 <HireDurationFormControl>
                     <InputLabel>Hire Duration</InputLabel>
                     <Select
@@ -68,13 +75,20 @@ export const RentalForm = () => {
                         <MenuItem value={3}>3 hours</MenuItem>
                     </Select>
                 </HireDurationFormControl>
-                <Button color="primary" onClick={handleSubmit}>Send request to car owner</Button>
             </>
         }
-    </FormWrapper>
+        {
+            current.context.hireDuration && <>
+                <StyledHr />
+                <BigFieldLabel>Total cost:</BigFieldLabel>
+                <Total><EtherSymbol />{toEther(total)}</Total>
+                <SubmitButton color="secondary" onClick={handleSubmit}>Send request to car owner</SubmitButton>
+            </>
+        }
+    </FormWrapper >
 }
 
-const FormWrapper = styled.div`
+const FormWrapper = styled(StyledForm)`
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -87,12 +101,13 @@ const FormField = styled.div`
     margin: ${({ theme }) => `${theme.spacing(4)} 0`};
 `
 
-const DatePicker = styled(KeyboardDateTimePicker)`
+const DatePicker = styled(DateTimePicker)`
     width: ${({ theme }) => theme.typography.pxToRem(300)};
 `
 
 const MapSection = styled(FormField)`
-    width: ${({ theme }) => theme.typography.pxToRem(800)};
+    width: 100%;
+    max-width: ${({ theme }) => theme.typography.pxToRem(800)};
     height: ${({ theme }) => theme.typography.pxToRem(500)};
     display: flex;
     justify-content: center;
@@ -108,10 +123,34 @@ const MapWrapper = styled.div`
     width: 100%;
 `
 
-const MapLabel = styled(Typography)`
+const BigFieldLabel = styled(Typography)`
+    &.MuiTypography-body1 {
+        font-size: ${({ theme }) => theme.typography.pxToRem(24)};
+        margin: ${({ theme }) => theme.typography.pxToRem(24)};
+        text-align: center;
+    }
+`
 
+const Total = styled(Typography)`
+    &.MuiTypography-body1 {
+        font-size: ${({ theme }) => theme.typography.pxToRem(24)};
+        text-align: center;
+        border: ${({ theme }) => `solid 2px ${theme.palette.secondary.main}`};
+        padding: ${({ theme }) => theme.spacing(8)};
+    }
 `
 
 const HireDurationFormControl = styled(FormControl)`
-    width: ${({ theme }) => theme.typography.pxToRem(160)};
+    &.MuiFormControl-root {
+        width: ${({ theme }) => theme.typography.pxToRem(160)};
+        margin-bottom: ${({ theme }) => theme.spacing(12)};
+    }
+`
+
+const SubmitButton = styled(Button)`
+    &.MuiButtonBase-root {
+        margin-top: ${({ theme }) => theme.spacing(16)};
+        margin-top: ${({ theme }) => theme.spacing(12)};
+        padding: ${({ theme }) => theme.spacing(6)};
+    }
 `

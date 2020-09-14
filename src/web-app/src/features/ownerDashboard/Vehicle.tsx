@@ -4,7 +4,7 @@ import Web3 from "web3"
 import { Typography } from "@material-ui/core"
 import { Card } from "../../components/card"
 import { CarImage } from "../../components/car"
-import { EtherSymbol, toEther, toLongDateTime, getCarModelString } from "../../utils"
+import { EtherSymbol, toEther, getCarModelString } from "../../utils"
 
 type Props = {
     car: Car
