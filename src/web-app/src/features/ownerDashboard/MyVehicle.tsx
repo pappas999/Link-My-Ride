@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useCallback, useEffect, useState } from "react"
 import styled from "styled-components"
 import { Web3Context } from "../web3"
 import { Typography } from "@material-ui/core"
@@ -11,13 +11,13 @@ export const MyVehicle = () => {
 
     const [myVehicle, setMyVehicle] = useState<Car>()
 
-    const getMyVehicle = async () => {
+    const getMyVehicle = useCallback(async () => {
 
         const addresses = await web3.eth.getAccounts()
 
         const vehicle = await linkMyRideContract.methods.getVehicle(addresses[0]).call()
 
-        if (vehicle[0] != 0) {
+        if (vehicle[0] !== 0) {
             setMyVehicle({
                 id: vehicle[0],
                 address: vehicle[1],
@@ -30,13 +30,13 @@ export const MyVehicle = () => {
                 lng: 0
             })
         }
-    }
+    }, [linkMyRideContract, web3])
 
     useEffect(() => {
         if (web3 && linkMyRideContract) {
             getMyVehicle()
         }
-    }, [web3, linkMyRideContract])
+    }, [web3, linkMyRideContract, getMyVehicle])
 
     return <Wrapper>
         <Heading variant="h4">My vehicle:</Heading>

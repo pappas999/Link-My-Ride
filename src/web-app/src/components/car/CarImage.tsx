@@ -43,5 +43,5 @@ export const CarImage = ({
         return src
     }
 
-    return <img {...rest} src={getImageSrc(model)} />
+    return <img {...rest} alt="a car" src={getImageSrc(model)} />
 }

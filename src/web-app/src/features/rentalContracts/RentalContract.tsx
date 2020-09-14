@@ -30,13 +30,13 @@ export const RentalContract = ({
     useEffect(() => {
         // @ts-ignore
         web3 && setRentalContractSmartContract(new web3.eth.Contract(rentalContractSC.abi, address))
-    }, [web3])
+    }, [web3, address])
 
-    const isAwaitingApproval = status == RentalAgreementStatus.PROPOSED
+    const isAwaitingApproval = +status === RentalAgreementStatus.PROPOSED
 
-    const isApproved = status == RentalAgreementStatus.APPROVED
+    const isApproved = +status === RentalAgreementStatus.APPROVED
 
-    const isActive = status == RentalAgreementStatus.ACTIVE
+    const isActive = +status === RentalAgreementStatus.ACTIVE
 
     const ownerCanTerminateContract = isActive && isAfter(new Date(), addHours(endDateTime, CONTRACT_TERMINATION_GRACE_PERIOD_HOURS))
 

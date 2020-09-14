@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useCallback, useEffect, useState } from "react"
 import styled from "styled-components"
 import { Web3Context } from "../web3"
 import { RentalContract } from "./RentalContract"
@@ -17,7 +17,7 @@ export const MyRentalContracts = ({
 
     const [myContracts, setMyContracts] = useState<Contract[]>([])
 
-    const getMyContracts = async () => {
+    const getMyContracts = useCallback(async () => {
 
         const addresses = await web3.eth.getAccounts()
 
@@ -51,13 +51,13 @@ export const MyRentalContracts = ({
                 vehicleDescription: vehicle[6]
             }
         }))
-    }
+    }, [asOwner, linkMyRideContract, web3])
 
     useEffect(() => {
         if (web3 && linkMyRideContract) {
             getMyContracts()
         }
-    }, [web3, linkMyRideContract])
+    }, [web3, linkMyRideContract, getMyContracts])
 
     return <Wrapper>
         <Heading variant="h4">My rental contracts:</Heading>

@@ -1,6 +1,5 @@
 import React from "react"
 import styled from "styled-components"
-import Web3 from "web3"
 import { Typography } from "@material-ui/core"
 import { Card } from "../../components/card"
 import { CarImage } from "../../components/car"
