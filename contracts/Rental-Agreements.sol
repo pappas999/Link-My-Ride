@@ -33,8 +33,9 @@ contract RentalAgreementFactory {
         uint vehicleId;                // Tesla assigned ID of vehicle
         address ownerAddress;          // Wallet address of vehicle owner
         string apiTokenHash;           // Hashed version of the token  
-        uint baseHireFee;              // Base fee for hire 
-        uint bondRequired;             // Bond required for each rental contract
+        uint baseHireFee;              // Base fee for hire in the smallest denomination of owner's chosen currency
+        uint bondRequired;             // Bond required for each rental contract in the smallest denomination of owner's chosen currency
+        string ownerCurrency;          // The vehicle owner's chosen currency ("USD / GBP / AUD / ETH")
         VehicleModels vehicleModel;    // Model of the vehicle
         string renterDescription;      // Basic description of renter
     }
@@ -50,8 +51,8 @@ contract RentalAgreementFactory {
     
     constructor() public payable {
         //this code adds a vehicle so we don't have to keep doing it manually as part of development, then it creates a simple contract for the vehicle
-        newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123,'sadfasfasdfsda',0.01 * 0.01 ether,0.01 ether,VehicleModels.Model_S,'harrys car');
-        newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567,'test',0.01 * 0.1 ether,0.01 ether,VehicleModels.Model_X,'second car');
+        newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123,'sadfasfasdfsda',0.01 * 0.01 ether,0.01 ether,'ETH',VehicleModels.Model_S,'harrys car');
+        newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567,'test',0.01 * 0.1 ether,0.01 ether,'ETH',VehicleModels.Model_X,'second car');
         newRentalAgreement(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,0xaF9aA280435E8C13cf8ebE1827CBB402CE65bBf7,1599565516,1599569916,1000000000000000,10000000000000000);
     }
     
@@ -66,12 +67,12 @@ contract RentalAgreementFactory {
     
     //List of events
     event rentalAgreementCreated(address _newAgreement, uint _totalFundsHeld);
-    event vehicleAdded( uint _vehicleId, address _vehicleOwner, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, VehicleModels _vehicleModel, string _description);
+    event vehicleAdded( uint _vehicleId, address _vehicleOwner, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, string _ownerCurrency, VehicleModels _vehicleModel, string _description);
     
     /**
      * @dev Create a new Rental Agreement. Once it's created, all logic & flow is handled from within the RentalAgreement Contract
      */ 
-    function newRentalAgreement(address _vehicleOwner, address _renter, uint _startDateTime, uint _endDateTime, uint _totalRentCost, uint _totalBond) public payable returns(address) {
+    function newRentalAgreement(address _vehicleOwner, address _renter, uint _startDateTime, uint _endDateTime, uint _totalRentCost, uint _totalBond, string _ownerCurrency) public payable returns(address) {
        //vehicle owner must be different to renter
        require (_vehicleOwner != _renter,'Owner & Renter must be different');
        
@@ -82,6 +83,7 @@ contract RentalAgreementFactory {
        //require (_startDateTime >= now,'Vehicle Agreement cannot be in the past');
        
        //Ensure correct amount of ETH has been sent for total rent cost & bond
+       // TODO: Use price feeds to convert currency
        require (msg.value >= _totalRentCost.add(_totalBond),'Incorrect rent & bond paid');
         
        //create new Rental Agreement
