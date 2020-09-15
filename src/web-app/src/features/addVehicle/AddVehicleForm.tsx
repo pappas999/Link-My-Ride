@@ -1,13 +1,24 @@
 import React, { useContext } from "react"
 import styled from "styled-components"
 import { AddVehicleFormContext } from "./AddVehicleFormContext"
-import { FormControl, InputLabel, Select, MenuItem, TextField, Button } from "@material-ui/core"
+import { FormControl, Input, InputLabel, Select, MenuItem, TextField, Button, InputAdornment } from "@material-ui/core"
 import { Model } from "../../enums"
 import { getCarModelString } from "../../utils"
+import { StyledForm } from "../../components/form"
 
 export const AddVehicleForm = () => {
 
-    const { current, submitAddVehicleForm, setSelectedVehicleModel, setVehicleDescription, setVehicleId, setApiKey, setHireFee, setBond } = useContext(AddVehicleFormContext)
+    const {
+        current,
+        submitAddVehicleForm,
+        setSelectedVehicleModel,
+        setVehicleDescription,
+        setVehicleId,
+        setApiKey,
+        setCurrency,
+        setHireFee,
+        setBond
+    } = useContext(AddVehicleFormContext)
 
     const handleVehicleModelSelected = (event: any) => {
         setSelectedVehicleModel(event.target.value)
@@ -25,6 +36,13 @@ export const AddVehicleForm = () => {
         setApiKey(event.target.value)
     }
 
+    const handleCurrencyChange = (event: any) => {
+        const currency = currencies.find((currency: any) => {
+            return currency.value === event.target.value
+        })
+        setCurrency(currency)
+    }
+
     const handleHireFeeChanged = (event: any) => {
         setHireFee(event.target.value)
     }
@@ -38,6 +56,26 @@ export const AddVehicleForm = () => {
     }
 
     console.log(JSON.stringify(current.context))
+
+    // TODO: Move this to context?
+    const currencies = [
+        {
+            value: 'USD',
+            label: '$',
+        },
+        {
+            value: 'GBP',
+            label: '£',
+        },
+        {
+            value: 'AUD',
+            label: 'AU$',
+        },
+        {
+            value: 'ETH',
+            label: 'Ξ',
+        },
+    ]
 
     return <FormWrapper>
         <FormField>
@@ -63,18 +101,41 @@ export const AddVehicleForm = () => {
                 onChange={handleVehicleDescriptionChanged} />
         </FormField>
         <FormField>
-            <TextField
-                label="Hourly Hire Fee"
-                value={current.context.hireFee}
-                type="number"
-                onChange={handleHireFeeChanged} />
+            <CurrencySelectTextField
+                select
+                label="Currency"
+                value={current.context.currency.value}
+                onChange={handleCurrencyChange}>
+                {
+                    currencies.map((option) => {
+                        return <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                        </MenuItem>
+                    })
+                }
+            </CurrencySelectTextField>
         </FormField>
         <FormField>
-            <TextField
-                label="Required Bond"
-                value={current.context.bond}
-                type="number"
-                onChange={handleBondChanged} />
+            <FormControl fullWidth>
+                <InputLabel htmlFor="hourly-hire-fee">Hourly Hire Fee</InputLabel>
+                <Input
+                    id="hourly-hire-fee"
+                    value={current.context.hireFee}
+                    onChange={handleHireFeeChanged}
+                    startAdornment={<InputAdornment position="start">{current.context.currency.label}</InputAdornment>}
+                />
+            </FormControl>
+        </FormField>
+        <FormField>
+            <FormControl fullWidth>
+                <InputLabel htmlFor="required-bond">Required Bond</InputLabel>
+                <Input
+                    id="required-bond"
+                    value={current.context.bond}
+                    onChange={handleBondChanged}
+                    startAdornment={<InputAdornment position="start">{current.context.currency.label}</InputAdornment>}
+                />
+            </FormControl>
         </FormField>
         <FormField>
             <TextField
@@ -95,13 +156,12 @@ export const AddVehicleForm = () => {
     </FormWrapper>
 }
 
-const FormWrapper = styled.div`
+const FormWrapper = styled(StyledForm)`
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     padding: ${({ theme }) => theme.spacing(8)};
-    color: ${({ theme }) => theme.palette.common.white};
 `
 
 const FormField = styled.div`   
@@ -110,4 +170,8 @@ const FormField = styled.div`
 
 const VehicleModelFormControl = styled(FormControl)`
     width: ${({ theme }) => theme.typography.pxToRem(160)};
+`
+
+const CurrencySelectTextField = styled(TextField)`
+    width: ${({ theme }) => theme.typography.pxToRem(80)};
 `

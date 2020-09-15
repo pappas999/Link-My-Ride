@@ -16,6 +16,9 @@ export const initAddVehicleFormMachineOptions = (
         cacheApiKey: assign((_, event: any) => ({
             apiKey: event.value
         })),
+        cacheCurrency: assign((_, event: any) => ({
+            currency: event.value
+        })),
         cacheHireFee: assign((_, event: any) => ({
             hireFee: event.value
         })),

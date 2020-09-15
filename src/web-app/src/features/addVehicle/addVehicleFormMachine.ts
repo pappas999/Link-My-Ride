@@ -8,6 +8,10 @@ export const addVehicleFormMachine = createMachine({
         vehicleDescription: "",
         vehicleId: "",
         apiKey: "",
+        currency: {
+            value: 'USD',
+            label: '$',
+        },
         hireFee: "",
         bond: ""
     },
@@ -53,6 +57,9 @@ export const addVehicleFormMachine = createMachine({
         },
         SET_API_KEY: {
             actions: "cacheApiKey"
+        },
+        SET_CURRENCY: {
+            actions: "cacheCurrency"
         },
         SET_HIRE_FEE: {
             actions: "cacheHireFee"

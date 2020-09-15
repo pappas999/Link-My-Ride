@@ -33,4 +33,8 @@ export const StyledForm = styled.form`
             background-color: ${({theme}) => theme.palette.secondary.dark};
         }
     }
+
+    & .MuiTypography-colorTextSecondary {
+        color: ${({theme}) => theme.palette.common.white};
+    }
 `
