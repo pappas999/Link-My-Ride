@@ -24,7 +24,8 @@ const  createRequest = async (input, callback) => {
   
 
     //alternate between these 2 depending on if connecting to the mock server or an actual tesla
-    const base_url = `http://127.0.0.1:7777/`
+    //const base_url = `http://127.0.0.1:7777/`
+	const base_url = `https://australia-southeast1-link-my-ride.cloudfunctions.net/teslamock/`
     //const base_url = `https://owner-api.teslamotors.com/`
   
     var storedToken;

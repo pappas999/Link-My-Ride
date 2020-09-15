@@ -8,7 +8,7 @@
 //
 // Refer to included LICENSE file for usage rights and restrictions
 //==========================================================================
- 
+
 var express = require('express');
 var program = require('commander');
 var bodyParser = require('body-parser');
@@ -85,6 +85,11 @@ var vehicle = {
     "state": "online"
 };
 */
+
+var batteryLevel = 55;
+var odometer = 50000.12345;
+var longitude = -125.7234234;
+var latitude = 143.2432432;
 
 
 var driveState = {
@@ -187,6 +192,20 @@ app.post('/driveState', function (req, res, next) {
     app.locals.driveState = driveState;
 
     res.send("Drive State Updated! <br><br><button onclick=\"location.href='/driveState'\">Go Back</button>");
+});
+
+//=============================
+// Update the critical values
+//=============================
+app.post('/values', function (req, res, next) {
+    console.log(req.body);
+
+    batteryLevel = req.body.batteryLevel;
+	odometer = req.body.odometer;
+	latitude = req.body.latitude;
+	longitude = req.body.longitude;
+ 
+    res.send("Critical Values Updated!");
 });
 
 //=============================
@@ -412,7 +431,7 @@ app.get('/api/1/vehicles/:vid/vehicle_data', function (req, res) {
         },
         "charge_state": {
             "battery_heater_on": false,
-            "battery_level": 54,
+            "battery_level": `${batteryLevel}`,
             "battery_range": 154.77,
             "charge_current_request": 16,
             "charge_current_request_max": 16,
@@ -487,8 +506,8 @@ app.get('/api/1/vehicles/:vid/vehicle_data', function (req, res) {
         "drive_state": {
             "gps_as_of": 1598935049,
             "heading": 49,
-            "latitude": -34.86952,
-            "longitude": 138.711122,
+            "latitude": `${latitude}`,
+            "longitude": `${longitude}`,
             "native_latitude": -34.86952,
             "native_location_supported": 1,
             "native_longitude": 138.711122,
@@ -526,7 +545,7 @@ app.get('/api/1/vehicles/:vid/vehicle_data', function (req, res) {
                 "remote_control_enabled": true
             },
             "notifications_supported": true,
-            "odometer": 10026.59827,
+            "odometer": `${odometer}`,
             "parsed_calendar_supported": true,
             "pf": 0,
             "pr": 0,
@@ -922,7 +941,7 @@ app.post('/api/1/vehicles/:vid/command/upcoming_calendar_entries', function (req
 //[]===============================[]
 // Setup our listen server
 //[]===============================[]
-var port = program.port || 3000;
+var port = program.port || 7777;
 
 app.listen(port, function () {
     var str = "http://127.0.0.1:" + port;
@@ -967,5 +986,5 @@ app.use(function (err, req, res, next) {
         error: {}
     });
 });
+module.exports = {app};
 
-module.exports = app;
