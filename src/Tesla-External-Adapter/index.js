@@ -37,7 +37,7 @@ const  createRequest = async (input, callback) => {
 
     //depending on the scnenario, get the authentication token from the request (authentication request), or from Google Cloud Firestore
 	if (input.data.action == 'authenticate') {  //get value from request
-		authenticationToken = `Authorization: Bearer ${input.data.apiToken}`
+		authenticationToken = `Bearer ${input.data.apiToken}`
 	} else {   //get value from Cloud Firestore		
 		const apiTokenRef = firestore.collection(COLLECTION_NAME).doc(vehicleId);
 		const doc = await apiTokenRef.get();
@@ -48,7 +48,7 @@ const  createRequest = async (input, callback) => {
 			storedToken = doc.data().tokenToStore;
 			
 		}
-		authenticationToken = `Authorization: Bearer ${storedToken}`
+		authenticationToken = `Bearer ${storedToken}`
 
 	}
 
@@ -56,6 +56,11 @@ const  createRequest = async (input, callback) => {
   
     var endpoint; 
     var finalUrl;
+	
+	const headers = {
+		'Content-Type': 'application/json',
+		'Authorization': authenticationToken
+	}
      
     //first thing we need to always do is wake the vehicle up. If successful, then its ready to receive a request
 	endpoint = `api/1/vehicles/${vehicleId}/wake_up`
@@ -63,7 +68,7 @@ const  createRequest = async (input, callback) => {
 	console.log('doing wakeup request to: ' + finalUrl);
 	//Create the request
 	try { 
-		await axios.post(finalUrl, {headers: {authenticationToken}})
+		await axios.post(finalUrl,null, {headers: headers})
 		.then(async function (response) {
 			console.log('wakeup successful');
 			//Only do callback if we're doing an authenticate, otherwise there'll be other requests to come
@@ -108,7 +113,7 @@ const  createRequest = async (input, callback) => {
   
 	//Create the request
 	try { 
-		await axios.get(finalUrl, {headers: {authenticationToken}})
+		await axios.get(finalUrl,{headers: headers})
 		.then(function (response) {
 			console.log('get vehicle data successful');
 			//console.log(JSON.stringify(response.data));
@@ -140,7 +145,7 @@ const  createRequest = async (input, callback) => {
 	console.log('doing door unlock request to: ' + finalUrl);
 	//Create the request
 	try { 
-		await axios.post(finalUrl, {headers: {authenticationToken}})
+		await axios.post(finalUrl, null, {headers: headers})
 		.then(function (response) {
 			console.log('unlock successful');
 			callback(response.status, Requester.success(jobRunID, response))
@@ -157,7 +162,7 @@ const  createRequest = async (input, callback) => {
 	console.log('doing door door_lock request to: ' + finalUrl);
 	//Create the request
 	try { 
-		await axios.post(finalUrl, {headers: {authenticationToken}})
+		await axios.post(finalUrl, null, {headers: headers})
 		.then(function (response) {
 			console.log('door_lock successful');
 			callback(response.status, Requester.success(jobRunID, response))
@@ -174,7 +179,7 @@ const  createRequest = async (input, callback) => {
 	console.log('doing door honk_horn request to: ' + finalUrl);
 	//Create the request
 	try { 
-		await axios.post(finalUrl, {headers: {authenticationToken}})
+		await axios.post(finalUrl, null, {headers: headers})
 		.then(function (response) {
 			console.log('honk_horn successful');
 			callback(response.status, Requester.success(jobRunID, response))
