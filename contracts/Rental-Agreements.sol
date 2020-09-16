@@ -72,7 +72,7 @@ contract RentalAgreementFactory {
     /**
      * @dev Create a new Rental Agreement. Once it's created, all logic & flow is handled from within the RentalAgreement Contract
      */ 
-    function newRentalAgreement(address _vehicleOwner, address _renter, uint _startDateTime, uint _endDateTime, uint _totalRentCost, uint _totalBond, string _ownerCurrency) public payable returns(address) {
+    function newRentalAgreement(address _vehicleOwner, address _renter, uint _startDateTime, uint _endDateTime, uint _totalRentCost, uint _totalBond) public payable returns(address) {
        //vehicle owner must be different to renter
        require (_vehicleOwner != _renter,'Owner & Renter must be different');
        
@@ -82,12 +82,19 @@ contract RentalAgreementFactory {
        //ensure start date is now or in the future
        //require (_startDateTime >= now,'Vehicle Agreement cannot be in the past');
        
-       //Ensure correct amount of ETH has been sent for total rent cost & bond
-       // TODO: Use price feeds to convert currency
+       // Ensure correct amount of ETH has been sent for total rent cost & bond:
+       // 1) Get owner's preferred currency from the vehicle
+       string ownerCurrency = vehicles[_vehicleOwner].ownerCurrency
+       // 2) Get ETH -> currency exchange rate using CL price feeds
+       // TODO
+       // 3) Convert msg.value to the owner's currency
+       // TODO
+       // 4) Compare converted msg.value to total required
+       // TODO: (also the below check doesn't look right. The _totalRentCost and _totalBond should come from the vehicle rather than from params sent by the client)
        require (msg.value >= _totalRentCost.add(_totalBond),'Incorrect rent & bond paid');
         
        //create new Rental Agreement
-       RentalAgreement a = (new RentalAgreement).value(_totalRentCost.add(_totalBond))(_vehicleOwner, _renter, _startDateTime, _endDateTime, _totalRentCost, _totalBond,  
+       RentalAgreement a = (new RentalAgreement).value(_totalRentCost.add(_totalBond))(_vehicleOwner, _renter, _startDateTime, _endDateTime, _totalRentCost, _totalBond, 
                                                  LINK_ROPSTEN, ORACLE_CONTRACT, ORACLE_PAYMENT, job_id);
        
        //get price of ETH from price feeds to be used in calculations. or do it in web3 before solidity
@@ -109,7 +116,7 @@ contract RentalAgreementFactory {
       /**
      * @dev Create a new Vehicle. 
      */ 
-    function newVehicle(address _vehicleOwner, uint _vehicleId, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, VehicleModels _vehicleModel, 
+    function newVehicle(address _vehicleOwner, uint _vehicleId, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, string _ownerCurrency, VehicleModels _vehicleModel, 
                         string _description) public  {
            
       //adds a vehicle and stores it in the vehicles mapping. Each vehicle is represented by 1 Ethereum address
@@ -120,11 +127,12 @@ contract RentalAgreementFactory {
       v.apiTokenHash = _apiTokenHash;
       v.baseHireFee = _baseHireFee;
       v.bondRequired = _bondRequired;
+      v.ownerCurrency = _ownerCurrency;
       v.vehicleModel = _vehicleModel;
       v.renterDescription = _description;
       
         
-      emit vehicleAdded(_vehicleId, _vehicleOwner, _apiTokenHash, _baseHireFee, _bondRequired, _vehicleModel, _description);
+      emit vehicleAdded(_vehicleId, _vehicleOwner, _apiTokenHash, _baseHireFee, _bondRequired, _ownerCurrency, _vehicleModel, _description);
       
       //store the key in an array where we can loop through
       keyList.push(_vehicleOwner);
@@ -365,7 +373,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      * @dev Modifier to check if the dapp wallet is calling the transaction
      */
     modifier onlyDapp() {
-		require(dappWallet == msg.sender,'Only Link-My-Rde Web App can perform this step');
+		require(dappWallet == msg.sender,'Only Link-My-Ride Web App can perform this step');
         _;
     }
     
