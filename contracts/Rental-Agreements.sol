@@ -10,7 +10,7 @@ pragma experimental ABIEncoderV2;
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/ChainlinkClient.sol";
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/vendor/Ownable.sol";
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/LinkToken.sol";
-
+import "https://github.com/smartcontractkit/chainlink/blob/master/evm-contracts/src/v0.4/interfaces/AggregatorV3Interface.sol";
 
 contract RentalAgreementFactory {
     
@@ -24,8 +24,13 @@ contract RentalAgreementFactory {
     address public constant ORACLE_CONTRACT = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
     uint256 constant private ORACLE_PAYMENT = 0.1 * 1 ether;
     
+    address public constant ETH_USD_CONTRACT = 0x9326BFA02ADD2366b30bacB125260Af641031331;
+    address public constant AUD_USD_CONTRACT = 0x5813A90f826e16dB392abd2aF7966313fc1fd5B8;
+    address public constant GBP_USD_CONTRACT = 0x28b0061f44E6A9780224AA61BEc8C3Fcb0d37de9;
     
     enum VehicleModels { Model_S, Model_3, Model_X, Model_Y, Cybertruck, Roadster}
+
+    enum Currency { ETH, USD, GBP, AUD }
 
     
     //struct to represent a car on the platform to be rented
@@ -35,12 +40,16 @@ contract RentalAgreementFactory {
         string apiTokenHash;           // Hashed version of the token  
         uint baseHireFee;              // Base fee for hire in the smallest denomination of owner's chosen currency
         uint bondRequired;             // Bond required for each rental contract in the smallest denomination of owner's chosen currency
-        string ownerCurrency;          // The vehicle owner's chosen currency ("USD / GBP / AUD / ETH")
+        Currency ownerCurrency;        // The vehicle owner's chosen currency
         VehicleModels vehicleModel;    // Model of the vehicle
         string renterDescription;      // Basic description of renter
     }
     
     address[] internal keyList;
+
+    AggregatorV3Interface internal ethUsdPriceFeed;
+    AggregatorV3Interface internal audUsdPriceFeed;
+    AggregatorV3Interface internal gbpUsdPriceFeed;
     
     //here is where all the cars to rent are stored. Currently each vehicle must have a unique wallet tied to it.
     mapping (address => Vehicle) vehicles; 
@@ -50,10 +59,13 @@ contract RentalAgreementFactory {
     //mapping (address => RentalAgreement) rentalAgreements; 
     
     constructor() public payable {
-        //this code adds a vehicle so we don't have to keep doing it manually as part of development, then it creates a simple contract for the vehicle
-        newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123,'sadfasfasdfsda',0.01 * 0.01 ether,0.01 ether,'ETH',VehicleModels.Model_S,'harrys car');
-        newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567,'test',0.01 * 0.1 ether,0.01 ether,'ETH',VehicleModels.Model_X,'second car');
-        newRentalAgreement(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,0xaF9aA280435E8C13cf8ebE1827CBB402CE65bBf7,1599565516,1599569916,1000000000000000,10000000000000000);
+        //this code adds a vehicle so we don't have to keep doing it manually as part of development
+        newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123,'sadfasfasdfsda',0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_S,'harrys car');
+        newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567,'test',0.01 * 0.1 ether,0.01 ether,Currency.ETH,VehicleModels.Model_X,'second car');
+
+        ethUsdPriceFeed = AggregatorV3Interface(ETH_USD_CONTRACT);
+        audUsdPriceFeed = AggregatorV3Interface(AUD_USD_CONTRACT);
+        gbpUsdPriceFeed = AggregatorV3Interface(GBP_USD_CONTRACT);
     }
     
 
@@ -67,37 +79,102 @@ contract RentalAgreementFactory {
     
     //List of events
     event rentalAgreementCreated(address _newAgreement, uint _totalFundsHeld);
-    event vehicleAdded( uint _vehicleId, address _vehicleOwner, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, string _ownerCurrency, VehicleModels _vehicleModel, string _description);
+    event vehicleAdded( uint _vehicleId, address _vehicleOwner, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, Currency _ownerCurrency, VehicleModels _vehicleModel, string _description);
     
+    function getLatestEthUsdPrice() public view returns (int) {
+        (
+            uint80 roundID, 
+            int price,
+            uint startedAt,
+            uint timeStamp,
+            uint80 answeredInRound
+        ) = ethUsdPriceFeed.latestRoundData();
+        // If the round is not complete yet, timestamp is 0
+        require(timeStamp > 0, "Round not complete");
+        return price;
+    }
+
+    function getEthUsdPriceDecimals() public view returns (uint8) {
+        return ethUsdPriceFeed.decimals();
+    }
+
+    function getLatestAudUsdPrice() public view returns (int) {
+        (
+            uint80 roundID, 
+            int price,
+            uint startedAt,
+            uint timeStamp,
+            uint80 answeredInRound
+        ) = audUsdPriceFeed.latestRoundData();
+        // If the round is not complete yet, timestamp is 0
+        require(timeStamp > 0, "Round not complete");
+        return price;
+    }
+
+    function getAudUsdPriceDecimals() public view returns (uint8) {
+        return audUsdPriceFeed.decimals();
+    }
+
+    function getLatestGbpUsdPrice() public view returns (int) {
+        (
+            uint80 roundID, 
+            int price,
+            uint startedAt,
+            uint timeStamp,
+            uint80 answeredInRound
+        ) = gbpUsdPriceFeed.latestRoundData();
+        // If the round is not complete yet, timestamp is 0
+        require(timeStamp > 0, "Round not complete");
+        return price;
+    }
+
+    function getGbpUsdPriceDecimals() public view returns (uint8) {
+        return gbpUsdPriceFeed.decimals();
+    }
+
+    function _convertToCurrency(uint _value, Currency _ownerCurrency) internal view returns (uint) {
+       uint convertedMsgValue = _value;
+       int ethUsdPrice = getLatestEthUsdPrice();
+       uint inUsd = (_value * uint(ethUsdPrice)) / 1 ether; 
+       if (_ownerCurrency == Currency.USD) {
+           convertedMsgValue = inUsd;
+       }
+       else if (_ownerCurrency == Currency.GBP) {
+           int gbpUsdPrice = getLatestGbpUsdPrice();
+           convertedMsgValue = inUsd / uint(gbpUsdPrice);
+       }
+       else if (_ownerCurrency == Currency.AUD) {
+           int audUsdPrice = getLatestAudUsdPrice();
+           convertedMsgValue = inUsd / uint(audUsdPrice);
+       } 
+       return convertedMsgValue;   
+    } 
+
     /**
      * @dev Create a new Rental Agreement. Once it's created, all logic & flow is handled from within the RentalAgreement Contract
      */ 
-    function newRentalAgreement(address _vehicleOwner, address _renter, uint _startDateTime, uint _endDateTime, uint _totalRentCost, uint _totalBond) public payable returns(address) {
+    function newRentalAgreement(address _vehicleOwner, address _renter, uint _startDateTime, uint _endDateTime) public payable returns(address) {
        //vehicle owner must be different to renter
        require (_vehicleOwner != _renter,'Owner & Renter must be different');
        
        //start date must be < end date and must be at least 1 hour (3600 seconds)
        require (_endDateTime >= _startDateTime.add(3600),'Vehicle Agreement must be for a minimum of 1 hour');
+
+       //specify agreement must be for a discrete number of hours to keep it simple
+       require((_endDateTime - _startDateTime) % 3600 == 0,'Vehicle Agreement must be for a discrete number of hours');
        
        //ensure start date is now or in the future
        //require (_startDateTime >= now,'Vehicle Agreement cannot be in the past');
-       
-       // Ensure correct amount of ETH has been sent for total rent cost & bond:
-       // 1) Get owner's preferred currency from the vehicle
-       string ownerCurrency = vehicles[_vehicleOwner].ownerCurrency
-       // 2) Get ETH -> currency exchange rate using CL price feeds
-       // TODO
-       // 3) Convert msg.value to the owner's currency
-       // TODO
-       // 4) Compare converted msg.value to total required
-       // TODO: (also the below check doesn't look right. The _totalRentCost and _totalBond should come from the vehicle rather than from params sent by the client)
-       require (msg.value >= _totalRentCost.add(_totalBond),'Incorrect rent & bond paid');
-        
+
+       // Ensure correct amount of ETH has been sent for total rent cost & bond        
+       uint convertedMsgValue = _convertToCurrency(msg.value, vehicles[_vehicleOwner].ownerCurrency);
+       uint totalRentCost = vehicles[_vehicleOwner].baseHireFee * ((_endDateTime - _startDateTime) / 3600);
+       uint bondRequired = vehicles[_vehicleOwner].bondRequired;
+       require (convertedMsgValue >= totalRentCost.add(bondRequired),'Insufficient rent & bond paid');
+
        //create new Rental Agreement
-       RentalAgreement a = (new RentalAgreement).value(_totalRentCost.add(_totalBond))(_vehicleOwner, _renter, _startDateTime, _endDateTime, _totalRentCost, _totalBond, 
+       RentalAgreement a = (new RentalAgreement).value(totalRentCost.add(bondRequired))(_vehicleOwner, _renter, _startDateTime, _endDateTime, totalRentCost, bondRequired, 
                                                  LINK_ROPSTEN, ORACLE_CONTRACT, ORACLE_PAYMENT, job_id);
-       
-       //get price of ETH from price feeds to be used in calculations. or do it in web3 before solidity
        
        //store new agreement in array of agreements
        rentalAgreements.push(a);
@@ -116,7 +193,7 @@ contract RentalAgreementFactory {
       /**
      * @dev Create a new Vehicle. 
      */ 
-    function newVehicle(address _vehicleOwner, uint _vehicleId, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, string _ownerCurrency, VehicleModels _vehicleModel, 
+    function newVehicle(address _vehicleOwner, uint _vehicleId, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, Currency _ownerCurrency, VehicleModels _vehicleModel, 
                         string _description) public  {
            
       //adds a vehicle and stores it in the vehicles mapping. Each vehicle is represented by 1 Ethereum address
