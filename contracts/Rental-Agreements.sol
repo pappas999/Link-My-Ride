@@ -151,7 +151,7 @@ contract RentalAgreementFactory {
         return gbpUsdPriceFeed.decimals();
     }
 
-    function _convertEthToFiat(uint _value, Currency _toCurrency) public view returns (uint) {
+    function convertEthToFiat(uint _value, Currency _toCurrency) public view returns (uint) {
        if (_toCurrency == Currency.ETH) {
            return _value;
        }
@@ -172,7 +172,7 @@ contract RentalAgreementFactory {
        return _value;   
     } 
 
-    function _convertFiatToEth(uint _value, Currency _fromCurrency) public view returns (uint) {
+    function convertFiatToEth(uint _value, Currency _fromCurrency) public view returns (uint) {
         if (_fromCurrency == Currency.ETH) {
            return _value;
         }
