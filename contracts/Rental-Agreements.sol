@@ -151,25 +151,50 @@ contract RentalAgreementFactory {
         return gbpUsdPriceFeed.decimals();
     }
 
-    function _convertToCurrency(uint _value, Currency _ownerCurrency) internal view returns (uint) {
-       uint convertedMsgValue = _value;
+    function _convertEthToFiat(uint _value, Currency _toCurrency) public view returns (uint) {
+       if (_toCurrency == Currency.ETH) {
+           return _value;
+       }
+
        int ethUsdPrice = getLatestEthUsdPrice();
        uint inUsd = (_value * uint(ethUsdPrice)) / 1 ether; 
-       if (_ownerCurrency == Currency.USD) {
-           convertedMsgValue = inUsd;
+       if (_toCurrency == Currency.USD) {
+           return inUsd;
        }
-       else if (_ownerCurrency == Currency.GBP) {
+       else if (_toCurrency == Currency.GBP) {
            int gbpUsdPrice = getLatestGbpUsdPrice();
-           convertedMsgValue = inUsd / uint(gbpUsdPrice);
+           return inUsd * (10 ** 8) / uint(gbpUsdPrice);
        }
-       else if (_ownerCurrency == Currency.AUD) {
+       else if (_toCurrency == Currency.AUD) {
            int audUsdPrice = getLatestAudUsdPrice();
-           convertedMsgValue = inUsd / uint(audUsdPrice);
+           return inUsd * (10 ** 8) / uint(audUsdPrice);
        } 
-       return convertedMsgValue;   
+       return _value;   
     } 
-    
-   
+
+    function _convertFiatToEth(uint _value, Currency _fromCurrency) public view returns (uint) {
+        if (_fromCurrency == Currency.ETH) {
+           return _value;
+        }
+
+        int ethUsdPrice = getLatestEthUsdPrice();
+        uint fromUsd = (_value * 1 ether / uint(ethUsdPrice));
+        if (_fromCurrency == Currency.USD) {
+            return fromUsd;
+        }
+
+        else if (_fromCurrency == Currency.GBP) {
+            int gbpUsdPrice = getLatestGbpUsdPrice();
+            return fromUsd * uint(gbpUsdPrice) / (10 ** 8);
+        }
+
+        else if (_fromCurrency == Currency.AUD) {
+            int audUsdPrice = getLatestAudUsdPrice();
+            return fromUsd * uint(audUsdPrice) / (10 ** 8);
+        }
+        return _value;
+    }
+
     /**
      * @dev Create a new Rental Agreement. Once it's created, all logic & flow is handled from within the RentalAgreement Contract
      */ 
@@ -190,22 +215,21 @@ contract RentalAgreementFactory {
        //require (_startDateTime >= now,'Vehicle Agreement cannot be in the past');
 
        // Ensure correct amount of ETH has been sent for total rent cost & bond        
-       uint convertedMsgValue = _convertToCurrency(msg.value, vehicles[_vehicleOwner].ownerCurrency);
-       
+       uint convertedMsgValue = _convertEthToFiat(msg.value, vehicles[_vehicleOwner].ownerCurrency);
        uint totalRentCost = vehicles[_vehicleOwner].baseHireFee * ((_endDateTime - _startDateTime) / 3600);
        uint bondRequired = vehicles[_vehicleOwner].bondRequired;
        
 
        require (convertedMsgValue >= totalRentCost.add(bondRequired),'Insufficient rent & bond paid');
 
-       //now that we've determined the ETH passed in is correct, we need to calculate bond + fee values in ETH to send to contract
-      
-       uint bondRequiredETH = 1;   //TO DO calcualte the bond payment in ETH based on vehicle bond value & currency
+       // Now that we've determined the ETH passed in is correct, we need to calculate bond + fee values in ETH to send to contract
+       uint bondRequiredETH = _convertFiatToEth(bondRequired, vehicles[_vehicleOwner].ownerCurrency);
        
-       uint totalRentCostETH = msg.value - bondRequiredETH; //fee value is total value minus bond. We've already validated enough ETH has been sent
+       // Fee value is total value minus bond. We've already validated enough ETH has been sent
+       uint totalRentCostETH = msg.value - bondRequiredETH; 
       
        //create new Rental Agreement
-       RentalAgreement a = (new RentalAgreement).value(totalRentCost.add(bondRequired))(_vehicleOwner, _renter, _startDateTime, _endDateTime, totalRentCost, bondRequired, 
+       RentalAgreement a = (new RentalAgreement).value(totalRentCostETH.add(bondRequiredETH))(_vehicleOwner, _renter, _startDateTime, _endDateTime, totalRentCostETH, bondRequiredETH, 
                                                  LINK_ROPSTEN, ORACLE_CONTRACT, ORACLE_PAYMENT, JOB_ID);
        
        //store new agreement in array of agreements
