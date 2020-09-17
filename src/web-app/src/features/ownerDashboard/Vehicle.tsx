@@ -32,12 +32,12 @@ export const Vehicle = ({
         <ContractDetailsWrapper>
             <Field>
                 <Typography variant="h6" component="span">Required Bond:</Typography>
-                // TODO: Replace currency symbol and 'weiToEther' with some conversion from vehicle currency to user's currency
+                {/* TODO: Replace currency symbol and 'weiToEther' with some conversion from vehicle currency to user's currency */}
                 <Typography variant="h6" color="primary" component="span"><span>{getCurrencyString(currency)}</span>&nbsp;{weiToEther(bondRequired)}</Typography>
             </Field>
             <Field>
                 <Typography variant="h6" component="span">Hourly Hire Fee:</Typography>
-                // TODO: Replace currency symbol and 'weiToEther' with some conversion from vehicle currency to user's currency
+                {/* TODO: Replace currency symbol and 'weiToEther' with some conversion from vehicle currency to user's currency */}
                 <Typography variant="h6" color="primary" component="span"><span>{getCurrencyString(currency)}</span>&nbsp;{weiToEther(baseHireFee)}</Typography>
             </Field>
         </ContractDetailsWrapper>
