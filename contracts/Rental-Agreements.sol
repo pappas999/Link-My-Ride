@@ -19,17 +19,21 @@ contract RentalAgreementFactory {
     address public dappWallet = msg.sender;
     enum RentalAgreementStatus {PROPOSED, APPROVED, REJECTED, ACTIVE, COMPLETED, ENDED_ERROR}
     uint public constant DAY_IN_SECONDS = 60; //How many seconds in a day. 60 for testing, 86400 for Production
-    bytes32 job_id = "abcdef"; //jobID of oracle to use for gets & posts?
+    
+    bytes32 JOB_ID = "521205a00d644341a6ccb4ee99afcf63"; //jobID of oracle to use for gets & posts?
+    
     address public constant LINK_ROPSTEN = 0x20fE562d797A42Dcb3399062AE9546cd06f63280; //address of LINK token on Ropsten
     address public constant ORACLE_CONTRACT = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
+    address public constant NODE_ADDRESS = 0xDC92b2B1C731d07dC9bd8D30D0B1A69F266f2A8A;
     uint256 constant private ORACLE_PAYMENT = 0.1 * 1 ether;
+    
     
     address public constant ETH_USD_CONTRACT = 0x9326BFA02ADD2366b30bacB125260Af641031331;
     address public constant AUD_USD_CONTRACT = 0x5813A90f826e16dB392abd2aF7966313fc1fd5B8;
     address public constant GBP_USD_CONTRACT = 0x28b0061f44E6A9780224AA61BEc8C3Fcb0d37de9;
     
     enum VehicleModels { Model_S, Model_3, Model_X, Model_Y, Cybertruck, Roadster}
-
+    enum VehicleStatus {PENDING, APPROVED}
     enum Currency { ETH, USD, GBP, AUD }
 
     
@@ -43,6 +47,8 @@ contract RentalAgreementFactory {
         Currency ownerCurrency;        // The vehicle owner's chosen currency
         VehicleModels vehicleModel;    // Model of the vehicle
         string renterDescription;      // Basic description of renter
+        VehicleStatus status;          // Has the vehicle been validated against Tesla servers or not
+        
     }
     
     address[] internal keyList;
@@ -62,10 +68,15 @@ contract RentalAgreementFactory {
         //this code adds a vehicle so we don't have to keep doing it manually as part of development
         newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123,'sadfasfasdfsda',0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_S,'harrys car');
         newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567,'test',0.01 * 0.1 ether,0.01 ether,Currency.ETH,VehicleModels.Model_X,'second car');
+        
 
         ethUsdPriceFeed = AggregatorV3Interface(ETH_USD_CONTRACT);
         audUsdPriceFeed = AggregatorV3Interface(AUD_USD_CONTRACT);
         gbpUsdPriceFeed = AggregatorV3Interface(GBP_USD_CONTRACT);
+    }
+    
+    function test() public {
+        this.newRentalAgreement.value(10100000000000000)(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,0xaF9aA280435E8C13cf8ebE1827CBB402CE65bBf7,1600314221,1600317821);
     }
     
 
@@ -74,6 +85,14 @@ contract RentalAgreementFactory {
      */
     modifier onlyOwner() {
         require(dappWallet == msg.sender,'Only Insurance provider can do this');
+        _;
+    }
+    
+    /**
+     * @dev Prevents a function being run unless it's called by the specified Node
+     */
+    modifier onlyNode() {
+        require(NODE_ADDRESS == msg.sender,'Only Node can call this function');
         _;
     }
     
@@ -149,7 +168,8 @@ contract RentalAgreementFactory {
        } 
        return convertedMsgValue;   
     } 
-
+    
+   
     /**
      * @dev Create a new Rental Agreement. Once it's created, all logic & flow is handled from within the RentalAgreement Contract
      */ 
@@ -163,18 +183,30 @@ contract RentalAgreementFactory {
        //specify agreement must be for a discrete number of hours to keep it simple
        require((_endDateTime - _startDateTime) % 3600 == 0,'Vehicle Agreement must be for a discrete number of hours');
        
+       //vehicle to be rented must be in APPROVED status
+       require (vehicles[_vehicleOwner].status == VehicleStatus.APPROVED,'Vehicle is not approved');
+       
        //ensure start date is now or in the future
        //require (_startDateTime >= now,'Vehicle Agreement cannot be in the past');
 
        // Ensure correct amount of ETH has been sent for total rent cost & bond        
        uint convertedMsgValue = _convertToCurrency(msg.value, vehicles[_vehicleOwner].ownerCurrency);
+       
        uint totalRentCost = vehicles[_vehicleOwner].baseHireFee * ((_endDateTime - _startDateTime) / 3600);
        uint bondRequired = vehicles[_vehicleOwner].bondRequired;
+       
+
        require (convertedMsgValue >= totalRentCost.add(bondRequired),'Insufficient rent & bond paid');
 
+       //now that we've determined the ETH passed in is correct, we need to calculate bond + fee values in ETH to send to contract
+      
+       uint bondRequiredETH = 1;   //TO DO calcualte the bond payment in ETH based on vehicle bond value & currency
+       
+       uint totalRentCostETH = msg.value - bondRequiredETH; //fee value is total value minus bond. We've already validated enough ETH has been sent
+      
        //create new Rental Agreement
        RentalAgreement a = (new RentalAgreement).value(totalRentCost.add(bondRequired))(_vehicleOwner, _renter, _startDateTime, _endDateTime, totalRentCost, bondRequired, 
-                                                 LINK_ROPSTEN, ORACLE_CONTRACT, ORACLE_PAYMENT, job_id);
+                                                 LINK_ROPSTEN, ORACLE_CONTRACT, ORACLE_PAYMENT, JOB_ID);
        
        //store new agreement in array of agreements
        rentalAgreements.push(a);
@@ -207,13 +239,23 @@ contract RentalAgreementFactory {
       v.ownerCurrency = _ownerCurrency;
       v.vehicleModel = _vehicleModel;
       v.renterDescription = _description;
+      v.status = VehicleStatus.PENDING;
       
         
       emit vehicleAdded(_vehicleId, _vehicleOwner, _apiTokenHash, _baseHireFee, _bondRequired, _ownerCurrency, _vehicleModel, _description);
       
-      //store the key in an array where we can loop through
-      keyList.push(_vehicleOwner);
+
         
+    }
+    
+    /**
+     * @dev Approves a vehicle for use in the app. Only a Chainlink node can call this, as it knows if the test to the tesla servers was 
+     * successful or not
+     */
+    function approveVehicle(address _walletOwner) external  /*onlyNode()*/ {
+        vehicles[_walletOwner].status = VehicleStatus.APPROVED;
+        //store the key in an array where we can loop through
+        keyList.push(_walletOwner);
     }
     
     /**
@@ -293,26 +335,33 @@ contract RentalAgreementFactory {
      */
     function checkVehicleAvailable(address _vehicleAddress, uint _start, uint _end) public view returns (uint) {
 
-       //algorithm works as follows: loop through all rental agreemets
+       //algorithm works as follows:
+       //vehicle needs to be in approved status otherwise return false
+       //loop through all rental agreemets
        //for each agreement, check if its our vehicle
        //if its our vehicle, check if agreement is approved or active (proposed & completed/error not included)
        //and if its approved or active, check if overlap:  overlap = param.start < contract.end && contract.start < param.end;
        //if overlap, return 0
        //else return 1
        
-       for (uint i = 0; i < rentalAgreements.length; i++) {
-          if (rentalAgreements[i].getVehicleOwner() == _vehicleAddress){
-            if (rentalAgreements[i].getAgreementStatus() == RentalAgreementFactory.RentalAgreementStatus.APPROVED || 
-                rentalAgreements[i].getAgreementStatus() == RentalAgreementFactory.RentalAgreementStatus.ACTIVE)
-               {
-                  //check for overlap
-                  if ( _start < rentalAgreements[i].getAgreementEndTime() && rentalAgreements[i].getAgreementStartTime() < _end) {
-                      //overlap found, return 0
-                      return 0;
-                  }
-                }
-            }
+       if (vehicles[_vehicleAddress].status == VehicleStatus.APPROVED) {
        
+          for (uint i = 0; i < rentalAgreements.length; i++) {
+             if (rentalAgreements[i].getVehicleOwner() == _vehicleAddress){
+               if (rentalAgreements[i].getAgreementStatus() == RentalAgreementFactory.RentalAgreementStatus.APPROVED || 
+                   rentalAgreements[i].getAgreementStatus() == RentalAgreementFactory.RentalAgreementStatus.ACTIVE)
+                  {
+                     //check for overlap
+                     if ( _start < rentalAgreements[i].getAgreementEndTime() && rentalAgreements[i].getAgreementStartTime() < _end) {
+                         //overlap found, return 0
+                         return 0;
+                     }
+                   }
+               }
+       
+          }
+       } else { //vehicle not approved, return false
+          return 0;
        }
        
     
@@ -368,6 +417,13 @@ contract RentalAgreementFactory {
         return keyList;
     }
     
+    /**
+     * @dev Return a vehicle ID for a given vehicle address
+     */  
+    function getVehicleId(address _vehicleAddress) public view returns (uint) {
+        return vehicles[_vehicleAddress].vehicleId;
+    }
+    
     
     /**
      * @dev Function to end provider contract, in case of bugs or needing to update logic etc, funds are returned to dapp owner, including any remaining LINK tokens
@@ -408,7 +464,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     
     
     uint256 constant private PLATFORM_FEE = 1; //What percentage of the base fee goes to the Platform. To be used to fund data requests etc
-    
+    bytes32 constant JOB_ID = "JOB_ID";
     
     uint256 private oraclePaymentAmount;
     bytes32 private jobId;
@@ -445,6 +501,8 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     
     //List of events
     event rentalAgreementCreated(address vehicleOwner, address renter,uint startDateTime,uint endDateTime,uint totalRentCost, uint totalBond);
+    event contractActive(uint _startOdometer, int _startVehicleLongitude, int _startVehicleLatitide);
+    event contractCompleted(uint _endOdometer, int _endVehicleLongitude, int _endVehicleLatitide);
     
     /**
      * @dev Modifier to check if the dapp wallet is calling the transaction
@@ -550,9 +608,16 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
          //Need to check start time has reached
          require(startDateTime <= now ,'Start Date/Time has not been reached');
          
+         //get vehicle ID of the vehicle, needed for the request
+         uint vid = RentalAgreementFactory(dappWallet).getVehicleId(vehicleOwner);
          
-         //call to chainlink node job to wake up the ca
-         activeteRentalContractFallback("1,2,3");
+         //call to chainlink node job to wake up the car, get starting vehicle data, then unlock the car
+         Chainlink.Request memory req = buildChainlinkRequest(JOB_ID, address(this), this.activeteRentalContractFallback.selector);
+         req.add("apiToken", "");
+         req.add("vehicleId", uint2str(vid));
+         req.add("action", "unlock");
+         sendChainlinkRequestTo(chainlinkOracleAddress(), req, oraclePaymentAmount);
+         
      }
      
    /**
@@ -563,12 +628,21 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      function activeteRentalContractFallback(string _vehicleData) public returns (uint) {
         //Set contract variables to start the agreement
         //ask on discord how to get 3 int values, is best way to have a delimited string?
+        
+        string[] memory returnValues = split(_vehicleData,',');
+        //startOdometer = parseI
+        
+        //TO DO - convert each value to a uint or integer
+        
         startOdometer = 0; 
         startVehicleLongitude = 0; 
         startVehicleLatitide = 0; 
         
         //Values have been set, now set the contract to ACTIVE
         agreementStatus = RentalAgreementFactory.RentalAgreementStatus.ACTIVE;
+        
+        //Emit an event now that contract is now active
+        emit contractActive(startOdometer,startVehicleLongitude,startVehicleLatitide);
      }
      
      
@@ -711,11 +785,137 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         return (vehicleOwner,renter,startDateTime,endDateTime,totalRentCost,totalBond,agreementStatus);
     }
     
+    /**
+     * @dev Helper function for converting uint to a string
+     */ 
+    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+        if (_i == 0) {
+            return "0";
+        }
+        uint j = _i;
+        uint len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint k = len - 1;
+        while (_i != 0) {
+            bstr[k--] = byte(uint8(48 + _i % 10));
+            _i /= 10;
+        }
+        return string(bstr);
+    }
+    
+/**
+     * String Split 
+     *
+     * Splits a string into an array of strings based off the delimiter value.
+     * Please note this can be quite a gas expensive function due to the use of
+     * storage so only use if really required.
+     *
+     * @param _base When being used for a data type this is the extended object
+     *               otherwise this is the string value to be split.
+     * @param _value The delimiter to split the string on which must be a single
+     *               character
+     * @return string[] An array of values split based off the delimiter, but
+     *                  do not container the delimiter.
+     */
+    function split(string memory _base, string memory _value)
+        internal
+        pure
+        returns (string[] memory splitArr) {
+        bytes memory _baseBytes = bytes(_base);
+
+        uint _offset = 0;
+        uint _splitsCount = 1;
+        while (_offset < _baseBytes.length - 1) {
+            int _limit = _indexOf(_base, _value, _offset);
+            if (_limit == -1)
+                break;
+            else {
+                _splitsCount++;
+                _offset = uint(_limit) + 1;
+            }
+        }
+
+        splitArr = new string[](_splitsCount);
+
+        _offset = 0;
+        _splitsCount = 0;
+        while (_offset < _baseBytes.length - 1) {
+
+             _limit = _indexOf(_base, _value, _offset);
+            if (_limit == - 1) {
+                _limit = int(_baseBytes.length);
+            }
+
+            string memory _tmp = new string(uint(_limit) - _offset);
+            bytes memory _tmpBytes = bytes(_tmp);
+
+            uint j = 0;
+            for (uint i = _offset; i < uint(_limit); i++) {
+                _tmpBytes[j++] = _baseBytes[i];
+            }
+            _offset = uint(_limit) + 1;
+            splitArr[_splitsCount++] = string(_tmpBytes);
+        }
+        return splitArr;
+    }
+    
+    /**
+     * Index Of
+     *
+     * Locates and returns the position of a character within a string
+     * 
+     * @param _base When being used for a data type this is the extended object
+     *              otherwise this is the string acting as the haystack to be
+     *              searched
+     * @param _value The needle to search for, at present this is currently
+     *               limited to one character
+     * @return int The position of the needle starting from 0 and returning -1
+     *             in the case of no matches found
+     */
+    function indexOf(string memory _base, string memory _value)
+        internal
+        pure
+        returns (int) {
+        return _indexOf(_base, _value, 0);
+    }
+
+    /**
+     * Index Of
+     *
+     * Locates and returns the position of a character within a string starting
+     * from a defined offset
+     * 
+     * @param _base When being used for a data type this is the extended object
+     *              otherwise this is the string acting as the haystack to be
+     *              searched
+     * @param _value The needle to search for, at present this is currently
+     *               limited to one character
+     * @param _offset The starting point to start searching from which can start
+     *                from 0, but must not exceed the length of the string
+     * @return int The position of the needle starting from 0 and returning -1
+     *             in the case of no matches found
+     */
+    function _indexOf(string memory _base, string memory _value, uint _offset)
+        internal
+        pure
+        returns (int) {
+        bytes memory _baseBytes = bytes(_base);
+        bytes memory _valueBytes = bytes(_value);
+
+        assert(_valueBytes.length == 1);
+
+        for (uint i = _offset; i < _baseBytes.length; i++) {
+            if (_baseBytes[i] == _valueBytes[0]) {
+                return int(i);
+            }
+        }
+
+        return -1;
+    }
+    
     
 }
-
-
-
-
-    
-    
