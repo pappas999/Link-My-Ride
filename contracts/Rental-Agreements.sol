@@ -193,13 +193,13 @@ contract RentalAgreementFactory {
        //require (_startDateTime >= now,'Vehicle Agreement cannot be in the past');
 
        // Ensure correct amount of ETH has been sent for total rent cost & bond        
-       uint convertedMsgValue = _convertEthToFiat(msg.value, vehicles[_vehicleOwner].ownerCurrency);
+       uint convertedMsgValue = convertEthToFiat(msg.value, vehicles[_vehicleOwner].ownerCurrency);
        uint totalRentCost = vehicles[_vehicleOwner].baseHireFee * ((_endDateTime - _startDateTime) / 3600);
        uint bondRequired = vehicles[_vehicleOwner].bondRequired;
        require (convertedMsgValue >= totalRentCost.add(bondRequired),'Insufficient rent & bond paid');
 
        // Now that we've determined the ETH passed in is correct, we need to calculate bond + fee values in ETH to send to contract
-       uint bondRequiredETH = _convertFiatToEth(bondRequired, vehicles[_vehicleOwner].ownerCurrency);
+       uint bondRequiredETH = convertFiatToEth(bondRequired, vehicles[_vehicleOwner].ownerCurrency);
        
        // Fee value is total value minus bond. We've already validated enough ETH has been sent
        uint totalRentCostETH = msg.value - bondRequiredETH; 
