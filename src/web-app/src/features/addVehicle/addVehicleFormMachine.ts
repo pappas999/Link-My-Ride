@@ -1,17 +1,15 @@
 import { createMachine } from "xstate"
+import { Currency, Model } from "../../enums"
 
 export const addVehicleFormMachine = createMachine({
     id: "addVehicleForm",
     initial: "initial",
     context: {
-        selectedVehicleModel: "",
+        selectedVehicleModel: Model.Model_S,
         vehicleDescription: "",
         vehicleId: "",
         apiKey: "",
-        currency: {
-            value: 'USD',
-            label: '$',
-        },
+        currency: Currency.ETH,
         hireFee: "",
         bond: ""
     },

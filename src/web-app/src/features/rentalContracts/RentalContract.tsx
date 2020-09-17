@@ -3,7 +3,7 @@ import styled from "styled-components"
 import { Typography, CardActions, Button } from "@material-ui/core"
 import { Card } from "../../components/card"
 import { CarImage } from "../../components/car"
-import { EtherSymbol, toEther, toLongDateTime, getCarModelString, getRentalContractStatusString } from "../../utils"
+import { EtherSymbol, weiToEther, toLongDateTime, getCarModelString, getRentalContractStatusString } from "../../utils"
 import { RentalAgreementStatus } from "../../enums"
 import { Web3Context } from "../web3"
 import rentalContractSC from "./rentalContractSC.json"
@@ -111,11 +111,11 @@ export const RentalContract = ({
             </Field>
             <Field>
                 <Typography variant="h6" component="span">Bond:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(totalBond)}</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{weiToEther(totalBond)}</Typography>
             </Field>
             <Field>
                 <Typography variant="h6" component="span">Total Hire Fee:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(totalRentCost)}</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{weiToEther(totalRentCost)}</Typography>
             </Field>
             <Field>
                 <RentalAgreementStatusIndicator variant="h6" component="span">{getRentalContractStatusString(status)}</RentalAgreementStatusIndicator>

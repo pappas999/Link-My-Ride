@@ -17,15 +17,16 @@ export const MyVehicle = () => {
 
         const vehicle = await linkMyRideContract.methods.getVehicle(addresses[0]).call()
 
-        if (vehicle[0] !== 0) {
+        if (vehicle[0] !== "0") {
             setMyVehicle({
                 id: vehicle[0],
                 address: vehicle[1],
                 apiTokenHash: vehicle[2],
                 baseHireFee: vehicle[3],
                 bondRequired: vehicle[4],
-                model: vehicle[5],
-                description: vehicle[6],
+                currency: vehicle[5],
+                model: vehicle[6],
+                description: vehicle[7],
                 lat: 0,
                 lng: 0
             })

@@ -50,8 +50,9 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
             apiTokenHash: vehicle[2],
             baseHireFee: vehicle[3],
             bondRequired: vehicle[4],
-            model: vehicle[5],
-            description: vehicle[6],
+            currency: vehicle[5],
+            model: vehicle[6],
+            description: vehicle[7],
             lat: getRandomCoord(36.14, 36.16),
             lng: getRandomCoord(-115.12, -115.16),
         }))

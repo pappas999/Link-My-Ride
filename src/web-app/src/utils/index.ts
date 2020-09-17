@@ -1,5 +1,7 @@
-export { toEther } from "./toEther"
+export { weiToEther } from "./weiToEther"
 export { EtherSymbol } from "./EtherSymbol"
 export { toLongDateTime } from "./toLongDateTime"
 export { getCarModelString } from "./getCarModelString"
 export { getRentalContractStatusString } from "./getRentalContractStatusString"
+export { toSolidityFormat } from "./toSolidityFormat"
+export { getCurrencyString } from "./getCurrencyString"

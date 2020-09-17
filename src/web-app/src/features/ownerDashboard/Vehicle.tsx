@@ -3,7 +3,7 @@ import styled from "styled-components"
 import { Typography } from "@material-ui/core"
 import { Card } from "../../components/card"
 import { CarImage } from "../../components/car"
-import { EtherSymbol, toEther, getCarModelString } from "../../utils"
+import { getCurrencyString, weiToEther, getCarModelString } from "../../utils"
 
 type Props = {
     car: Car
@@ -18,7 +18,8 @@ export const Vehicle = ({
     const { model,
         description,
         baseHireFee,
-        bondRequired } = car
+        bondRequired,
+        currency } = car
 
     return <StyledCard>
         <CarDetailsWrapper>
@@ -31,18 +32,20 @@ export const Vehicle = ({
         <ContractDetailsWrapper>
             <Field>
                 <Typography variant="h6" component="span">Required Bond:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(bondRequired)}</Typography>
+                // TODO: Replace currency symbol and 'weiToEther' with some conversion from vehicle currency to user's currency
+                <Typography variant="h6" color="primary" component="span"><span>{getCurrencyString(currency)}</span>&nbsp;{weiToEther(bondRequired)}</Typography>
             </Field>
             <Field>
                 <Typography variant="h6" component="span">Hourly Hire Fee:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<EtherSymbol />{toEther(baseHireFee)}</Typography>
+                // TODO: Replace currency symbol and 'weiToEther' with some conversion from vehicle currency to user's currency
+                <Typography variant="h6" color="primary" component="span"><span>{getCurrencyString(currency)}</span>&nbsp;{weiToEther(baseHireFee)}</Typography>
             </Field>
         </ContractDetailsWrapper>
     </StyledCard>
 }
 
 const StyledCard = styled(Card)`
-    max-width: ${({theme}) => theme.typography.pxToRem(450)};
+    max-width: ${({ theme }) => theme.typography.pxToRem(450)};
 `
 
 const Field = styled.div`

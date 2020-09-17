@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 import styled from "styled-components"
 import { AddVehicleFormContext } from "./AddVehicleFormContext"
 import { FormControl, Input, InputLabel, Select, MenuItem, TextField, Button, InputAdornment } from "@material-ui/core"
-import { Model } from "../../enums"
+import { Model, Currency } from "../../enums"
 import { getCarModelString } from "../../utils"
 import { StyledForm } from "../../components/form"
 
@@ -37,10 +37,7 @@ export const AddVehicleForm = () => {
     }
 
     const handleCurrencyChange = (event: any) => {
-        const currency = currencies.find((currency: any) => {
-            return currency.value === event.target.value
-        })
-        setCurrency(currency)
+        setCurrency(event.target.value)
     }
 
     const handleHireFeeChanged = (event: any) => {
@@ -58,24 +55,24 @@ export const AddVehicleForm = () => {
     console.log(JSON.stringify(current.context))
 
     // TODO: Move this to context?
-    const currencies = [
-        {
-            value: 'USD',
-            label: '$',
-        },
-        {
-            value: 'GBP',
-            label: '£',
-        },
-        {
-            value: 'AUD',
-            label: 'AU$',
-        },
-        {
-            value: 'ETH',
-            label: 'Ξ',
-        },
-    ]
+    // const currencies = [
+    //     {
+    //         value: 'USD',
+    //         label: '$',
+    //     },
+    //     {
+    //         value: 'GBP',
+    //         label: '£',
+    //     },
+    //     {
+    //         value: 'AUD',
+    //         label: 'AU$',
+    //     },
+    //     {
+    //         value: 'ETH',
+    //         label: 'Ξ',
+    //     },
+    // ]
 
     return <FormWrapper>
         <FormField>
@@ -85,12 +82,13 @@ export const AddVehicleForm = () => {
                     value={current.context.selectedVehicleModel}
                     onChange={handleVehicleModelSelected}
                 >
-                    <MenuItem value={Model.Model_S}>{getCarModelString(Model.Model_S)}</MenuItem>
-                    <MenuItem value={Model.Model_3}>{getCarModelString(Model.Model_3)}</MenuItem>
-                    <MenuItem value={Model.Model_X}>{getCarModelString(Model.Model_X)}</MenuItem>
-                    <MenuItem value={Model.Model_Y}>{getCarModelString(Model.Model_Y)}</MenuItem>
-                    <MenuItem value={Model.Roadster}>{getCarModelString(Model.Roadster)}</MenuItem>
-                    <MenuItem value={Model.Cybertruck}>{getCarModelString(Model.Cybertruck)}</MenuItem>
+                    // TODO: map over enum instead?
+                    <MenuItem key={Model.Model_S} value={Model.Model_S}>{getCarModelString(Model.Model_S)}</MenuItem>
+                    <MenuItem key={Model.Model_3} value={Model.Model_3}>{getCarModelString(Model.Model_3)}</MenuItem>
+                    <MenuItem key={Model.Model_X} value={Model.Model_X}>{getCarModelString(Model.Model_X)}</MenuItem>
+                    <MenuItem key={Model.Model_Y} value={Model.Model_Y}>{getCarModelString(Model.Model_Y)}</MenuItem>
+                    <MenuItem key={Model.Roadster} value={Model.Roadster}>{getCarModelString(Model.Roadster)}</MenuItem>
+                    <MenuItem key={Model.Cybertruck} value={Model.Cybertruck}>{getCarModelString(Model.Cybertruck)}</MenuItem>
                 </Select>
             </VehicleModelFormControl>
         </FormField>
@@ -104,15 +102,13 @@ export const AddVehicleForm = () => {
             <CurrencySelectTextField
                 select
                 label="Currency"
-                value={current.context.currency.value}
+                value={current.context.currency}
                 onChange={handleCurrencyChange}>
-                {
-                    currencies.map((option) => {
-                        return <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                        </MenuItem>
-                    })
-                }
+                // TODO: map over enum instead?
+                <MenuItem key={Currency.ETH} value={Currency.ETH}>ETH</MenuItem>
+                <MenuItem key={Currency.USD} value={Currency.USD}>USD</MenuItem>
+                <MenuItem key={Currency.GBP} value={Currency.GBP}>GBP</MenuItem>
+                <MenuItem key={Currency.AUD} value={Currency.AUD}>AUD</MenuItem>
             </CurrencySelectTextField>
         </FormField>
         <FormField>
@@ -173,5 +169,5 @@ const VehicleModelFormControl = styled(FormControl)`
 `
 
 const CurrencySelectTextField = styled(TextField)`
-    width: ${({ theme }) => theme.typography.pxToRem(80)};
+    width: ${({ theme }) => theme.typography.pxToRem(120)};
 `

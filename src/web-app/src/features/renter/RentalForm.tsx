@@ -7,7 +7,7 @@ import DateFnsUtils from "@date-io/date-fns"
 import { Map } from "../../components/map"
 import { Vehicle } from "../ownerDashboard/Vehicle"
 import { StyledForm, StyledHr, SubmittingOverlay } from "../../components/form"
-import { EtherSymbol, toEther } from "../../utils"
+import { EtherSymbol, weiToEther } from "../../utils"
 
 export const RentalForm = () => {
 
@@ -79,7 +79,7 @@ export const RentalForm = () => {
             current.context.hireDuration && <>
                 <StyledHr />
                 <BigFieldLabel>Total cost:</BigFieldLabel>
-                <Total><EtherSymbol />{toEther(total)}</Total>
+                <Total><EtherSymbol />{weiToEther(total)}</Total>
                 <SubmitButton color="secondary" onClick={handleSubmit}>Send request to car owner</SubmitButton>
             </>
         }
