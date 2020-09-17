@@ -30,6 +30,11 @@ const  createRequest = async (input, callback) => {
   
     var storedToken;
 	var authenticationToken;
+	var odometer;
+	var chargeLevel;
+	var longitude;
+	var latitude;
+	var finalResponse;
   
     //get input values
     var jobRunID = input.id
@@ -105,11 +110,6 @@ const  createRequest = async (input, callback) => {
 	endpoint = `api/1/vehicles/${vehicleId}/vehicle_data`
 	finalUrl = base_url + endpoint;
 	console.log('doing vehicle data request to: ' + finalUrl);
-	var odometer;
-	var chargeLevel;
-	var longitude;
-	var latitude;
-	var finalResponse;
   
 	//Create the request
 	try { 
@@ -138,8 +138,36 @@ const  createRequest = async (input, callback) => {
 		callback(response.status, Requester.errored(jobRunID, error))
 	}
     break;
-	
+ 
+ //For both unlock & lock, for this use case we also need to obtain vehicle data values, as the on-chain contract will need them to log specific data 
  case 'unlock':
+    //first get vehicle data
+	endpoint = `api/1/vehicles/${vehicleId}/vehicle_data`
+	finalUrl = base_url + endpoint;
+	console.log('doing vehicle data request to: ' + finalUrl);
+  
+	//Create the request
+	try { 
+		await axios.get(finalUrl,{headers: headers})
+		.then(function (response) {
+			console.log('get vehicle data successful');
+			//console.log(JSON.stringify(response.data));
+			
+			odometer = Math.round(response.data.response.vehicle_state.odometer)
+			charge = response.data.response.charge_state.battery_level
+			longitude = response.data.response.drive_state.longitude
+			latitude = response.data.response.drive_state.latitude
+	  
+			finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
+			console.log('final response: ' + finalResponse);
+			
+		}); 
+	} catch(error) {
+		console.log('get vehicle data error: ' + error);
+		callback(response.status, Requester.errored(jobRunID, error))
+	}
+	
+	//now that we have the data, we can unlock the vehicle
     endpoint = `api/1/vehicles/${vehicleId}/command/door_unlock`
 	finalUrl = base_url + endpoint;
 	console.log('doing door unlock request to: ' + finalUrl);
@@ -148,7 +176,13 @@ const  createRequest = async (input, callback) => {
 		await axios.post(finalUrl, null, {headers: headers})
 		.then(function (response) {
 			console.log('unlock successful');
-			callback(response.status, Requester.success(jobRunID, response))
+			callback(response.status, 
+			  {
+					   jobRunID,
+				 data: finalResponse,
+			   result: null,
+		   statusCode: response.status
+			});
 		}); 
 	} catch(error) {
 		console.log('unlock error: ' + error);
@@ -157,15 +191,49 @@ const  createRequest = async (input, callback) => {
     break;
 	
  case 'lock':
+ 
+	//first get vehicle data
+	endpoint = `api/1/vehicles/${vehicleId}/vehicle_data`
+	finalUrl = base_url + endpoint;
+	console.log('doing vehicle data request to: ' + finalUrl);
+  
+	//Create the request
+	try { 
+		await axios.get(finalUrl,{headers: headers})
+		.then(function (response) {
+			console.log('get vehicle data successful');
+			//console.log(JSON.stringify(response.data));
+			
+			odometer = Math.round(response.data.response.vehicle_state.odometer)
+			charge = response.data.response.charge_state.battery_level
+			longitude = response.data.response.drive_state.longitude
+			latitude = response.data.response.drive_state.latitude
+	  
+			finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
+			console.log('final response: ' + finalResponse);
+			
+		}); 
+	} catch(error) {
+		console.log('get vehicle data error: ' + error);
+		callback(response.status, Requester.errored(jobRunID, error))
+	}
+	
+	//now that we have the data, we can unlock the vehicle
     endpoint = `api/1/vehicles/${vehicleId}/command/door_lock`
 	finalUrl = base_url + endpoint;
-	console.log('doing door door_lock request to: ' + finalUrl);
+	console.log('doing  door_lock request to: ' + finalUrl);
 	//Create the request
 	try { 
 		await axios.post(finalUrl, null, {headers: headers})
 		.then(function (response) {
 			console.log('door_lock successful');
-			callback(response.status, Requester.success(jobRunID, response))
+			callback(response.status, 
+			  {
+					   jobRunID,
+				 data: finalResponse,
+			   result: null,
+		   statusCode: response.status
+			});
 		}); 
 	} catch(error) {
 		console.log('door_lock error: ' + error);
