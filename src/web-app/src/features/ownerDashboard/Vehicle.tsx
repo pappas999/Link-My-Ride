@@ -1,9 +1,12 @@
-import React from "react"
+import React, { useContext, useEffect, useState, useCallback } from "react"
 import styled from "styled-components"
 import { Typography } from "@material-ui/core"
 import { Card } from "../../components/card"
 import { CarImage } from "../../components/car"
-import { getCurrencyString, weiToEther, getCarModelString } from "../../utils"
+import { getCurrencyString, weiToEther, getCarModelString, toSolidityFormat } from "../../utils"
+import { CurrencyContext } from "../currency"
+import { Currency } from "../../enums"
+import BigNumber from "bignumber.js"
 
 type Props = {
     car: Car
@@ -12,6 +15,19 @@ type Props = {
 export const Vehicle = ({
     car
 }: Props) => {
+
+    const { convertCurrency } = useContext(CurrencyContext)
+
+    const [asUsd, setAsUsd] = useState(new BigNumber(0))
+
+    const doThing = useCallback(async () => {
+        const hunnidGbpAsUsd = await convertCurrency(toSolidityFormat("100", Currency.GBP), Currency.GBP, Currency.USD)
+        setAsUsd(hunnidGbpAsUsd)
+    }, [])
+
+    useEffect(() => {
+        doThing()
+    }, [])
 
     if (!car) return null
 
@@ -40,6 +56,7 @@ export const Vehicle = ({
                 {/* TODO: Replace currency symbol and 'weiToEther' with some conversion from vehicle currency to user's currency */}
                 <Typography variant="h6" color="primary" component="span"><span>{getCurrencyString(currency)}</span>&nbsp;{weiToEther(baseHireFee)}</Typography>
             </Field>
+            <Typography variant="h6" component="span">{asUsd.toString()}</Typography>
         </ContractDetailsWrapper>
     </StyledCard>
 }

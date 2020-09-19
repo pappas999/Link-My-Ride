@@ -11,6 +11,7 @@ import { Home } from "./features/home"
 import { RentalForm, RentalFormProvider } from "./features/renter"
 import { SecondaryPageLayout } from "./features/layout/SecondaryPageLayout"
 import { Web3Provider } from "./features/web3"
+import { CurrencyProvider } from "./features/currency"
 import { OwnerDashboard } from "./features/ownerDashboard"
 import { RenterDashboard } from "./features/renterDashboard"
 import { AddVehicleFormProvider, AddVehicleForm } from "./features/addVehicle"
@@ -20,6 +21,7 @@ export const App = () => {
     <MuiThemeProvider theme={theme}>
       <ThemeProvider theme={theme}>
         <Web3Provider>
+          <CurrencyProvider>
           <Router>
             <Main>
               <Switch>
@@ -47,6 +49,7 @@ export const App = () => {
               </Switch>
             </Main>
           </Router>
+          </CurrencyProvider>
         </Web3Provider>
       </ThemeProvider>
     </MuiThemeProvider>
