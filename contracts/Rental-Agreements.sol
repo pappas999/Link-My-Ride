@@ -11,6 +11,7 @@ import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/vendor/Ownable.sol";
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/LinkToken.sol";
 import "https://github.com/smartcontractkit/chainlink/blob/master/evm-contracts/src/v0.4/interfaces/AggregatorV3Interface.sol";
+import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
 contract RentalAgreementFactory {
     
@@ -18,12 +19,12 @@ contract RentalAgreementFactory {
     
     address public dappWallet = msg.sender;
     enum RentalAgreementStatus {PROPOSED, APPROVED, REJECTED, ACTIVE, COMPLETED, ENDED_ERROR}
-    uint public constant DAY_IN_SECONDS = 60; //How many seconds in a day. 60 for testing, 86400 for Production
+
     
-    bytes32 JOB_ID = "521205a00d644341a6ccb4ee99afcf63"; //jobID of oracle to use for gets & posts?
+    bytes32 JOB_ID = "534ea675a9524e8e834585b00368b178"; //jobID for main contract functions
     
-    address public constant LINK_ROPSTEN = 0x20fE562d797A42Dcb3399062AE9546cd06f63280; //address of LINK token on Ropsten
-    address public constant ORACLE_CONTRACT = 0x4a3fbbb385b5efeb4bc84a25aaadcd644bd09721;
+    address public constant LINK_KOVAN = 0xa36085F69e2889c224210F603D836748e7dC0088; //address of LINK token on Kovan
+    address public constant ORACLE_CONTRACT = 0x05c8fadf1798437c143683e665800d58a42b6e19;
     address public constant NODE_ADDRESS = 0xDC92b2B1C731d07dC9bd8D30D0B1A69F266f2A8A;
     uint256 constant private ORACLE_PAYMENT = 0.1 * 1 ether;
     
@@ -230,7 +231,7 @@ contract RentalAgreementFactory {
       
        //create new Rental Agreement
        RentalAgreement a = (new RentalAgreement).value(totalRentCostETH.add(bondRequiredETH))(_vehicleOwner, _renter, _startDateTime, _endDateTime, totalRentCostETH, bondRequiredETH, 
-                                                 LINK_ROPSTEN, ORACLE_CONTRACT, ORACLE_PAYMENT, JOB_ID);
+                                                 LINK_KOVAN, ORACLE_CONTRACT, ORACLE_PAYMENT, JOB_ID);
        
        //store new agreement in array of agreements
        rentalAgreements.push(a);
@@ -238,11 +239,12 @@ contract RentalAgreementFactory {
        emit rentalAgreementCreated(address(a), msg.value);
         
        //now that contract has been created, we need to fund it with enough LINK tokens to fulfil 1 Oracle request per day
-       //LinkTokenInterface link = LinkTokenInterface(a.getChainlinkToken());
-       //link.transfer(address(a), 1 ether);
+       LinkTokenInterface link = LinkTokenInterface(a.getChainlinkToken());
+       link.transfer(address(a), 1 ether);
         
         
-       return address(a);
+       //return address(a);
+       return address(this);
         
     }
     
@@ -453,7 +455,7 @@ contract RentalAgreementFactory {
      * @dev Function to end provider contract, in case of bugs or needing to update logic etc, funds are returned to dapp owner, including any remaining LINK tokens
      */
     function endContractProvider() external payable onlyOwner() {
-        LinkTokenInterface link = LinkTokenInterface(LINK_ROPSTEN);
+        LinkTokenInterface link = LinkTokenInterface(LINK_KOVAN);
         require(link.transfer(msg.sender, link.balanceOf(address(this))), "Unable to transfer");
         selfdestruct(dappWallet);
     }
@@ -472,6 +474,7 @@ contract RentalAgreementFactory {
 contract RentalAgreement is ChainlinkClient, Ownable  {
     
     using SafeMath_Chainlink for uint;
+    using strings for *;
     
     enum RentalAgreementStatus {PROPOSED, APPROVED, REJECTED, ACTIVE, COMPLETED, ENDED_ERROR}
     
@@ -488,7 +491,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     
     
     uint256 constant private PLATFORM_FEE = 1; //What percentage of the base fee goes to the Platform. To be used to fund data requests etc
-    bytes32 constant JOB_ID = "JOB_ID";
+
     
     uint256 private oraclePaymentAmount;
     bytes32 private jobId;
@@ -502,19 +505,20 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     uint totalBond;
     RentalAgreementFactory.RentalAgreementStatus agreementStatus;
     uint startOdometer = 0; 
+    uint startChargeState = 0;
     int startVehicleLongitude = 0; 
     int startVehicleLatitide = 0; 
     uint endOdometer = 0;
     int endVehicleLongitude = 0; 
     int endVehicleLatitude = 0;
     uint rentalAgreementEndDateTime = 0;
-    int endChargeState = 0;
+    uint endChargeState = 0;
     
     //variables for calulating final fee payable
-    int totalMiles = 0;
-    int totalHoursPastEndDate = 0;
-    int longitudeDifference = 0;
-    int latitudeDifference = 0;
+    uint totalMiles = 0;
+    uint totalHoursPastEndDate = 0;
+    uint longitudeDifference = 0;
+    uint latitudeDifference = 0;
     uint totalLocationPenalty = 0;
     uint totalOdometerPenalty = 0;
     uint totalChargePenalty = 0;
@@ -525,8 +529,8 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     
     //List of events
     event rentalAgreementCreated(address vehicleOwner, address renter,uint startDateTime,uint endDateTime,uint totalRentCost, uint totalBond);
-    event contractActive(uint _startOdometer, int _startVehicleLongitude, int _startVehicleLatitide);
-    event contractCompleted(uint _endOdometer, int _endVehicleLongitude, int _endVehicleLatitide);
+    event contractActive(uint _startOdometer, uint _startChargeState, int _startVehicleLongitude, int _startVehicleLatitide);
+    event contractCompleted(uint _endOdometer,  uint _endChargeState, int _endVehicleLongitude, int _endVehicleLatitide);
     
     /**
      * @dev Modifier to check if the dapp wallet is calling the transaction
@@ -578,7 +582,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
        //initialize variables required for Chainlink Node interaction
        setChainlinkToken(_link);
        setChainlinkOracle(_oracle);
-       jobId = _jobId;
+       jobId =  _jobId;
        oraclePaymentAmount = _oraclePaymentAmount;
         
        //first ensure insurer has fully funded the contract - check here. money should be transferred on creation of agreement.
@@ -593,7 +597,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
        totalRentCost = _totalRentCost;
        totalBond = _totalBond;
        agreementStatus = RentalAgreementFactory.RentalAgreementStatus.PROPOSED;
-        
+       
        emit rentalAgreementCreated(vehicleOwner,renter,startDateTime,endDateTime,totalRentCost,totalBond);
     }
     
@@ -630,13 +634,13 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
          //do external adapter call to wake up vehicle & get vehicle data
          
          //Need to check start time has reached
-         require(startDateTime <= now ,'Start Date/Time has not been reached');
+         //require(startDateTime <= now ,'Start Date/Time has not been reached');
          
          //get vehicle ID of the vehicle, needed for the request
          uint vid = RentalAgreementFactory(dappWallet).getVehicleId(vehicleOwner);
          
          //call to chainlink node job to wake up the car, get starting vehicle data, then unlock the car
-         Chainlink.Request memory req = buildChainlinkRequest(JOB_ID, address(this), this.activeteRentalContractFallback.selector);
+         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.activeteRentalContractFallback.selector);
          req.add("apiToken", "");
          req.add("vehicleId", uint2str(vid));
          req.add("action", "unlock");
@@ -649,24 +653,60 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      * If we get to this stage, it means the vehicle successfully returned the required data to start the agreement, & the vehicle has been unlocked
      * Only the contract should be able to call this function
      */ 
-     function activeteRentalContractFallback(string _vehicleData) public returns (uint) {
+     function activeteRentalContractFallback(bytes32 _requestId, bytes32 _vehicleData) public recordChainlinkFulfillment(_requestId) {
         //Set contract variables to start the agreement
-        //ask on discord how to get 3 int values, is best way to have a delimited string?
         
-        string[] memory returnValues = split(_vehicleData,',');
-        //startOdometer = parseI
+        //temp variables required for converting to signed integer
+        uint tmpStartLongitude;
+        uint tmpStartLatitude;
+        bytes memory longitudeBytes;
+        bytes memory latitudeBytes;
         
-        //TO DO - convert each value to a uint or integer
         
-        startOdometer = 0; 
-        startVehicleLongitude = 0; 
-        startVehicleLatitide = 0; 
+        //first split the results into individual strings based on the delimiter
+        var s = bytes32ToString(_vehicleData).toSlice();
+        var delim = ",".toSlice();
+       
+        //store each string in an array
+        string[] memory splitResults = new string[](s.count(delim)+ 1);                  
+        for (uint i = 0; i < splitResults.length; i++) {                              
+           splitResults[i] = s.split(delim).toString();                              
+        }                                                        
+       
+        //Now for each one, convert to uint
+        startOdometer = stringToUint(splitResults[0]);
+        startChargeState = stringToUint(splitResults[1]);
+        tmpStartLongitude = stringToUint(splitResults[2]);
+        tmpStartLatitude = stringToUint(splitResults[3]);
         
+        //Now store location coordinates in signed variables. Will always be positive, but will check in the next step if need to make negative
+        startVehicleLongitude =  int(tmpStartLongitude);
+        startVehicleLatitide =  int(tmpStartLatitude);
+
+        //Finally, check first bye in the string for the location variables. If it was a '-', then multiply location coordinate by -1
+        //first get the first byte of each location coordinate string
+        longitudeBytes = bytes(splitResults[2]);
+        latitudeBytes = bytes(splitResults[3]);
+        
+        
+        //First check longitude
+        if (uint(longitudeBytes[0]) == 0x2d) {
+            //first byte was a '-', multiply result by -1
+            startVehicleLongitude = startVehicleLongitude * -1;
+        }
+        
+        //Now check latitude
+        if (uint(latitudeBytes[0]) == 0x2d) {
+            //first byte was a '-', multiply result by -1
+            startVehicleLatitide = startVehicleLatitide * -1;
+        }
+        
+
         //Values have been set, now set the contract to ACTIVE
         agreementStatus = RentalAgreementFactory.RentalAgreementStatus.ACTIVE;
         
         //Emit an event now that contract is now active
-        emit contractActive(startOdometer,startVehicleLongitude,startVehicleLatitide);
+        emit contractActive(startOdometer,startChargeState,startVehicleLongitude,startVehicleLatitide);
      }
      
      
@@ -675,10 +715,18 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      * @dev Step 04a: Renter ends an active contract, contract becomes COMPELTED or ENDED_ERROR
      * Conditions for ending contract: Must be ACTIVE
      */ 
-     function endRentalContract() external returns (uint) {
+     function endRentalContract()  external onlyRenter()  {
          //First we need to check if vehicle can be accessed, if so then do a call to get vehicle data
-         //external adapter call to get endrental data
+
+         //get vehicle ID of the vehicle, needed for the request
+         uint vid = RentalAgreementFactory(dappWallet).getVehicleId(vehicleOwner);
          
+         //call to chainlink node job to wake up the car, get ending vehicle data, then lock the car
+         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.endRentalContractFallback.selector);
+         req.add("apiToken", "");
+         req.add("vehicleId", uint2str(vid));
+         req.add("action", "lock");
+         sendChainlinkRequestTo(chainlinkOracleAddress(), req, oraclePaymentAmount);
          
      }
      
@@ -686,19 +734,67 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      * @dev Step 04b: Callback for getting vehicle data on ending a rental agreement. Based on results Contract becomes COMPELTED or ENDED_ERROR
      * Conditions for ending contract: Must be ACTIVE. Only this contract should be able to call this function
      */ 
-     function endRentalContractFallback(string _vehicleData) external returns (uint) {
-         //Store obtained vales into contract. Once again need to probably parse a delimited string
-        endOdometer = 0; 
-        endVehicleLongitude = 0; 
-        endVehicleLatitude = 0; 
-        endChargeState = 0;
+     function endRentalContractFallback(bytes32 _requestId, bytes32 _vehicleData) public recordChainlinkFulfillment(_requestId) {
+        //Set contract variables to end the agreement
+        
+        //temp variables required for converting to signed integer
+        uint tmpEndLongitude;
+        uint tmpEndLatitude;
+        bytes memory longitudeBytes;
+        bytes memory latitudeBytes;
+        
+        
+        //first split the results into individual strings based on the delimiter
+        var s = bytes32ToString(_vehicleData).toSlice();
+        var delim = ",".toSlice();
+       
+        //store each string in an array
+        string[] memory splitResults = new string[](s.count(delim)+ 1);                  
+        for (uint i = 0; i < splitResults.length; i++) {                              
+           splitResults[i] = s.split(delim).toString();                              
+        }                                                        
+       
+        //Now for each one, convert to uint
+        endOdometer = stringToUint(splitResults[0]);
+        endChargeState = stringToUint(splitResults[1]);
+        tmpEndLongitude = stringToUint(splitResults[2]);
+        tmpEndLatitude = stringToUint(splitResults[3]);
+        
+        //Now store location coordinates in signed variables. Will always be positive, but will check in the next step if need to make negative
+        endVehicleLongitude =  int(tmpEndLongitude);
+        endVehicleLatitude =  int(tmpEndLatitude);
+
+        //Finally, check first bye in the string for the location variables. If it was a '-', then multiply location coordinate by -1
+        //first get the first byte of each location coordinate string
+        longitudeBytes = bytes(splitResults[2]);
+        latitudeBytes = bytes(splitResults[3]);
+        
+        
+        //First check longitude
+        if (uint(longitudeBytes[0]) == 0x2d) {
+            //first byte was a '-', multiply result by -1
+            endVehicleLongitude = endVehicleLongitude * -1;
+        }
+        
+        //Now check latitude
+        if (uint(latitudeBytes[0]) == 0x2d) {
+            //first byte was a '-', multiply result by -1
+            endVehicleLatitude = endVehicleLatitude * -1;
+        }
+        
+        //Set the end time of the contract
         rentalAgreementEndDateTime = now;
-         
+        
+
+
+
+        
+
         //Now that we have all values in contract, we can calculate final fee payable
         
         //First calculate and send platform fee 
         //Total to go to platform = base fee / platform fee %
-        //totalPlatformFee = totalRentCost.mult(PLATFORM_FEE.div(100));
+        totalPlatformFee = totalRentCost.mul(PLATFORM_FEE.div(100));
         
         //Total to go to car owner = (base fee - platform fee from above) + time penalty + location penalty + charge penalty
         
@@ -732,6 +828,10 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
       //      totalBondReturned = (totalRentCost + totalBond) - (totalRentPayable + totalPlatformFee) ;
        // }
         
+        
+        totalRentPayable = totalRentCost;
+        totalBondReturned = totalBond;
+        
         //Now that we have all fees & charges calculated, perform necessary transfers & then end contract
         //first pay platform fee
         dappWallet.transfer(totalPlatformFee);
@@ -746,6 +846,9 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         
         //Transfers all completed, now we just need to set contract status to successfully completed 
         agreementStatus = RentalAgreementFactory.RentalAgreementStatus.COMPLETED;
+        
+        //Emit an event now that contract is now ended
+        emit contractCompleted(endOdometer,endChargeState,endVehicleLongitude,endVehicleLatitude);
          
      }
     
@@ -831,114 +934,34 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         return string(bstr);
     }
     
-/**
-     * String Split 
-     *
-     * Splits a string into an array of strings based off the delimiter value.
-     * Please note this can be quite a gas expensive function due to the use of
-     * storage so only use if really required.
-     *
-     * @param _base When being used for a data type this is the extended object
-     *               otherwise this is the string value to be split.
-     * @param _value The delimiter to split the string on which must be a single
-     *               character
-     * @return string[] An array of values split based off the delimiter, but
-     *                  do not container the delimiter.
-     */
-    function split(string memory _base, string memory _value)
-        internal
-        pure
-        returns (string[] memory splitArr) {
-        bytes memory _baseBytes = bytes(_base);
-
-        uint _offset = 0;
-        uint _splitsCount = 1;
-        while (_offset < _baseBytes.length - 1) {
-            int _limit = _indexOf(_base, _value, _offset);
-            if (_limit == -1)
-                break;
-            else {
-                _splitsCount++;
-                _offset = uint(_limit) + 1;
+    function bytes32ToString(bytes32 x) constant returns (string) {
+        bytes memory bytesString = new bytes(32);
+        uint charCount = 0;
+        for (uint j = 0; j < 32; j++) {
+            byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
+            if (char != 0) {
+                bytesString[charCount] = char;
+                charCount++;
             }
         }
-
-        splitArr = new string[](_splitsCount);
-
-        _offset = 0;
-        _splitsCount = 0;
-        while (_offset < _baseBytes.length - 1) {
-
-             _limit = _indexOf(_base, _value, _offset);
-            if (_limit == - 1) {
-                _limit = int(_baseBytes.length);
-            }
-
-            string memory _tmp = new string(uint(_limit) - _offset);
-            bytes memory _tmpBytes = bytes(_tmp);
-
-            uint j = 0;
-            for (uint i = _offset; i < uint(_limit); i++) {
-                _tmpBytes[j++] = _baseBytes[i];
-            }
-            _offset = uint(_limit) + 1;
-            splitArr[_splitsCount++] = string(_tmpBytes);
+        bytes memory bytesStringTrimmed = new bytes(charCount);
+        for (j = 0; j < charCount; j++) {
+            bytesStringTrimmed[j] = bytesString[j];
         }
-        return splitArr;
+        return string(bytesStringTrimmed);
     }
     
-    /**
-     * Index Of
-     *
-     * Locates and returns the position of a character within a string
-     * 
-     * @param _base When being used for a data type this is the extended object
-     *              otherwise this is the string acting as the haystack to be
-     *              searched
-     * @param _value The needle to search for, at present this is currently
-     *               limited to one character
-     * @return int The position of the needle starting from 0 and returning -1
-     *             in the case of no matches found
-     */
-    function indexOf(string memory _base, string memory _value)
-        internal
-        pure
-        returns (int) {
-        return _indexOf(_base, _value, 0);
-    }
-
-    /**
-     * Index Of
-     *
-     * Locates and returns the position of a character within a string starting
-     * from a defined offset
-     * 
-     * @param _base When being used for a data type this is the extended object
-     *              otherwise this is the string acting as the haystack to be
-     *              searched
-     * @param _value The needle to search for, at present this is currently
-     *               limited to one character
-     * @param _offset The starting point to start searching from which can start
-     *                from 0, but must not exceed the length of the string
-     * @return int The position of the needle starting from 0 and returning -1
-     *             in the case of no matches found
-     */
-    function _indexOf(string memory _base, string memory _value, uint _offset)
-        internal
-        pure
-        returns (int) {
-        bytes memory _baseBytes = bytes(_base);
-        bytes memory _valueBytes = bytes(_value);
-
-        assert(_valueBytes.length == 1);
-
-        for (uint i = _offset; i < _baseBytes.length; i++) {
-            if (_baseBytes[i] == _valueBytes[0]) {
-                return int(i);
+    function stringToUint(string s) constant returns (uint result) {
+        bytes memory b = bytes(s);
+        uint i;
+        result = 0;
+       
+        for (i = 0; i < b.length; i++) {
+            uint c = uint(b[i]);
+            if (c >= 48 && c <= 57) {
+                result = result * 10 + (c - 48);
             }
         }
-
-        return -1;
     }
     
     
