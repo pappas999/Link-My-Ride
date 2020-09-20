@@ -34,10 +34,16 @@ const Container = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    border-radius: ${({theme}) => `${theme.typography.pxToRem(10)} 0 0 ${theme.typography.pxToRem(10)}`};
+    border: ${({theme}) => `${theme.typography.pxToRem(4)} solid ${theme.palette.secondary.main}`};
 `
 
 const Label = styled(Typography)`
     padding-right: ${({theme}) => theme.spacing(2)};
+
+    @media (max-width: 600px) {
+        display: none;
+    }
 ` as typeof Typography
 
 const CurrencySelect = styled(Select)`

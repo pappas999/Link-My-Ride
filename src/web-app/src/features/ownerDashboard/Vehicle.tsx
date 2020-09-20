@@ -84,6 +84,7 @@ const CarDetailsWrapper = styled.div`
     align-items: flex-start;
     width: 100%;
     margin-bottom: ${({ theme }) => theme.spacing(4)};
+    flex-wrap: wrap-reverse;
 `
 
 const CarDetailsTextWrapper = styled.div`

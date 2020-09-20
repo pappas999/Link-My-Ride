@@ -21,7 +21,7 @@ const Wrapper = styled.div`
 `
 
 const Content = styled.div`
-    padding: ${({ theme }) => `${theme.spacing(4)} ${theme.spacing(4)}`};
+    padding: ${({ theme }) => `${theme.spacing(4)} 0 ${theme.spacing(4)} ${theme.spacing(4)}`};
     display: flex;
     flex-direction: row;
     align-items: center;
