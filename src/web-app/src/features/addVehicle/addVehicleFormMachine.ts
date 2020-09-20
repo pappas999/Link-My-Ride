@@ -1,5 +1,5 @@
 import { createMachine } from "xstate"
-import { Currency, Model } from "../../enums"
+import { Model } from "../../enums"
 
 export const addVehicleFormMachine = createMachine({
     id: "addVehicleForm",
@@ -9,7 +9,6 @@ export const addVehicleFormMachine = createMachine({
         vehicleDescription: "",
         vehicleId: "",
         apiKey: "",
-        currency: Currency.ETH,
         hireFee: "",
         bond: ""
     },
@@ -55,9 +54,6 @@ export const addVehicleFormMachine = createMachine({
         },
         SET_API_KEY: {
             actions: "cacheApiKey"
-        },
-        SET_CURRENCY: {
-            actions: "cacheCurrency"
         },
         SET_HIRE_FEE: {
             actions: "cacheHireFee"

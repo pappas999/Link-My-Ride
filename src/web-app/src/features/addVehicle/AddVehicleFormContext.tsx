@@ -3,8 +3,9 @@ import { useMachine } from "@xstate/react"
 import { addVehicleFormMachine } from "./addVehicleFormMachine"
 import { initAddVehicleFormMachineOptions } from "./initAddVehicleFormMachineOptions"
 import { Web3Context } from "../web3"
-import { Model, Currency } from "../../enums"
+import { Model } from "../../enums"
 import { toSolidityFormat } from "../../utils"
+import { CurrencyContext } from "../currency"
 
 type ContextProps = {
     current: any,
@@ -13,7 +14,6 @@ type ContextProps = {
     setVehicleDescription: (description: string) => void,
     setVehicleId: (id: string) => void,
     setApiKey: (apiKey: string) => void,
-    setCurrency: (currency: Currency) => void,
     setHireFee: (hireFee: string) => void,
     setBond: (bond: string) => void
 }
@@ -25,7 +25,6 @@ const defaultValues = {
     setVehicleDescription: () => { },
     setVehicleId: () => { },
     setApiKey: () => { },
-    setCurrency: () => {},
     setHireFee: () => { },
     setBond: () => { }
 }
@@ -39,6 +38,8 @@ type ProviderProps = {
 export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
 
     const { linkMyRideContract, web3 } = useContext(Web3Context)
+    
+    const { currency: usersCurrency } = useContext(CurrencyContext)
 
     const submitVehicle = async (context: any, event: any): Promise<any> => {
         // TODO: Pass the API key to the external adapter to validate it.
@@ -51,9 +52,9 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
             addresses[0],
             current.context.vehicleId.toString(),
             fakeApiKeyHash,
-            toSolidityFormat(current.context.hireFee, current.context.currency).toString(),
-            toSolidityFormat(current.context.bond, current.context.currency).toString(),
-            current.context.currency,
+            toSolidityFormat(current.context.hireFee, usersCurrency).toString(),
+            toSolidityFormat(current.context.bond, usersCurrency).toString(),
+            usersCurrency,
             current.context.selectedVehicleModel,
             current.context.vehicleDescription
         ).send({
@@ -92,13 +93,6 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
         })
     }
 
-    const setCurrency = (currency: Currency) => {
-        send({
-            type: "SET_CURRENCY",
-            value: currency
-        })
-    }
-
     const setHireFee = (hireFee: string) => {
         send({
             type: "SET_HIRE_FEE",
@@ -117,7 +111,7 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
         send("SUBMIT")
     }
 
-    return <AddVehicleFormContext.Provider value={{ current, submitAddVehicleForm, setSelectedVehicleModel, setVehicleDescription, setVehicleId, setApiKey, setCurrency, setHireFee, setBond }}>
+    return <AddVehicleFormContext.Provider value={{ current, submitAddVehicleForm, setSelectedVehicleModel, setVehicleDescription, setVehicleId, setApiKey, setHireFee, setBond }}>
         {children}
     </AddVehicleFormContext.Provider>
 }
