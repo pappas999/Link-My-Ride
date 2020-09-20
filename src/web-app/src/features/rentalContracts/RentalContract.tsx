@@ -125,11 +125,11 @@ export const RentalContract = ({
             <StyledCarImage model={vehicleModel} />
         </CarDetailsWrapper>
         <ContractDetailsWrapper>
-            <Field>
+            <DateRangeField>
                 <Typography variant="h6" color="primary" component="span">{toLongDateTime(startDateTime)}</Typography>
                 <Typography>&nbsp;-&nbsp;</Typography>
                 <Typography variant="h6" color="primary" component="span">{toLongDateTime(endDateTime)}</Typography>
-            </Field>
+            </DateRangeField>
             <Field>
                 <Typography variant="h6" component="span">Bond:</Typography>
                 <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedBond, usersCurrency).toString()}</Typography>
@@ -187,6 +187,10 @@ const Field = styled.div`
     align-items: center;
 `
 
+const DateRangeField = styled(Field)`
+    flex-wrap: wrap;
+`
+
 const VehicleDescription = styled(Typography)`
     margin-bottom: ${({ theme }) => theme.spacing(4)};
 `
@@ -199,9 +203,10 @@ const CarDetailsWrapper = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: flex-end;
     width: 100%;
     margin-bottom: ${({ theme }) => theme.spacing(4)};
+    flex-wrap: wrap-reverse;
 `
 
 const CarDetailsTextWrapper = styled.div`

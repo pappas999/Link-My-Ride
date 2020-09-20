@@ -82,6 +82,11 @@ const Wrapper = styled.div`
 
 const Heading = styled(Typography)`
     color: ${({ theme }) => theme.palette.common.white};
+
+    &.MuiTypography-root {
+        margin-top: ${({theme}) => theme.spacing(8)};
+    }
+    
 `
 
 const ContractsContainer = styled.div`
@@ -89,4 +94,5 @@ const ContractsContainer = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
+    padding: ${({theme}) => theme.spacing(2)};
 `

@@ -23,6 +23,7 @@ export const Home = () => <>
       />
     </ActionButtonsWrapper>
   </Content>
+  <Background />
 </>
 
 const StyledAnimatedVisual = styled(AnimatedVisual)`
@@ -31,10 +32,19 @@ const StyledAnimatedVisual = styled(AnimatedVisual)`
 `
 
 const Content = styled.div`
-  min-height: calc(100vh - 40rem);
+  position: absolute;
+  top: 36rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const Background = styled.div`
+  min-height: max(calc(100vh - 40rem), 22rem);
+  height: 100%;
   background: rgba(36,93,232,1);
   background: linear-gradient(0deg, rgba(21,57,145,1) 0%, rgba(36,93,232,1) 100%);
-  padding: ${({theme}) => theme.spacing(12)};
 `
 
 const ActionButtonsWrapper = styled.div`
@@ -43,4 +53,5 @@ const ActionButtonsWrapper = styled.div`
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+  position: absolute;
 `

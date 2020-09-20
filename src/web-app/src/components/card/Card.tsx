@@ -10,4 +10,5 @@ const StyledCard = styled(MuiCard)`
     width: 100%;
     margin: ${({ theme }) => theme.spacing(4)};
     padding: ${({ theme }) => theme.spacing(4)};
+    box-sizing: border-box;
 `
