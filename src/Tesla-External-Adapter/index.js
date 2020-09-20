@@ -24,8 +24,8 @@ const  createRequest = async (input, callback) => {
   
 
     //alternate between these 2 depending on if connecting to the mock server or an actual tesla
-    //const base_url = `http://127.0.0.1:7777/`
-	const base_url = `https://australia-southeast1-link-my-ride.cloudfunctions.net/teslamock/`
+    const base_url = `http://127.0.0.1:7777/`
+	//const base_url = `https://australia-southeast1-link-my-ride.cloudfunctions.net/teslamock/`
     //const base_url = `https://owner-api.teslamotors.com/`
   
     var storedToken;
@@ -120,8 +120,8 @@ const  createRequest = async (input, callback) => {
 			
 			odometer = Math.round(response.data.response.vehicle_state.odometer)
 			charge = response.data.response.charge_state.battery_level
-			longitude = response.data.response.drive_state.longitude
-			latitude = response.data.response.drive_state.latitude
+			longitude = response.data.response.drive_state.longitude * 1000000
+			latitude = response.data.response.drive_state.latitude * 1000000
 	  
 			finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
 			console.log('final response: ' + finalResponse);
@@ -155,8 +155,8 @@ const  createRequest = async (input, callback) => {
 			
 			odometer = Math.round(response.data.response.vehicle_state.odometer)
 			charge = response.data.response.charge_state.battery_level
-			longitude = response.data.response.drive_state.longitude
-			latitude = response.data.response.drive_state.latitude
+			longitude = response.data.response.drive_state.longitude * 1000000
+			latitude = response.data.response.drive_state.latitude * 1000000
 	  
 			finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
 			console.log('final response: ' + finalResponse);
@@ -206,8 +206,8 @@ const  createRequest = async (input, callback) => {
 			
 			odometer = Math.round(response.data.response.vehicle_state.odometer)
 			charge = response.data.response.charge_state.battery_level
-			longitude = response.data.response.drive_state.longitude
-			latitude = response.data.response.drive_state.latitude
+			longitude = response.data.response.drive_state.longitude * 1000000
+			latitude = response.data.response.drive_state.latitude * 1000000
 	  
 			finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
 			console.log('final response: ' + finalResponse);

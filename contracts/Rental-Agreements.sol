@@ -481,7 +481,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     uint256 constant private LOCATION_BUFFER = 1000; //Buffer for how far from start position end position can be without incurring fine
     uint256 constant private ODOMETER_BUFFER = 1; //Buffer for how many miles past agreed total miles allowed without incurring fine
     uint256 constant private CHARGE_BUFFER = 0; //Buffer for how much % of TOTAL CHARGE allowed without incurring fine. 0 means vehicle must be fully charged
-    uint256 constant private TIME_BUFFER = 1; //Buffer for how many hours past agreed end time can the renter end the contrat without incurring a penalty
+    uint256 constant private TIME_BUFFER = 10800; //Buffer for how many seconds past agreed end time can the renter end the contrat without incurring a penalty
     
     
     uint256 constant private LOCATION_FINE = 10; //What percentage of bond goes to vehicle owner if vehicle isn't returned at the correct location + buffer
@@ -507,7 +507,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     uint startOdometer = 0; 
     uint startChargeState = 0;
     int startVehicleLongitude = 0; 
-    int startVehicleLatitide = 0; 
+    int startVehicleLatitude = 0; 
     uint endOdometer = 0;
     int endVehicleLongitude = 0; 
     int endVehicleLatitude = 0;
@@ -529,8 +529,11 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     
     //List of events
     event rentalAgreementCreated(address vehicleOwner, address renter,uint startDateTime,uint endDateTime,uint totalRentCost, uint totalBond);
-    event contractActive(uint _startOdometer, uint _startChargeState, int _startVehicleLongitude, int _startVehicleLatitide);
+    event contractActive(uint _startOdometer, uint _startChargeState, int _startVehicleLongitude, int _startVehicleLatitude);
     event contractCompleted(uint _endOdometer,  uint _endChargeState, int _endVehicleLongitude, int _endVehicleLatitide);
+    event contractCompletedError(uint _endOdometer,  uint _endChargeState, int _endVehicleLongitude, int _endVehicleLatitide);
+    
+    
     
     /**
      * @dev Modifier to check if the dapp wallet is calling the transaction
@@ -681,7 +684,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         
         //Now store location coordinates in signed variables. Will always be positive, but will check in the next step if need to make negative
         startVehicleLongitude =  int(tmpStartLongitude);
-        startVehicleLatitide =  int(tmpStartLatitude);
+        startVehicleLatitude =  int(tmpStartLatitude);
 
         //Finally, check first bye in the string for the location variables. If it was a '-', then multiply location coordinate by -1
         //first get the first byte of each location coordinate string
@@ -698,7 +701,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         //Now check latitude
         if (uint(latitudeBytes[0]) == 0x2d) {
             //first byte was a '-', multiply result by -1
-            startVehicleLatitide = startVehicleLatitide * -1;
+            startVehicleLatitude = startVehicleLatitude * -1;
         }
         
 
@@ -706,7 +709,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         agreementStatus = RentalAgreementFactory.RentalAgreementStatus.ACTIVE;
         
         //Emit an event now that contract is now active
-        emit contractActive(startOdometer,startChargeState,startVehicleLongitude,startVehicleLatitide);
+        emit contractActive(startOdometer,startChargeState,startVehicleLongitude,startVehicleLatitude);
      }
      
      
@@ -854,10 +857,139 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     
    /**
      * @dev Step 04c: Car Owner ends an active contract due to the Renter not ending it, contract becomes ENDED_ERROR
-     * Conditions for ending contract: Must be ACTIVE
+     * Conditions for ending contract: Must be ACTIVE, & End Date must be in the past more than the current defined TIME_BUFFER value
      */ 
-     function forceEndRentalContract() external returns (uint) {
-         //error conditions
+     function forceEndRentalContract() external onlyOwner() {
+         
+         //don't allow unless contract still active & current time is > contract end date + TIME_BUFFER
+         require(agreementStatus ==  RentalAgreementFactory.RentalAgreementStatus.ACTIVE && now > endDateTime + TIME_BUFFER,
+                 "Agreement not eligible for forced cancellation yet, or not in the right status");
+                 
+          //get vehicle ID of the vehicle, needed for the request
+         uint vid = RentalAgreementFactory(dappWallet).getVehicleId(vehicleOwner);
+         
+         //call to chainlink node job to wake up the car, get ending vehicle data
+         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.forceEndRentalContractFallback.selector);
+         req.add("apiToken", "");
+         req.add("vehicleId", uint2str(vid));
+         req.add("action", "vehicle_data");
+         sendChainlinkRequestTo(chainlinkOracleAddress(), req, oraclePaymentAmount);
+     }
+     
+    /**
+     * @dev Step 04d: Callback for force ending a vehicle agreement. Based on results Contract becomes ENDED_ERROR
+     */ 
+     function forceEndRentalContractFallback(bytes32 _requestId, bytes32 _vehicleData) public recordChainlinkFulfillment(_requestId) {
+        //Set contract variables to end the agreement
+        
+        //temp variables required for converting to signed integer
+        uint tmpEndLongitude;
+        uint tmpEndLatitude;
+        bytes memory longitudeBytes;
+        bytes memory latitudeBytes;
+        bool vehicleReturned = true;
+        uint bondForfeited = 0;
+        
+        //first split the results into individual strings based on the delimiter
+        var s = bytes32ToString(_vehicleData).toSlice();
+        var delim = ",".toSlice();
+       
+        //store each string in an array
+        string[] memory splitResults = new string[](s.count(delim)+ 1);                  
+        for (uint i = 0; i < splitResults.length; i++) {                              
+           splitResults[i] = s.split(delim).toString();                              
+        }                                                        
+       
+        //Now for each one, convert to uint
+        endOdometer = stringToUint(splitResults[0]);
+        endChargeState = stringToUint(splitResults[1]);
+        tmpEndLongitude = stringToUint(splitResults[2]);
+        tmpEndLatitude = stringToUint(splitResults[3]);
+        
+        //Now store location coordinates in signed variables. Will always be positive, but will check in the next step if need to make negative
+        endVehicleLongitude =  int(tmpEndLongitude);
+        endVehicleLatitude =  int(tmpEndLatitude);
+
+        //Finally, check first bye in the string for the location variables. If it was a '-', then multiply location coordinate by -1
+        //first get the first byte of each location coordinate string
+        longitudeBytes = bytes(splitResults[2]);
+        latitudeBytes = bytes(splitResults[3]);
+        
+        
+        //First check longitude
+        if (uint(longitudeBytes[0]) == 0x2d) {
+            //first byte was a '-', multiply result by -1
+            endVehicleLongitude = endVehicleLongitude * -1;
+        }
+        
+        //Now check latitude
+        if (uint(latitudeBytes[0]) == 0x2d) {
+            //first byte was a '-', multiply result by -1
+            endVehicleLatitude = endVehicleLatitude * -1;
+        }
+        
+        //Set the end time of the contract
+        rentalAgreementEndDateTime = now;
+        
+
+
+        //Now because the contract was force ended by the owner, the renter loses some of their bond. 
+        //If it's found that the vehicle is returned in the right place and the agreement status just hasn't been updated, then only 20% of the bond is kept
+        //Otherwise if the vehicle isn't in the same location, then 100% of the bond is kept
+        
+        
+        //The owner gets the hire fee + bond
+        //The platform still takes a 1% fee
+        
+        //First calculate and send platform fee 
+        //Total to go to platform = base fee / platform fee %
+        totalPlatformFee = totalRentCost.mul(PLATFORM_FEE.div(100));
+
+        totalRentPayable = totalRentCost;
+        
+        //Check to see if the vehicle is in the same as the start location, or at least within 100m
+        if (abs(startVehicleLongitude) - abs(endVehicleLongitude) > 1000000) { //If difference in longitude is > 100m
+             vehicleReturned = false;
+             bondForfeited = totalBond;
+        } else  if (abs(startVehicleLatitude) - abs(endVehicleLatitude) > 1000000) { //If difference in latitude is > 100m
+             vehicleReturned = false;
+             bondForfeited = totalBond;
+        } else {
+            bondForfeited = totalBond.div(5);  //only have to forfeit 20% of bond if was returned but contract not ended
+            totalBondReturned = totalBond;
+        }
+        
+        
+        if (vehicleReturned = true) {
+            totalBondReturned = totalBond;
+        } else {
+            totalBondReturned = 0;
+        }
+        
+        
+        
+        //Now that we have all fees & charges calculated, perform necessary transfers & then end contract
+        //first pay platform fee
+        dappWallet.transfer(totalPlatformFee);
+        
+        //then pay vehicle owner rent payable
+        vehicleOwner.transfer(totalRentPayable);
+        
+        //finally, pay owner the bond owed
+        vehicleOwner.transfer(bondForfeited);
+        
+        if (totalBondReturned > 0) { //owner gets some bond back, send them whatever is left now (remaining 80% of bond)
+            renter.transfer(address(this).balance);
+        }
+        
+
+        
+        //Transfers all completed, now we just need to set contract status to successfully completed 
+        agreementStatus = RentalAgreementFactory.RentalAgreementStatus.ENDED_ERROR;
+        
+        //Emit an event now that contract is now ended
+        emit contractCompletedError(endOdometer,endChargeState,endVehicleLongitude,endVehicleLatitude);
+         
      }
     
 
@@ -910,6 +1042,13 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      */ 
     function getAgreementDetails() public view returns (address,address,uint,uint,uint,uint,RentalAgreementFactory.RentalAgreementStatus ) {
         return (vehicleOwner,renter,startDateTime,endDateTime,totalRentCost,totalBond,agreementStatus);
+    }
+    
+    /**
+     * @dev Helper function to get absolute value of an int
+     */ 
+    function abs(int x) private pure returns (int) {
+        return x >= 0 ? x : -x;
     }
     
     /**
