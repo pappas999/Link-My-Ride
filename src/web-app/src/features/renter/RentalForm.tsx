@@ -11,6 +11,7 @@ import { getCurrencyString, fromSolidityFormat } from "../../utils"
 import { CurrencyContext } from "../currency"
 import BigNumber from "bignumber.js"
 import { SubmitButton } from "../../components/button"
+import { Redirect } from "react-router-dom"
 
 export const RentalForm = () => {
 
@@ -103,6 +104,10 @@ export const RentalForm = () => {
         {
             current.matches("submitting") &&
             <SubmittingOverlay />
+        }
+        {
+            current.matches("done") &&
+            <Redirect to="renter-dashboard" />
         }
     </FormWrapper >
 }

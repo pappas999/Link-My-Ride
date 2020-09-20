@@ -6,7 +6,8 @@ interface Contract {
     endDateTime: Date,
     totalRentCost: number,
     totalBond: number,
-    vehicleModel: number,
+    ownerCurrency: Currency,
+    vehicleModel: Model,
     vehicleDescription: string,
     status: RentalAgreementStatus
 }

@@ -7,6 +7,7 @@ import { getCarModelString, getCurrencyString } from "../../utils"
 import { StyledForm, SubmittingOverlay } from "../../components/form"
 import { CurrencyContext } from "../currency"
 import { SubmitButton } from "../../components/button"
+import { Redirect } from "react-router-dom"
 
 export const AddVehicleForm = () => {
 
@@ -59,7 +60,6 @@ export const AddVehicleForm = () => {
                     value={current.context.selectedVehicleModel}
                     onChange={handleVehicleModelSelected}
                 >
-                    // TODO: map over enum instead?
                     <MenuItem key={Model.Model_S} value={Model.Model_S}>{getCarModelString(Model.Model_S)}</MenuItem>
                     <MenuItem key={Model.Model_3} value={Model.Model_3}>{getCarModelString(Model.Model_3)}</MenuItem>
                     <MenuItem key={Model.Model_X} value={Model.Model_X}>{getCarModelString(Model.Model_X)}</MenuItem>
@@ -116,6 +116,10 @@ export const AddVehicleForm = () => {
         {
             current.matches("submitting") &&
             <SubmittingOverlay />
+        }
+        {
+            current.matches("done") &&
+            <Redirect to="owner-dashboard" />
         }
     </FormWrapper>
 }
