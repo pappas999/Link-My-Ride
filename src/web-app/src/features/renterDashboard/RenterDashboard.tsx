@@ -10,7 +10,7 @@ export const RenterDashboard = () => <>
         component={Link}
         to="/rent-a-car"
         icon={<NoteAdd color="primary" style={{ fontSize: 100 }} />}
-        label="Create another rental contract"
+        label="Create a rental contract"
     />
     <StyledHr />
     <MyRentalContracts asOwner={false} />

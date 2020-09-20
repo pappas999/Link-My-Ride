@@ -47,11 +47,6 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
 
         const addresses = await web3.eth.getAccounts()
 
-        console.log(toSolidityFormat(current.context.hireFee, current.context.currency).toString())
-        console.log(toSolidityFormat(current.context.bond, current.context.currency).toString())
-        console.log(current.context.currency)
-        console.log(current.context.selectedVehicleModel)
-
         return linkMyRideContract.methods.newVehicle(
             addresses[0],
             current.context.vehicleId.toString(),

@@ -58,7 +58,7 @@ export const rentalFormMachine = createMachine({
                     actions: (context, event) => { console.log('done') }
                 },
                 onError: {
-                    target: "error",
+                    target: "idle",
                     actions: (context, event) => { console.log('error') }
                 }
             }

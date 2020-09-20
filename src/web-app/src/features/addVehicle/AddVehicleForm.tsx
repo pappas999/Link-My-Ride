@@ -52,28 +52,6 @@ export const AddVehicleForm = () => {
         submitAddVehicleForm()
     }
 
-    console.log(JSON.stringify(current.context))
-
-    // TODO: Move this to context?
-    // const currencies = [
-    //     {
-    //         value: 'USD',
-    //         label: '$',
-    //     },
-    //     {
-    //         value: 'GBP',
-    //         label: '£',
-    //     },
-    //     {
-    //         value: 'AUD',
-    //         label: 'AU$',
-    //     },
-    //     {
-    //         value: 'ETH',
-    //         label: 'Ξ',
-    //     },
-    // ]
-
     return <FormWrapper>
         <FormField>
             <VehicleModelFormControl>

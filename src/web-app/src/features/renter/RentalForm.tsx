@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect, useState, useCallback } from "react"
 import styled from "styled-components"
 import { Typography, CircularProgress, FormControl, InputLabel, Select, MenuItem, Button } from "@material-ui/core"
 import { MuiPickersUtilsProvider, DateTimePicker } from "@material-ui/pickers"
@@ -7,11 +7,15 @@ import DateFnsUtils from "@date-io/date-fns"
 import { Map } from "../../components/map"
 import { Vehicle } from "../ownerDashboard/Vehicle"
 import { StyledForm, StyledHr, SubmittingOverlay } from "../../components/form"
-import { EtherSymbol, weiToEther } from "../../utils"
+import { getCurrencyString, fromSolidityFormat } from "../../utils"
+import { CurrencyContext } from "../currency"
+import BigNumber from "bignumber.js"
 
 export const RentalForm = () => {
 
     const { current, setSelectedDate, setSelectedCar, setSelectedHireDuration, submitRentalForm } = useContext(RentalFormContext)
+
+    const { currency: usersCurrency, convertCurrency } = useContext(CurrencyContext)
 
     const handleChildClick = (key: any, childProps: any) => {
         setSelectedCar(current.context.availableCars && current.context.availableCars.filter((car: Car) => car.id === key)[0])
@@ -26,6 +30,18 @@ export const RentalForm = () => {
     }
 
     const total = current.context.selectedCar && ((+current.context.hireDuration * +current.context.selectedCar.baseHireFee) + +current.context.selectedCar.bondRequired)
+
+    const [convertedTotalCost, setConvertedTotalCost] = useState(new BigNumber(0))
+
+    const getConvertedTotalCost = useCallback(async () => {
+        if (current.context.selectedCar) {
+            setConvertedTotalCost(await convertCurrency(new BigNumber(total), current.context.selectedCar.currency, usersCurrency))
+        }
+    }, [usersCurrency, current.context.selectedCar, convertCurrency, setConvertedTotalCost, total])
+
+    useEffect(() => {
+        getConvertedTotalCost()
+    }, [usersCurrency, getConvertedTotalCost])
 
     return <FormWrapper>
         <BigFieldLabel>When would you like to rent a car?</BigFieldLabel>
@@ -79,7 +95,7 @@ export const RentalForm = () => {
             current.context.hireDuration && <>
                 <StyledHr />
                 <BigFieldLabel>Total cost:</BigFieldLabel>
-                <Total><EtherSymbol />{weiToEther(total)}</Total>
+                <Total><span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedTotalCost, usersCurrency).toString()}</Total>
                 <SubmitButton color="secondary" onClick={handleSubmit}>Send request to car owner</SubmitButton>
             </>
         }

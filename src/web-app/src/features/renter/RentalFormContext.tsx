@@ -3,6 +3,9 @@ import { useMachine } from "@xstate/react"
 import { rentalFormMachine } from "./rentalFormMachine"
 import { initRentalFormMachineOptions } from "./initRentalFormMachineOptions"
 import { Web3Context } from "../web3"
+import { CurrencyContext } from "../currency"
+import { Currency } from "../../enums"
+import BigNumber from "bignumber.js"
 
 type ContextProps = {
     current: any,
@@ -30,6 +33,8 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
 
     const { linkMyRideContract, web3 } = useContext(Web3Context)
 
+    const { convertCurrency } = useContext(CurrencyContext)
+
     const getAvailableCars = async (context: any, event: any): Promise<Car[]> => {
         const getVehicleAddresses = async () => linkMyRideContract.methods.getVehicleAddresses().call()
 
@@ -48,8 +53,8 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
             id: vehicle[0],
             address: vehicle[1],
             apiTokenHash: vehicle[2],
-            baseHireFee: vehicle[3],
-            bondRequired: vehicle[4],
+            baseHireFee: new BigNumber(vehicle[3]),
+            bondRequired: new BigNumber(vehicle[4]),
             currency: vehicle[5],
             model: vehicle[6],
             description: vehicle[7],
@@ -60,28 +65,39 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
 
     const createRentalAgreement = async (context: any, event: any): Promise<any> => {
 
-        const toEpochSeconds = (dateTime: Date) => dateTime.getTime() / 1000
+        try {
+            const {
+                address: carAddress,
+                baseHireFee,
+                bondRequired,
+                currency
+            } = context.selectedCar
 
-        const startDate = toEpochSeconds(context.selectedDate)
-        const endDate = toEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + 2)))
-        const hireFee = +(context.hireDuration) * context.selectedCar.baseHireFee
+            const toEpochSeconds = (dateTime: Date) => dateTime.getTime() / 1000
 
-        const addresses = await web3.eth.getAccounts()
+            const startDate = toEpochSeconds(context.selectedDate)
+            const endDate = toEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + 2)))
+            const hireFee: BigNumber = baseHireFee.multipliedBy(+(context.hireDuration))
 
-        return linkMyRideContract.methods.newRentalAgreement(
-            context.selectedCar.address,
-            addresses[0],
-            +startDate,
-            +endDate,
-            hireFee.toString(),
-            context.selectedCar.bondRequired.toString()
-        ).send({
-            from: addresses[0],
-            value: +hireFee + +context.selectedCar.bondRequired 
-        })
-            .catch((err: any) => {
-                console.error("Failed with error: " + err);
+            const hireFeeAsEth = await convertCurrency(hireFee, currency, Currency.ETH)
+            const bondRequiredAsEth = await convertCurrency(bondRequired, currency, Currency.ETH)
+
+            const addresses = await web3.eth.getAccounts()
+
+            return linkMyRideContract.methods.newRentalAgreement(
+                carAddress,
+                addresses[0],
+                +startDate,
+                +endDate
+            ).send({
+                from: addresses[0],
+                value: new BigNumber(hireFeeAsEth).plus(bondRequiredAsEth)
             })
+        }
+        catch (err) {
+            console.error("Failed with error: " + err)
+            throw err
+        }
     }
 
     const machineOptions = initRentalFormMachineOptions(getAvailableCars, createRentalAgreement)
