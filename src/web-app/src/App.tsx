@@ -8,13 +8,13 @@ import {
 import { ThemeProvider as MuiThemeProvider } from "@material-ui/core/styles"
 import { theme } from "./theme"
 import { Home } from "./features/home"
-import { RentalForm, RentalFormProvider } from "./features/renter"
+import { RentVehicle } from "./features/renter"
 import { SecondaryPageLayout } from "./features/layout/SecondaryPageLayout"
 import { Web3Provider } from "./features/web3"
 import { CurrencyProvider } from "./features/currency"
 import { OwnerDashboard } from "./features/ownerDashboard"
 import { RenterDashboard } from "./features/renterDashboard"
-import { AddVehicleFormProvider, AddVehicleForm } from "./features/addVehicle"
+import { AddVehicle } from "./features/addVehicle"
 
 export const App = () => {
   return (
@@ -22,33 +22,29 @@ export const App = () => {
       <ThemeProvider theme={theme}>
         <Web3Provider>
           <CurrencyProvider>
-          <Router>
-            <Main>
-              <Switch>
-                <Route exact path="/">
-                  <Home />
-                </Route>
-                <SecondaryPageLayout>
-                  <Route path="/rent-a-car">
-                    <RentalFormProvider>
-                      <RentalForm />
-                    </RentalFormProvider>
+            <Router>
+              <Main>
+                <Switch>
+                  <Route exact path="/">
+                    <Home />
                   </Route>
-                  <Route path="/owner-dashboard">
-                    <OwnerDashboard />
-                  </Route>
-                  <Route path="/renter-dashboard">
-                    <RenterDashboard />
-                  </Route>
-                  <Route path="/add-vehicle">
-                    <AddVehicleFormProvider>
-                      <AddVehicleForm />
-                    </AddVehicleFormProvider>
-                  </Route>
-                </SecondaryPageLayout>
-              </Switch>
-            </Main>
-          </Router>
+                  <SecondaryPageLayout>
+                    <Route path="/rent-a-car">
+                      <RentVehicle />
+                    </Route>
+                    <Route path="/owner-dashboard">
+                      <OwnerDashboard />
+                    </Route>
+                    <Route path="/renter-dashboard">
+                      <RenterDashboard />
+                    </Route>
+                    <Route path="/add-vehicle">
+                      <AddVehicle />
+                    </Route>
+                  </SecondaryPageLayout>
+                </Switch>
+              </Main>
+            </Router>
           </CurrencyProvider>
         </Web3Provider>
       </ThemeProvider>
