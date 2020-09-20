@@ -81,7 +81,7 @@ const CarDetailsWrapper = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: flex-end;
     width: 100%;
     margin-bottom: ${({ theme }) => theme.spacing(4)};
     flex-wrap: wrap-reverse;

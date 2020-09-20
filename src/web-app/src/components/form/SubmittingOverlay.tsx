@@ -7,7 +7,7 @@ export const SubmittingOverlay = () => <Overlay>
 </Overlay>
 
 const Overlay = styled.div`
-    position: absolute;
+    position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
@@ -18,5 +18,5 @@ const Overlay = styled.div`
     align-items: center;
     background-color: ${({theme}) => theme.palette.common.black};
     opacity: 0.5;
-    border-radius: ${({theme}) => theme.typography.pxToRem(12)};
+    pointer-events: none;
 `

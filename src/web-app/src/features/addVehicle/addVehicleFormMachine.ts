@@ -20,26 +20,18 @@ export const addVehicleFormMachine = createMachine({
             invoke: {
                 src: "submitVehicle",
                 onDone: {
-                    target: "done"
+                    target: "done",
+                    actions: (context, event) => { console.log('done') }
                 },
                 onError: {
-                    target: "error"
+                    target: "initial",
+                    actions: (context, event) => { console.log('error') }
                 }
             }
         },
         done: {
-            on: {
-                "": {
-                    actions: (context, event) => { console.log('done') }
-                }
-            }
         },
         error: {
-            on: {
-                "": {
-                    actions: (context, event) => { console.log('error') }
-                }
-            }
         }
     },
     on: {

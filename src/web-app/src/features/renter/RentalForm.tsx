@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useCallback } from "react"
 import styled from "styled-components"
-import { Typography, CircularProgress, FormControl, InputLabel, Select, MenuItem, Button } from "@material-ui/core"
+import { Typography, CircularProgress, FormControl, InputLabel, Select, MenuItem } from "@material-ui/core"
 import { MuiPickersUtilsProvider, DateTimePicker } from "@material-ui/pickers"
 import { RentalFormContext } from "./RentalFormContext"
 import DateFnsUtils from "@date-io/date-fns"
@@ -10,6 +10,7 @@ import { StyledForm, StyledHr, SubmittingOverlay } from "../../components/form"
 import { getCurrencyString, fromSolidityFormat } from "../../utils"
 import { CurrencyContext } from "../currency"
 import BigNumber from "bignumber.js"
+import { SubmitButton } from "../../components/button"
 
 export const RentalForm = () => {
 
@@ -107,7 +108,6 @@ export const RentalForm = () => {
 }
 
 const FormWrapper = styled(StyledForm)`
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -163,13 +163,5 @@ const HireDurationFormControl = styled(FormControl)`
     &.MuiFormControl-root {
         width: ${({ theme }) => theme.typography.pxToRem(160)};
         margin-bottom: ${({ theme }) => theme.spacing(12)};
-    }
-`
-
-const SubmitButton = styled(Button)`
-    &.MuiButtonBase-root {
-        margin-top: ${({ theme }) => theme.spacing(16)};
-        margin-top: ${({ theme }) => theme.spacing(12)};
-        padding: ${({ theme }) => theme.spacing(6)};
     }
 `

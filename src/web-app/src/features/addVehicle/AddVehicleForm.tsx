@@ -1,11 +1,12 @@
 import React, { useContext } from "react"
 import styled from "styled-components"
 import { AddVehicleFormContext } from "./AddVehicleFormContext"
-import { FormControl, Input, InputLabel, Select, MenuItem, TextField, Button, InputAdornment } from "@material-ui/core"
+import { FormControl, Input, InputLabel, Select, MenuItem, TextField, InputAdornment } from "@material-ui/core"
 import { Model } from "../../enums"
 import { getCarModelString, getCurrencyString } from "../../utils"
-import { StyledForm } from "../../components/form"
+import { StyledForm, SubmittingOverlay } from "../../components/form"
 import { CurrencyContext } from "../currency"
+import { SubmitButton } from "../../components/button"
 
 export const AddVehicleForm = () => {
 
@@ -110,8 +111,12 @@ export const AddVehicleForm = () => {
                 onChange={handleApiKeyChanged} />
         </FormField>
         <FormField>
-            <Button color="primary" onClick={handleSubmit}>Submit</Button>
+            <SubmitButton color="secondary" onClick={handleSubmit}>Submit</SubmitButton>
         </FormField>
+        {
+            current.matches("submitting") &&
+            <SubmittingOverlay />
+        }
     </FormWrapper>
 }
 
@@ -121,6 +126,7 @@ const FormWrapper = styled(StyledForm)`
     align-items: center;
     justify-content: flex-start;
     padding: ${({ theme }) => theme.spacing(8)};
+    color: ${({ theme }) => theme.palette.common.white};
 `
 
 const FormField = styled.div`   
