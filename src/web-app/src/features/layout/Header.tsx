@@ -2,6 +2,7 @@ import React from "react"
 import styled from "styled-components"
 import { Logo } from "../../components/logo"
 import { Link } from "react-router-dom"
+import { CurrencySelector } from "./CurrencySelector"
 
 export const Header = () => {
 
@@ -10,6 +11,7 @@ export const Header = () => {
             <Link to="/">
                 <Logo />
             </Link>
+            <CurrencySelector />
         </Content>
     </Wrapper>
 }
@@ -23,5 +25,5 @@ const Content = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
 `
