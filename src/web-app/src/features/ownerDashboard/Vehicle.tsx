@@ -48,11 +48,11 @@ export const Vehicle = ({
         <ContractDetailsWrapper>
             <Field>
                 <Typography variant="h6" component="span">Required Bond:</Typography>
-                <Typography variant="h6" color="primary" component="span"><span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedBond, usersCurrency).toString()}</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedBond, usersCurrency).toString()}</Typography>
             </Field>
             <Field>
                 <Typography variant="h6" component="span">Hourly Hire Fee:</Typography>
-                <Typography variant="h6" color="primary" component="span"><span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedHireFee, usersCurrency).toString()}</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedHireFee, usersCurrency).toString()}</Typography>
             </Field>
         </ContractDetailsWrapper>
     </StyledCard>

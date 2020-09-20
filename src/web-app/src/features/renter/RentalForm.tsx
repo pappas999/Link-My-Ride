@@ -95,7 +95,7 @@ export const RentalForm = () => {
             current.context.hireDuration && <>
                 <StyledHr />
                 <BigFieldLabel>Total cost:</BigFieldLabel>
-                <Total><span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedTotalCost, usersCurrency).toString()}</Total>
+                <Total>&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedTotalCost, usersCurrency).toString()}</Total>
                 <SubmitButton color="secondary" onClick={handleSubmit}>Send request to car owner</SubmitButton>
             </>
         }
