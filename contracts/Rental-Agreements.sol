@@ -10,6 +10,7 @@ pragma experimental ABIEncoderV2;
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/ChainlinkClient.sol";
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/vendor/Ownable.sol";
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/LinkToken.sol";
+import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/interfaces/LinkTokenInterface.sol";
 import "https://github.com/smartcontractkit/chainlink/blob/master/evm-contracts/src/v0.4/interfaces/AggregatorV3Interface.sol";
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
@@ -42,12 +43,13 @@ contract RentalAgreementFactory {
     struct Vehicle {
         uint vehicleId;                // Tesla assigned ID of vehicle
         address ownerAddress;          // Wallet address of vehicle owner
-        string apiTokenHash;           // Hashed version of the token  
         uint baseHireFee;              // Base fee for hire in the smallest denomination of owner's chosen currency
         uint bondRequired;             // Bond required for each rental contract in the smallest denomination of owner's chosen currency
         Currency ownerCurrency;        // The vehicle owner's chosen currency
         VehicleModels vehicleModel;    // Model of the vehicle
-        string renterDescription;      // Basic description of renter
+        string vehiclePlate;           // Vehicle Number plate
+        int vehicleLongitude;          // Vehicle Location Longitude
+        int vehicleLatitude;            // Vehicle location latitude
         VehicleStatus status;          // Has the vehicle been validated against Tesla servers or not
         
     }
@@ -63,13 +65,13 @@ contract RentalAgreementFactory {
     
     //here is where all the rental agreements are stored. 
     RentalAgreement[] rentalAgreements;
-    //mapping (address => RentalAgreement) rentalAgreements; 
     
     constructor() public payable {
         //this code adds a vehicle so we don't have to keep doing it manually as part of development
-        newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123,'sadfasfasdfsda',0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_S,'harrys car');
-        newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567,'test',0.01 * 0.1 ether,0.01 ether,Currency.ETH,VehicleModels.Model_X,'second car');
-        
+        newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123, 0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_S,'REVOLT',-35008518,138575206);
+        newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567, 0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_X,'LINKCAR',-35028518,138525206);
+
+
 
         ethUsdPriceFeed = AggregatorV3Interface(ETH_USD_CONTRACT);
         audUsdPriceFeed = AggregatorV3Interface(AUD_USD_CONTRACT);
@@ -99,7 +101,7 @@ contract RentalAgreementFactory {
     
     //List of events
     event rentalAgreementCreated(address _newAgreement, uint _totalFundsHeld);
-    event vehicleAdded( uint _vehicleId, address _vehicleOwner, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, Currency _ownerCurrency, VehicleModels _vehicleModel, string _description);
+    event vehicleAdded( uint _vehicleId, address _vehicleOwner, uint _baseHireFee, uint _bondRequired, Currency _ownerCurrency, VehicleModels _vehicleModel, string _vehiclePlate, int _vehicleLongitude, int _vehicleLatitude);
     
     function getLatestEthUsdPrice() public view returns (int) {
         (
@@ -251,36 +253,38 @@ contract RentalAgreementFactory {
       /**
      * @dev Create a new Vehicle. 
      */ 
-    function newVehicle(address _vehicleOwner, uint _vehicleId, string _apiTokenHash, uint _baseHireFee, uint _bondRequired, Currency _ownerCurrency, VehicleModels _vehicleModel, 
-                        string _description) public  {
+    function newVehicle(address _vehicleOwner, uint _vehicleId, uint _baseHireFee, uint _bondRequired, Currency _ownerCurrency, VehicleModels _vehicleModel, 
+                        string _vehiclePlate, int _vehicleLongitude, int _vehicleLatitude) public  {
            
       //adds a vehicle and stores it in the vehicles mapping. Each vehicle is represented by 1 Ethereum address
         
       var v = vehicles[_vehicleOwner];
       v.vehicleId = _vehicleId;
       v.ownerAddress = _vehicleOwner;
-      v.apiTokenHash = _apiTokenHash;
       v.baseHireFee = _baseHireFee;
       v.bondRequired = _bondRequired;
       v.ownerCurrency = _ownerCurrency;
       v.vehicleModel = _vehicleModel;
-      v.renterDescription = _description;
+      v.vehiclePlate = _vehiclePlate;
+      v.vehicleLongitude = _vehicleLongitude;
+      v.vehicleLatitude = _vehicleLatitude;
       v.status = VehicleStatus.PENDING;
       
         
-      emit vehicleAdded(_vehicleId, _vehicleOwner, _apiTokenHash, _baseHireFee, _bondRequired, _ownerCurrency, _vehicleModel, _description);
+      emit vehicleAdded(_vehicleId, _vehicleOwner, _baseHireFee, _bondRequired, _ownerCurrency, _vehicleModel, _vehiclePlate, _vehicleLongitude, _vehicleLatitude);
       
 
         
     }
     
+    
     /**
      * @dev Approves a vehicle for use in the app. Only a Chainlink node can call this, as it knows if the test to the tesla servers was 
      * successful or not
      */
-    function approveVehicle(address _walletOwner) external  /*onlyNode()*/ {
+    function approveVehicle(address _walletOwner) external  onlyNode() {
         vehicles[_walletOwner].status = VehicleStatus.APPROVED;
-        //store the key in an array where we can loop through
+        //store the key in an array where we can loop through. At this point the vehicle will be returned in searched
         keyList.push(_walletOwner);
     }
     
@@ -474,20 +478,21 @@ contract RentalAgreementFactory {
 contract RentalAgreement is ChainlinkClient, Ownable  {
     
     using SafeMath_Chainlink for uint;
+    using SafeMath_Chainlink for int;
     using strings for *;
     
     enum RentalAgreementStatus {PROPOSED, APPROVED, REJECTED, ACTIVE, COMPLETED, ENDED_ERROR}
     
-    uint256 constant private LOCATION_BUFFER = 1000; //Buffer for how far from start position end position can be without incurring fine
-    uint256 constant private ODOMETER_BUFFER = 1; //Buffer for how many miles past agreed total miles allowed without incurring fine
+    int constant private LOCATION_BUFFER = 1000000; //Buffer for how far from start position end position can be without incurring fine. 10000 = 1m
+    uint256 constant private ODOMETER_BUFFER = 5; //Buffer for how many miles past agreed total miles allowed without incurring fine
     uint256 constant private CHARGE_BUFFER = 0; //Buffer for how much % of TOTAL CHARGE allowed without incurring fine. 0 means vehicle must be fully charged
     uint256 constant private TIME_BUFFER = 10800; //Buffer for how many seconds past agreed end time can the renter end the contrat without incurring a penalty
     
     
-    uint256 constant private LOCATION_FINE = 10; //What percentage of bond goes to vehicle owner if vehicle isn't returned at the correct location + buffer
-    uint256 constant private ODOMETER_FINE = 10; //What percentage of bond goes to vehicle owner if vehicle incurs more than allowed miles + buffer
+    uint256 constant private LOCATION_FINE = 1; //What percentage of bond goes to vehicle owner if vehicle isn't returned at the correct location + buffer, per km
+    uint256 constant private ODOMETER_FINE = 1; //What percentage of bond goes to vehicle owner  if vehicle incurs more than allowed miles + buffer, per mile
     uint256 constant private CHARGE_FINE = 1; //What percentage of bond goes to vehicle owner if vehicle isn't charged at the expected level + buffer
-    uint256 constant private TIME_FINE = 5; //What percentage of bond goes to vehicle owner if contract ends past the agreed end date/time + buffer
+    uint256 constant private TIME_FINE = 1; //What percentage of bond goes to vehicle owner if contract ends past the agreed end date/time + buffer, per hour
     
     
     uint256 constant private PLATFORM_FEE = 1; //What percentage of the base fee goes to the Platform. To be used to fund data requests etc
@@ -517,8 +522,8 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     //variables for calulating final fee payable
     uint totalMiles = 0;
     uint totalHoursPastEndDate = 0;
-    uint longitudeDifference = 0;
-    uint latitudeDifference = 0;
+    int longitudeDifference = 0;
+    int latitudeDifference = 0;
     uint totalLocationPenalty = 0;
     uint totalOdometerPenalty = 0;
     uint totalChargePenalty = 0;
@@ -526,6 +531,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     uint totalPlatformFee = 0;
     uint totalRentPayable = 0;
     uint totalBondReturned = 0;
+    uint bondForfeited = 0;
     
     //List of events
     event rentalAgreementCreated(address vehicleOwner, address renter,uint startDateTime,uint endDateTime,uint totalRentCost, uint totalBond);
@@ -571,8 +577,24 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     /**
      * @dev Prevents a function being run unless contract is still active
      */
-    modifier onContractActive() {
-        require(agreementStatus == RentalAgreementFactory.RentalAgreementStatus.ACTIVE ,'Contract is not active');
+    modifier onlyContractProposed() {
+        require(agreementStatus == RentalAgreementFactory.RentalAgreementStatus.PROPOSED ,'Contract must be in PROPOSED status');
+        _;
+    }
+    
+    /**
+     * @dev Prevents a function being run unless contract is still active
+     */
+    modifier onlyContractApproved() {
+        require(agreementStatus == RentalAgreementFactory.RentalAgreementStatus.APPROVED ,'Contract must be in APPROVED status');
+        _;
+    }
+    
+    /**
+     * @dev Prevents a function being run unless contract is still active
+     */
+    modifier onlyContractActive() {
+        require(agreementStatus == RentalAgreementFactory.RentalAgreementStatus.ACTIVE ,'Contract must be in ACTIVE status');
         _;
     }
     
@@ -607,9 +629,9 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
    /**
      * @dev Step 02a: Owner ACCEPTS proposal, contract becomes APPROVED
      */ 
-     function approveContract() external onlyVehicleOwner()  {
+     function approveContract() external onlyVehicleOwner() onlyContractProposed()  {
          //Vehicle Owner simply looks at proposed agreement & either approves or denies it.
-         //Only vehicle owner can run this
+         //Only vehicle owner can run this, contract must be in PROPOSED status
          //In this case, we approve. Contract becomes Approved and sits waiting until start time reaches
          agreementStatus = RentalAgreementFactory.RentalAgreementStatus.APPROVED;
      }
@@ -617,13 +639,18 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
    /**
      * @dev Step 02b: Owner REJECTS proposal, contract becomes REJECTED. This is the end of the line for the Contract
      */ 
-     function rejectContract() external onlyVehicleOwner() {
+     function rejectContract() external onlyVehicleOwner() onlyContractProposed() {
          //Vehicle Owner simply looks at proposed agreement & either approves or denies it.
          //Only vehicle owner can call this function
          //In this case, we approve. Contract becomes Rejected. No more actions should be possible on the contract in this status
          //return money to renter
          renter.transfer(address(this).balance);
+         
          //return any LINK tokens in here back to the DAPP wallet
+         LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
+         require(link.transfer(dappWallet, link.balanceOf(address(this))), "Unable to transfer");
+         
+         //Set status to rejected. This is the end of the line for this agreement
          agreementStatus = RentalAgreementFactory.RentalAgreementStatus.REJECTED;
          
      }
@@ -632,7 +659,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      * @dev Step 03a: Renter starts contract, contract becomes ACTIVE
      * Conditions for starting contract: Must be APPROVED, & Start Date/Time must be <= current Date/Time
      */ 
-     function activateRentalContract() external onlyRenter()  {
+     function activateRentalContract() external onlyRenter() onlyContractApproved() {
          //First we need to wake up the vehicle & obtain some values needed in the contract before the vehicle can be unlocked & started
          //do external adapter call to wake up vehicle & get vehicle data
          
@@ -715,10 +742,10 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      
      
    /**
-     * @dev Step 04a: Renter ends an active contract, contract becomes COMPELTED or ENDED_ERROR
+     * @dev Step 04a: Renter ends an active contract, contract becomes COMPLETED or ENDED_ERROR
      * Conditions for ending contract: Must be ACTIVE
      */ 
-     function endRentalContract()  external onlyRenter()  {
+     function endRentalContract()  external onlyRenter() onlyContractActive()  {
          //First we need to check if vehicle can be accessed, if so then do a call to get vehicle data
 
          //get vehicle ID of the vehicle, needed for the request
@@ -789,63 +816,80 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         rentalAgreementEndDateTime = now;
         
 
-
-
-        
-
-        //Now that we have all values in contract, we can calculate final fee payable
+        //Now that we have all values in contract, we can calculate final fees & penalties payable
         
         //First calculate and send platform fee 
         //Total to go to platform = base fee / platform fee %
         totalPlatformFee = totalRentCost.mul(PLATFORM_FEE.div(100));
         
+        //now total rent payable is original amount minus calculated platform fee above
+        totalRentPayable = totalRentCost - totalPlatformFee;
+        
         //Total to go to car owner = (base fee - platform fee from above) + time penalty + location penalty + charge penalty
         
         //Now calculate penalties to be used for amount to go to car owner
        
-        //Odometer penalty. Number of miles over agreed total miles * odometer penalty per mile
-        //totalOdometerPenalty = ((endOdometer - startOdometer) - ODOMETER_BUFFER) * ODOMETER_FINE;
+        //Odometer penalty. Number of miles over agreed total miles * odometer penalty per mile.
+        //Eg if only 10 miles allowed but agreement logged 20 miles, with a penalty of 1% per extra mile
+        //then penalty is 20-10 = 10 * 1% = 10% of Bond
+        totalMiles = endOdometer.sub(startOdometer);
+        if (totalMiles > ODOMETER_BUFFER) { 
+        
+            totalOdometerPenalty = totalMiles.mul(ODOMETER_FINE).mul(totalBond);  
+        }
         
         //Time penalty. Number of hours past agreed end date/time + buffer * time penalty per hour
-        //totalTimePenalty = ((rentalAgreementEndDateTime - endDateTime) - TIME_BUFFER) * TIME_FINE
+        //eg TIME_FINE buffer set to 1 = 1% of bond for each hour past the end date + buffer (buffer currently set to 3 hours)
+        totalHoursPastEndDate = rentalAgreementEndDateTime.sub(endDateTime);
+        if (totalHoursPastEndDate > TIME_BUFFER.mul(3600)) { //penalty incurred
         
-        //Location penalty. Number of metres away from vehicle start location * location penalty per m. Applies to both Longitude & latitude
-        //Penalty is incurred if vehicle is more than buffer in m for each position (longitude & latitude)
-        //So if buffer is 10m, and vehicle is off by 10m for both longitude & latitude, a double penalty will be incurred
-        //longitudeDifference = abs(startVehicleLongitude - endVehicleLongitude);
-        //latitudeDifference = abs(startVehicleLatitude - endVehicleLatitude);
-        //totalLocationPenalty =  ((longitudeDifference - LOCATION_BUFFER) + (latitudeDifference - LOCATION_BUFFER)) * LOCATION_FINE;
+            totalTimePenalty = totalHoursPastEndDate.mul(TIME_FINE).mul(totalBond);  
+        }
         
-        //Charge penalty. % of vehicle charge vehicle is off by based on required charge level * charge fine per % level
-        //totalChargePenalty = (100 - endChargeState) - CHARGE_BUFFER * CHARGE_FINE;
-        
-        
-        //Total to go to car owner = (base fee - platform fee from above) + time penalty + location penalty + charge penalty + location penalty
-        //If total amount payable exceeds available bond funds, just send whole bond amount - platform fee
-     //  if ((totalRentCost - totalPlatformFee) + totalOdometerPenalty + totalTimePenalty + totalTimePenalty + totalLocationPenalty > (totalRentCost + totalBond)) {
-     //      totalRentPayable = totalRentCost + totalBond - platformFee;
-      //      totalBondReturned = 0;
-     //   } else { //we have enough funds in bond to pay car owner proper amount & send renter the remainng bond back
-      //      totalRentPayable = (totalRentCost - totalPlatformFee) + totalOdometerPenalty + totalTimePenalty + totalTimePenalty + totalLocationPenalty;
-            //total bond going back to renter is leftover from money in - money out from base fee + platform fee + penalties
-      //      totalBondReturned = (totalRentCost + totalBond) - (totalRentPayable + totalPlatformFee) ;
-       // }
+        //Charge penalty. Simple comparison of charge at start & end. If it isn't at least what it was at agreement start, then a static fee is paid of
+        //CHARGE_FINE, which is a % of bond. Currently set to 1%
+        if (startChargeState > endChargeState) { 
+            totalChargePenalty = CHARGE_FINE.mul(totalBond);
+        }
         
         
-        totalRentPayable = totalRentCost;
-        totalBondReturned = totalBond;
+
+        //Location penalty. If the vehicle is not returned to around the same spot, then a penalty is incurred.
+        //Allowed distance from original spot is stored in the LOCATION_BUFFER param, currently set to 100m
+        //Penalty incurred is stored in LOCATION_FINE, and applies per km off from the original location
+        //Penalty applies to either location coordinates
+        //eg if LOCATION_BUFFER set to 100m, fee set to 1% per 1km, and renter returns vehicle 2km from original place
+        //fee payable is 2 * 1 = 2% of bond
+        
+        
+        longitudeDifference = abs(abs(startVehicleLongitude) - abs(endVehicleLongitude));
+        latitudeDifference = abs(startVehicleLatitude) - abs(endVehicleLatitude);
+        
+        if (longitudeDifference > LOCATION_BUFFER) { //If difference in longitude is > 100m
+            totalLocationPenalty = uint(longitudeDifference).div(10000).mul(LOCATION_FINE).mul(totalBond); 
+        } else  if (latitudeDifference > LOCATION_BUFFER) { //If difference in latitude is > 100m
+            totalLocationPenalty = uint(latitudeDifference).div(10000).mul(LOCATION_FINE).mul(totalBond); 
+        } 
+
+        
+        //Final amount of bond to go to owner = sum of all penalties above
+        bondForfeited = totalOdometerPenalty.add(totalTimePenalty).add(totalChargePenalty).add(totalLocationPenalty);
+        
         
         //Now that we have all fees & charges calculated, perform necessary transfers & then end contract
         //first pay platform fee
         dappWallet.transfer(totalPlatformFee);
         
-        //then pay vehicle owner
+        //then pay vehicle owner rent amount
         vehicleOwner.transfer(totalRentPayable);
         
-        //finally, pay renter any bond returned. Only if > 0
-        if (totalBondReturned > 0) {
-            renter.transfer(totalBondReturned);
+        //pay Owner  any bond penalties. Only if > 0
+        if (bondForfeited > 0) {
+            owner.transfer(bondForfeited);
         }
+        
+        //finally, pay renter back any remaining bond
+        renter.transfer(address(this).balance);
         
         //Transfers all completed, now we just need to set contract status to successfully completed 
         agreementStatus = RentalAgreementFactory.RentalAgreementStatus.COMPLETED;
@@ -859,11 +903,11 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      * @dev Step 04c: Car Owner ends an active contract due to the Renter not ending it, contract becomes ENDED_ERROR
      * Conditions for ending contract: Must be ACTIVE, & End Date must be in the past more than the current defined TIME_BUFFER value
      */ 
-     function forceEndRentalContract() external onlyOwner() {
+     function forceEndRentalContract() external onlyOwner() onlyContractActive() {
          
          //don't allow unless contract still active & current time is > contract end date + TIME_BUFFER
-         require(agreementStatus ==  RentalAgreementFactory.RentalAgreementStatus.ACTIVE && now > endDateTime + TIME_BUFFER,
-                 "Agreement not eligible for forced cancellation yet, or not in the right status");
+         require(now > endDateTime + TIME_BUFFER,
+                 "Agreement not eligible for forced cancellation yet");
                  
           //get vehicle ID of the vehicle, needed for the request
          uint vid = RentalAgreementFactory(dappWallet).getVehicleId(vehicleOwner);
@@ -888,7 +932,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         bytes memory longitudeBytes;
         bytes memory latitudeBytes;
         bool vehicleReturned = true;
-        uint bondForfeited = 0;
+        
         
         //first split the results into individual strings based on the delimiter
         var s = bytes32ToString(_vehicleData).toSlice();
@@ -938,30 +982,30 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         //Otherwise if the vehicle isn't in the same location, then 100% of the bond is kept
         
         
-        //The owner gets the hire fee + bond
+        //The owner gets the hire fee + bond forfeitted
         //The platform still takes a 1% fee
         
         //First calculate and send platform fee 
         //Total to go to platform = base fee / platform fee %
         totalPlatformFee = totalRentCost.mul(PLATFORM_FEE.div(100));
 
-        totalRentPayable = totalRentCost;
+        //now total rent payable is original amount minus calculated platform fee above
+        totalRentPayable = totalRentCost - totalPlatformFee;
         
-        //Check to see if the vehicle is in the same as the start location, or at least within 100m
-        if (abs(startVehicleLongitude) - abs(endVehicleLongitude) > 1000000) { //If difference in longitude is > 100m
+        //Check to see if the vehicle is in the same as the start location, or at least within the LOCATION BUFFER (set to 100m)
+        if (abs(abs(startVehicleLongitude) - abs(endVehicleLongitude)) > LOCATION_BUFFER) { //If difference in longitude is > 100m
              vehicleReturned = false;
              bondForfeited = totalBond;
-        } else  if (abs(startVehicleLatitude) - abs(endVehicleLatitude) > 1000000) { //If difference in latitude is > 100m
+        } else  if (abs(abs(startVehicleLatitude) - abs(endVehicleLatitude)) > LOCATION_BUFFER) { //If difference in latitude is > 100m
              vehicleReturned = false;
              bondForfeited = totalBond;
         } else {
             bondForfeited = totalBond.div(5);  //only have to forfeit 20% of bond if was returned but contract not ended
-            totalBondReturned = totalBond;
         }
         
         
         if (vehicleReturned = true) {
-            totalBondReturned = totalBond;
+            totalBondReturned = totalBond.sub(bondForfeited);
         } else {
             totalBondReturned = 0;
         }
@@ -975,7 +1019,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         //then pay vehicle owner rent payable
         vehicleOwner.transfer(totalRentPayable);
         
-        //finally, pay owner the bond owed
+        //pay owner the bond owed
         vehicleOwner.transfer(bondForfeited);
         
         if (totalBondReturned > 0) { //owner gets some bond back, send them whatever is left now (remaining 80% of bond)
@@ -1040,8 +1084,22 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     /**
      * @dev Return All Details about a Vehicle Rental Agreement
      */ 
-    function getAgreementDetails() public view returns (address,address,uint,uint,uint,uint,RentalAgreementFactory.RentalAgreementStatus ) {
+    function getAgreementDetails() public view returns (address,address,uint,uint,uint,uint,RentalAgreementFactory.RentalAgreementStatus) {
         return (vehicleOwner,renter,startDateTime,endDateTime,totalRentCost,totalBond,agreementStatus);
+    }
+    
+    /**
+     * @dev Return All Vehicle Data from a Vehicle Rental Agreement
+     */ 
+    function getAgreementData() public view returns (uint, uint, int, int, uint, uint, int, int) {
+        return (startOdometer,startChargeState,startVehicleLongitude, startVehicleLatitude,endOdometer,endChargeState, endVehicleLongitude,endVehicleLatitude);
+    }
+    
+    /**
+     * @dev Return All Payment & fee Details about a Vehicle Rental Agreement
+     */ 
+    function getPaymentDetails() public view returns (uint, uint, uint, uint, uint, uint, uint, uint) {
+        return (rentalAgreementEndDateTime,totalLocationPenalty,totalOdometerPenalty,totalChargePenalty,totalTimePenalty,totalPlatformFee,totalRentPayable,totalBondReturned);
     }
     
     /**
