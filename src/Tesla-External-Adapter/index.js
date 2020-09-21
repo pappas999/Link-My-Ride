@@ -24,8 +24,8 @@ const  createRequest = async (input, callback) => {
   
 
     //alternate between these 2 depending on if connecting to the mock server or an actual tesla
-    const base_url = `http://127.0.0.1:7777/`
-	//const base_url = `https://australia-southeast1-link-my-ride.cloudfunctions.net/teslamock/`
+    //const base_url = `http://127.0.0.1:7777/`
+	const base_url = `https://australia-southeast1-link-my-ride.cloudfunctions.net/teslamock/`
     //const base_url = `https://owner-api.teslamotors.com/`
   
     var storedToken;
@@ -39,10 +39,12 @@ const  createRequest = async (input, callback) => {
     //get input values
     var jobRunID = input.id
     var vehicleId = input.data.vehicleId
+	var address;
 
     //depending on the scnenario, get the authentication token from the request (authentication request), or from Google Cloud Firestore
 	if (input.data.action == 'authenticate') {  //get value from request
 		authenticationToken = `Bearer ${input.data.apiToken}`
+		address = input.data.address
 	} else {   //get value from Cloud Firestore		
 		const apiTokenRef = firestore.collection(COLLECTION_NAME).doc(vehicleId);
 		const doc = await apiTokenRef.get();
@@ -84,10 +86,18 @@ const  createRequest = async (input, callback) => {
 				console.log('storing token: ' + tokenToStore);
 				const res = await firestore.collection(COLLECTION_NAME).doc(vehicleId).set({tokenToStore});
 				
-				//now that the API token has been stored in the data store, we can do the callback
-				callback(response.status, Requester.success(jobRunID, response))
-			}
-		}); 
+				//now that the API token has been stored in the data store, we can do the callback, passing the address back to be used to update vehicle status
+				finalResponse = address
+				console.log('final response: ' + finalResponse);
+				callback(response.status, 
+				{
+					   jobRunID,
+				  data: finalResponse,
+				  result: address,
+				  statusCode: response.status
+				});
+			} 
+		});
 	} catch(error) {
 		console.log('wakeup error: ' + error);
 		callback(response.status, Requester.errored(jobRunID, error))
@@ -96,7 +106,7 @@ const  createRequest = async (input, callback) => {
   //now depending on action, do different requests
   switch(input.data.action) {
   case 'authenticate':
-    // vehicle is being created. If the wakeup was successful then we don't need to do anything here
+    // vehicle is being created. If the wakeup was successful then we don't need to do anything here, just return the vehicle address
     break;
 		
  case 'vehicle_data':

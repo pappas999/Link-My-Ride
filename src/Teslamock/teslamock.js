@@ -88,8 +88,8 @@ var vehicle = {
 
 var batteryLevel = 55;
 var odometer = 50000.12345;
-var longitude = -125.723423;
-var latitude = 143.243243;
+var longitude = -35.008518;
+var latitude = 138.575206;
 
 
 var driveState = {
