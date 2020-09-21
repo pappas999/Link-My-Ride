@@ -39,10 +39,12 @@ const  createRequest = async (input, callback) => {
     //get input values
     var jobRunID = input.id
     var vehicleId = input.data.vehicleId
+	var address;
 
     //depending on the scnenario, get the authentication token from the request (authentication request), or from Google Cloud Firestore
 	if (input.data.action == 'authenticate') {  //get value from request
 		authenticationToken = `Bearer ${input.data.apiToken}`
+		address = input.data.address
 	} else {   //get value from Cloud Firestore		
 		const apiTokenRef = firestore.collection(COLLECTION_NAME).doc(vehicleId);
 		const doc = await apiTokenRef.get();
@@ -84,10 +86,18 @@ const  createRequest = async (input, callback) => {
 				console.log('storing token: ' + tokenToStore);
 				const res = await firestore.collection(COLLECTION_NAME).doc(vehicleId).set({tokenToStore});
 				
-				//now that the API token has been stored in the data store, we can do the callback
-				callback(response.status, Requester.success(jobRunID, response))
-			}
-		}); 
+				//now that the API token has been stored in the data store, we can do the callback, passing the address back to be used to update vehicle status
+				finalResponse = address
+				console.log('final response: ' + finalResponse);
+				callback(response.status, 
+				{
+					   jobRunID,
+				  data: finalResponse,
+				  result: address,
+				  statusCode: response.status
+				});
+			} 
+		});
 	} catch(error) {
 		console.log('wakeup error: ' + error);
 		callback(response.status, Requester.errored(jobRunID, error))
@@ -96,7 +106,7 @@ const  createRequest = async (input, callback) => {
   //now depending on action, do different requests
   switch(input.data.action) {
   case 'authenticate':
-    // vehicle is being created. If the wakeup was successful then we don't need to do anything here
+    // vehicle is being created. If the wakeup was successful then we don't need to do anything here, just return the vehicle address
     break;
 		
  case 'vehicle_data':
@@ -120,8 +130,8 @@ const  createRequest = async (input, callback) => {
 			
 			odometer = Math.round(response.data.response.vehicle_state.odometer)
 			charge = response.data.response.charge_state.battery_level
-			longitude = response.data.response.drive_state.longitude
-			latitude = response.data.response.drive_state.latitude
+			longitude = response.data.response.drive_state.longitude * 1000000
+			latitude = response.data.response.drive_state.latitude * 1000000
 	  
 			finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
 			console.log('final response: ' + finalResponse);
@@ -155,8 +165,8 @@ const  createRequest = async (input, callback) => {
 			
 			odometer = Math.round(response.data.response.vehicle_state.odometer)
 			charge = response.data.response.charge_state.battery_level
-			longitude = response.data.response.drive_state.longitude
-			latitude = response.data.response.drive_state.latitude
+			longitude = response.data.response.drive_state.longitude * 1000000
+			latitude = response.data.response.drive_state.latitude * 1000000
 	  
 			finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
 			console.log('final response: ' + finalResponse);
@@ -206,8 +216,8 @@ const  createRequest = async (input, callback) => {
 			
 			odometer = Math.round(response.data.response.vehicle_state.odometer)
 			charge = response.data.response.charge_state.battery_level
-			longitude = response.data.response.drive_state.longitude
-			latitude = response.data.response.drive_state.latitude
+			longitude = response.data.response.drive_state.longitude * 1000000
+			latitude = response.data.response.drive_state.latitude * 1000000
 	  
 			finalResponse = `{${odometer},${charge},${longitude},${latitude}}`
 			console.log('final response: ' + finalResponse);
