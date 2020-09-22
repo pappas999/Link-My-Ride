@@ -14,7 +14,7 @@ import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts
 import "https://github.com/smartcontractkit/chainlink/blob/master/evm-contracts/src/v0.4/interfaces/AggregatorV3Interface.sol";
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
-contract RentalAgreementFactory {
+contract RentalAgreementFactory  {
     
     using SafeMath_Chainlink for uint;
     
@@ -521,7 +521,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     
     //variables for calulating final fee payable
     uint totalMiles = 0;
-    uint totalHoursPastEndDate = 0;
+    uint secsPastEndDate = 0;
     int longitudeDifference = 0;
     int latitudeDifference = 0;
     uint totalLocationPenalty = 0;
@@ -538,6 +538,8 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     event contractActive(uint _startOdometer, uint _startChargeState, int _startVehicleLongitude, int _startVehicleLatitude);
     event contractCompleted(uint _endOdometer,  uint _endChargeState, int _endVehicleLongitude, int _endVehicleLatitide);
     event contractCompletedError(uint _endOdometer,  uint _endChargeState, int _endVehicleLongitude, int _endVehicleLatitide);
+    event agreementPayments(uint _platformFee, uint _totalRent, uint _totalBondKept, uint _totalBondForfeitted, uint _timePenality, uint _chargePenalty, uint _locationPenalty, uint _milesPenalty);
+  
     
     
     
@@ -820,7 +822,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         
         //First calculate and send platform fee 
         //Total to go to platform = base fee / platform fee %
-        totalPlatformFee = totalRentCost.mul(PLATFORM_FEE.div(100));
+        totalPlatformFee = totalRentCost.div(uint(100).div(PLATFORM_FEE));
         
         //now total rent payable is original amount minus calculated platform fee above
         totalRentPayable = totalRentCost - totalPlatformFee;
@@ -836,20 +838,29 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         if (totalMiles > ODOMETER_BUFFER) { 
         
             totalOdometerPenalty = totalMiles.mul(ODOMETER_FINE).mul(totalBond);  
+            totalOdometerPenalty = (totalMiles.sub(ODOMETER_BUFFER)).mul(totalBond.div(uint(100).div(ODOMETER_FINE)));
         }
         
         //Time penalty. Number of hours past agreed end date/time + buffer * time penalty per hour
         //eg TIME_FINE buffer set to 1 = 1% of bond for each hour past the end date + buffer (buffer currently set to 3 hours)
-        totalHoursPastEndDate = rentalAgreementEndDateTime.sub(endDateTime);
-        if (totalHoursPastEndDate > TIME_BUFFER.mul(3600)) { //penalty incurred
-        
-            totalTimePenalty = totalHoursPastEndDate.mul(TIME_FINE).mul(totalBond);  
+        if (rentalAgreementEndDateTime > endDateTime) {
+             secsPastEndDate = rentalAgreementEndDateTime.sub(endDateTime);
+             //if retuned later than the the grace period, incur penalty
+            if (secsPastEndDate > TIME_BUFFER) { //penalty incurred
+                //penalty TIME_FINE is a % per hour over. So if over by less than an hour, round up to an hour
+                if (secsPastEndDate.sub(TIME_BUFFER) < 3600) {
+                    totalTimePenalty = uint(1).mul(totalBond.div(uint(100).div(TIME_FINE)));
+                } else {
+                    //do normal penlaty calculation in hours
+                    totalTimePenalty = secsPastEndDate.sub(TIME_BUFFER).div(3600).mul(totalBond.div(uint(100).div(TIME_FINE)));
+                }
+            }
         }
         
         //Charge penalty. Simple comparison of charge at start & end. If it isn't at least what it was at agreement start, then a static fee is paid of
         //CHARGE_FINE, which is a % of bond. Currently set to 1%
         if (startChargeState > endChargeState) { 
-            totalChargePenalty = CHARGE_FINE.mul(totalBond);
+            totalChargePenalty = totalBond.div(uint(100).div(CHARGE_FINE));
         }
         
         
@@ -863,18 +874,20 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         
         
         longitudeDifference = abs(abs(startVehicleLongitude) - abs(endVehicleLongitude));
-        latitudeDifference = abs(startVehicleLatitude) - abs(endVehicleLatitude);
+        latitudeDifference = abs(abs(startVehicleLatitude) - abs(endVehicleLatitude));
+
         
         if (longitudeDifference > LOCATION_BUFFER) { //If difference in longitude is > 100m
-            totalLocationPenalty = uint(longitudeDifference).div(10000).mul(LOCATION_FINE).mul(totalBond); 
+            totalLocationPenalty = uint(longitudeDifference).div(10000).mul(totalBond.div(uint(100).div(LOCATION_FINE))); 
         } else  if (latitudeDifference > LOCATION_BUFFER) { //If difference in latitude is > 100m
-            totalLocationPenalty = uint(latitudeDifference).div(10000).mul(LOCATION_FINE).mul(totalBond); 
+            totalLocationPenalty = uint(latitudeDifference).div(10000).mul(totalBond.div(uint(100).div(LOCATION_FINE)));
         } 
 
         
-        //Final amount of bond to go to owner = sum of all penalties above
+        //Final amount of bond to go to owner = sum of all penalties above. Then renter gets rest
         bondForfeited = totalOdometerPenalty.add(totalTimePenalty).add(totalChargePenalty).add(totalLocationPenalty);
-        
+        uint bondKept = totalBond.sub(bondForfeited);
+
         
         //Now that we have all fees & charges calculated, perform necessary transfers & then end contract
         //first pay platform fee
@@ -894,6 +907,10 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         //Transfers all completed, now we just need to set contract status to successfully completed 
         agreementStatus = RentalAgreementFactory.RentalAgreementStatus.COMPLETED;
         
+        //Emit an event with all the payments
+        emit agreementPayments(totalPlatformFee, totalRentPayable, bondKept, bondForfeited, totalTimePenalty, totalChargePenalty, totalLocationPenalty, totalOdometerPenalty);
+         
+         
         //Emit an event now that contract is now ended
         emit contractCompleted(endOdometer,endChargeState,endVehicleLongitude,endVehicleLatitude);
          
