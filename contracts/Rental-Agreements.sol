@@ -9,7 +9,7 @@ pragma experimental ABIEncoderV2;
 //Remix imports - used when testing in remix 
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/ChainlinkClient.sol";
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/vendor/Ownable.sol";
-import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/LinkToken.sol";
+
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/interfaces/LinkTokenInterface.sol";
 import "https://github.com/smartcontractkit/chainlink/blob/master/evm-contracts/src/v0.4/interfaces/AggregatorV3Interface.sol";
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
@@ -18,39 +18,39 @@ contract RentalAgreementFactory  {
     
     using SafeMath_Chainlink for uint;
     
-    address public dappWallet = msg.sender;
+    address private dappWallet = msg.sender;
     enum RentalAgreementStatus {PROPOSED, APPROVED, REJECTED, ACTIVE, COMPLETED, ENDED_ERROR}
 
     
-    bytes32 JOB_ID = "534ea675a9524e8e834585b00368b178"; //jobID for main contract functions
+    bytes32 JOB_ID = "534ea675a9524e8e834585b00368b178"; 
     
-    address public constant LINK_KOVAN = 0xa36085F69e2889c224210F603D836748e7dC0088; //address of LINK token on Kovan
-    address public constant ORACLE_CONTRACT = 0x05c8fadf1798437c143683e665800d58a42b6e19;
-    address public constant NODE_ADDRESS = 0xDC92b2B1C731d07dC9bd8D30D0B1A69F266f2A8A;
+    address private constant LINK_KOVAN = 0xa36085F69e2889c224210F603D836748e7dC0088; 
+    address private constant ORACLE_CONTRACT = 0x05c8fadf1798437c143683e665800d58a42b6e19;
+    address private constant NODE_ADDRESS = 0xDC92b2B1C731d07dC9bd8D30D0B1A69F266f2A8A;
     uint256 constant private ORACLE_PAYMENT = 0.1 * 1 ether;
     
     
-    address public constant ETH_USD_CONTRACT = 0x9326BFA02ADD2366b30bacB125260Af641031331;
-    address public constant AUD_USD_CONTRACT = 0x5813A90f826e16dB392abd2aF7966313fc1fd5B8;
-    address public constant GBP_USD_CONTRACT = 0x28b0061f44E6A9780224AA61BEc8C3Fcb0d37de9;
+    address private constant ETH_USD_CONTRACT = 0x9326BFA02ADD2366b30bacB125260Af641031331;
+    address private constant AUD_USD_CONTRACT = 0x5813A90f826e16dB392abd2aF7966313fc1fd5B8;
+    address private constant GBP_USD_CONTRACT = 0x28b0061f44E6A9780224AA61BEc8C3Fcb0d37de9;
     
-    enum VehicleModels { Model_S, Model_3, Model_X, Model_Y, Cybertruck, Roadster}
-    enum VehicleStatus {PENDING, APPROVED}
-    enum Currency { ETH, USD, GBP, AUD }
+    enum  VehicleModels { Model_S, Model_3, Model_X, Model_Y, Cybertruck, Roadster}
+    enum  VehicleStatus {PENDING, APPROVED}
+    enum  Currency { ETH, USD, GBP, AUD }
 
     
-    //struct to represent a car on the platform to be rented
+    
     struct Vehicle {
-        uint vehicleId;                // Tesla assigned ID of vehicle
-        address ownerAddress;          // Wallet address of vehicle owner
-        uint baseHireFee;              // Base fee for hire in the smallest denomination of owner's chosen currency
-        uint bondRequired;             // Bond required for each rental contract in the smallest denomination of owner's chosen currency
-        Currency ownerCurrency;        // The vehicle owner's chosen currency
-        VehicleModels vehicleModel;    // Model of the vehicle
-        string vehiclePlate;           // Vehicle Number plate
-        int vehicleLongitude;          // Vehicle Location Longitude
-        int vehicleLatitude;            // Vehicle location latitude
-        VehicleStatus status;          // Has the vehicle been validated against Tesla servers or not
+        uint vehicleId;                
+        address ownerAddress;         
+        uint baseHireFee;              
+        uint bondRequired;            
+        Currency ownerCurrency;       
+        VehicleModels vehicleModel;    
+        string vehiclePlate;           
+        int vehicleLongitude;          
+        int vehicleLatitude;            
+        VehicleStatus status;         
         
     }
     
@@ -60,14 +60,14 @@ contract RentalAgreementFactory  {
     AggregatorV3Interface internal audUsdPriceFeed;
     AggregatorV3Interface internal gbpUsdPriceFeed;
     
-    //here is where all the cars to rent are stored. Currently each vehicle must have a unique wallet tied to it.
+
     mapping (address => Vehicle) vehicles; 
     
-    //here is where all the rental agreements are stored. 
+ 
     RentalAgreement[] rentalAgreements;
     
     constructor() public payable {
-        //this code adds a vehicle so we don't have to keep doing it manually as part of development
+       
         newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123, 0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_S,'REVOLT',-35008518,138575206);
         newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567, 0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_X,'LINKCAR',-35028518,138525206);
 
@@ -83,23 +83,19 @@ contract RentalAgreementFactory  {
     }
     
 
-    /**
-     * @dev Prevents a function being run unless it's called by DAPP owner
-     */
+
     modifier onlyOwner() {
         require(dappWallet == msg.sender,'Only Insurance provider can do this');
         _;
     }
     
-    /**
-     * @dev Prevents a function being run unless it's called by the specified Node
-     */
+
     modifier onlyNode() {
         require(NODE_ADDRESS == msg.sender,'Only Node can call this function');
         _;
     }
     
-    //List of events
+
     event rentalAgreementCreated(address _newAgreement, uint _totalFundsHeld);
     event vehicleAdded( uint _vehicleId, address _vehicleOwner, uint _baseHireFee, uint _bondRequired, Currency _ownerCurrency, VehicleModels _vehicleModel, string _vehiclePlate, int _vehicleLongitude, int _vehicleLatitude);
     
@@ -116,9 +112,6 @@ contract RentalAgreementFactory  {
         return price;
     }
 
-    function getEthUsdPriceDecimals() public view returns (uint8) {
-        return ethUsdPriceFeed.decimals();
-    }
 
     function getLatestAudUsdPrice() public view returns (int) {
         (
@@ -133,9 +126,6 @@ contract RentalAgreementFactory  {
         return price;
     }
 
-    function getAudUsdPriceDecimals() public view returns (uint8) {
-        return audUsdPriceFeed.decimals();
-    }
 
     function getLatestGbpUsdPrice() public view returns (int) {
         (
@@ -150,9 +140,6 @@ contract RentalAgreementFactory  {
         return price;
     }
 
-    function getGbpUsdPriceDecimals() public view returns (uint8) {
-        return gbpUsdPriceFeed.decimals();
-    }
 
     function convertEthToFiat(uint _value, Currency _toCurrency) public view returns (uint) {
        if (_toCurrency == Currency.ETH) {
@@ -500,38 +487,38 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     
     uint256 private oraclePaymentAmount;
     bytes32 private jobId;
-    address dappWallet = msg.sender;
+    address private dappWallet = msg.sender;
     
-    address vehicleOwner;
-    address renter;
-    uint startDateTime; 
-    uint endDateTime;
-    uint totalRentCost; 
-    uint totalBond;
-    RentalAgreementFactory.RentalAgreementStatus agreementStatus;
-    uint startOdometer = 0; 
-    uint startChargeState = 0;
-    int startVehicleLongitude = 0; 
-    int startVehicleLatitude = 0; 
-    uint endOdometer = 0;
-    int endVehicleLongitude = 0; 
-    int endVehicleLatitude = 0;
-    uint rentalAgreementEndDateTime = 0;
-    uint endChargeState = 0;
+    address private vehicleOwner;
+    address private renter;
+    uint private startDateTime; 
+    uint private endDateTime;
+    uint private totalRentCost; 
+    uint private totalBond;
+    RentalAgreementFactory.RentalAgreementStatus private agreementStatus;
+    uint private startOdometer = 0; 
+    uint private startChargeState = 0;
+    int private startVehicleLongitude = 0; 
+    int private startVehicleLatitude = 0; 
+    uint private endOdometer = 0;
+    int private endVehicleLongitude = 0; 
+    int private endVehicleLatitude = 0;
+    uint private rentalAgreementEndDateTime = 0;
+    uint private endChargeState = 0;
     
     //variables for calulating final fee payable
-    uint totalMiles = 0;
-    uint secsPastEndDate = 0;
-    int longitudeDifference = 0;
-    int latitudeDifference = 0;
-    uint totalLocationPenalty = 0;
-    uint totalOdometerPenalty = 0;
-    uint totalChargePenalty = 0;
-    uint totalTimePenalty = 0;
-    uint totalPlatformFee = 0;
-    uint totalRentPayable = 0;
-    uint totalBondReturned = 0;
-    uint bondForfeited = 0;
+    uint private totalMiles = 0;
+    uint private secsPastEndDate = 0;
+    int private longitudeDifference = 0;
+    int private latitudeDifference = 0;
+    uint private totalLocationPenalty = 0;
+    uint private totalOdometerPenalty = 0;
+    uint private totalChargePenalty = 0;
+    uint private totalTimePenalty = 0;
+    uint private totalPlatformFee = 0;
+    uint private totalRentPayable = 0;
+    uint private totalBondReturned = 0;
+    uint private bondForfeited = 0;
     
     //List of events
     event rentalAgreementCreated(address vehicleOwner, address renter,uint startDateTime,uint endDateTime,uint totalRentCost, uint totalBond);
@@ -567,15 +554,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         _;
     }
     
-    /**
-     * @dev Prevents a function being run unless the Vehicle Contract has ended
-     */
-    modifier onContractEnded() {
-        if (endDateTime < now && agreementStatus == RentalAgreementFactory.RentalAgreementStatus.COMPLETED) {
-          _;  
-        } 
-    }
-    
+
     /**
      * @dev Prevents a function being run unless contract is still active
      */
@@ -941,93 +920,15 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
      * @dev Step 04d: Callback for force ending a vehicle agreement. Based on results Contract becomes ENDED_ERROR
      */ 
      function forceEndRentalContractFallback(bytes32 _requestId, bytes32 _vehicleData) public recordChainlinkFulfillment(_requestId) {
-        //Set contract variables to end the agreement
         
-        //temp variables required for converting to signed integer
-        uint tmpEndLongitude;
-        uint tmpEndLatitude;
-        bytes memory longitudeBytes;
-        bytes memory latitudeBytes;
-        bool vehicleReturned = true;
-        
-        
-        //first split the results into individual strings based on the delimiter
-        var s = bytes32ToString(_vehicleData).toSlice();
-        var delim = ",".toSlice();
-       
-        //store each string in an array
-        string[] memory splitResults = new string[](s.count(delim)+ 1);                  
-        for (uint i = 0; i < splitResults.length; i++) {                              
-           splitResults[i] = s.split(delim).toString();                              
-        }                                                        
-       
-        //Now for each one, convert to uint
-        endOdometer = stringToUint(splitResults[0]);
-        endChargeState = stringToUint(splitResults[1]);
-        tmpEndLongitude = stringToUint(splitResults[2]);
-        tmpEndLatitude = stringToUint(splitResults[3]);
-        
-        //Now store location coordinates in signed variables. Will always be positive, but will check in the next step if need to make negative
-        endVehicleLongitude =  int(tmpEndLongitude);
-        endVehicleLatitude =  int(tmpEndLatitude);
-
-        //Finally, check first bye in the string for the location variables. If it was a '-', then multiply location coordinate by -1
-        //first get the first byte of each location coordinate string
-        longitudeBytes = bytes(splitResults[2]);
-        latitudeBytes = bytes(splitResults[3]);
-        
-        
-        //First check longitude
-        if (uint(longitudeBytes[0]) == 0x2d) {
-            //first byte was a '-', multiply result by -1
-            endVehicleLongitude = endVehicleLongitude * -1;
-        }
-        
-        //Now check latitude
-        if (uint(latitudeBytes[0]) == 0x2d) {
-            //first byte was a '-', multiply result by -1
-            endVehicleLatitude = endVehicleLatitude * -1;
-        }
-        
-        //Set the end time of the contract
-        rentalAgreementEndDateTime = now;
-        
-
-
-        //Now because the contract was force ended by the owner, the renter loses some of their bond. 
-        //If it's found that the vehicle is returned in the right place and the agreement status just hasn't been updated, then only 20% of the bond is kept
-        //Otherwise if the vehicle isn't in the same location, then 100% of the bond is kept
-        
-        
-        //The owner gets the hire fee + bond forfeitted
-        //The platform still takes a 1% fee
-        
-        //First calculate and send platform fee 
-        //Total to go to platform = base fee / platform fee %
-        totalPlatformFee = totalRentCost.mul(PLATFORM_FEE.div(100));
+        totalPlatformFee = totalRentCost.div(uint(100).div(PLATFORM_FEE));
 
         //now total rent payable is original amount minus calculated platform fee above
         totalRentPayable = totalRentCost - totalPlatformFee;
         
-        //Check to see if the vehicle is in the same as the start location, or at least within the LOCATION BUFFER (set to 100m)
-        if (abs(abs(startVehicleLongitude) - abs(endVehicleLongitude)) > LOCATION_BUFFER) { //If difference in longitude is > 100m
-             vehicleReturned = false;
-             bondForfeited = totalBond;
-        } else  if (abs(abs(startVehicleLatitude) - abs(endVehicleLatitude)) > LOCATION_BUFFER) { //If difference in latitude is > 100m
-             vehicleReturned = false;
-             bondForfeited = totalBond;
-        } else {
-            bondForfeited = totalBond.div(5);  //only have to forfeit 20% of bond if was returned but contract not ended
-        }
-        
-        
-        if (vehicleReturned = true) {
-            totalBondReturned = totalBond.sub(bondForfeited);
-        } else {
-            totalBondReturned = 0;
-        }
-        
-        
+        bondForfeited = totalBondReturned;
+        totalBondReturned = 0;
+       
         
         //Now that we have all fees & charges calculated, perform necessary transfers & then end contract
         //first pay platform fee
@@ -1039,12 +940,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         //pay owner the bond owed
         vehicleOwner.transfer(bondForfeited);
         
-        if (totalBondReturned > 0) { //owner gets some bond back, send them whatever is left now (remaining 80% of bond)
-            renter.transfer(address(this).balance);
-        }
-        
 
-        
         //Transfers all completed, now we just need to set contract status to successfully completed 
         agreementStatus = RentalAgreementFactory.RentalAgreementStatus.ENDED_ERROR;
         
