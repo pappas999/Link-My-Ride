@@ -42,6 +42,7 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
 
         const addresses = await getVehicleAddresses()
 
+        // TODO: Filter to only available vehicles
         const vehicleData = await Promise.all(addresses.map(async (address: string) => await getVehicleByAddress(address)))
 
         // TODO: Remove. This is just for dev purposes

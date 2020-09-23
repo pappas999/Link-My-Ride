@@ -1,20 +1,6 @@
 {
-	"address": "0xb28a22F3dA1f4c12dbF6172e6D43a159119470dd",
+	"address": "0x5E8AeFa1fac55B23FBF2B11b6596F045bBC59F9E",
 	"abi": [
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "getGbpUsdPriceDecimals",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint8"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
 		{
 			"constant": true,
 			"inputs": [],
@@ -23,34 +9,6 @@
 				{
 					"name": "",
 					"type": "address[]"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "getAudUsdPriceDecimals",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint8"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "ORACLE_CONTRACT",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
 				}
 			],
 			"payable": false,
@@ -72,6 +30,20 @@
 			"type": "function"
 		},
 		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "_walletOwner",
+					"type": "address"
+				}
+			],
+			"name": "approveVehicle",
+			"outputs": [],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
 			"constant": true,
 			"inputs": [
 				{
@@ -84,6 +56,25 @@
 				}
 			],
 			"name": "convertEthToFiat",
+			"outputs": [
+				{
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_vehicleAddress",
+					"type": "address"
+				}
+			],
+			"name": "getVehicleId",
 			"outputs": [
 				{
 					"name": "",
@@ -122,34 +113,6 @@
 			"type": "function"
 		},
 		{
-			"constant": true,
-			"inputs": [],
-			"name": "dappWallet",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "DAY_IN_SECONDS",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
 			"constant": false,
 			"inputs": [
 				{
@@ -159,10 +122,6 @@
 				{
 					"name": "_vehicleId",
 					"type": "uint256"
-				},
-				{
-					"name": "_apiTokenHash",
-					"type": "string"
 				},
 				{
 					"name": "_baseHireFee",
@@ -181,28 +140,22 @@
 					"type": "uint8"
 				},
 				{
-					"name": "_description",
+					"name": "_vehiclePlate",
 					"type": "string"
+				},
+				{
+					"name": "_vehicleLongitude",
+					"type": "int256"
+				},
+				{
+					"name": "_vehicleLatitude",
+					"type": "int256"
 				}
 			],
 			"name": "newVehicle",
 			"outputs": [],
 			"payable": false,
 			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "GBP_USD_CONTRACT",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
 			"type": "function"
 		},
 		{
@@ -266,20 +219,6 @@
 			"type": "function"
 		},
 		{
-			"constant": true,
-			"inputs": [],
-			"name": "AUD_USD_CONTRACT",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
 			"constant": false,
 			"inputs": [],
 			"name": "endContractProvider",
@@ -309,10 +248,6 @@
 							"type": "address"
 						},
 						{
-							"name": "apiTokenHash",
-							"type": "string"
-						},
-						{
 							"name": "baseHireFee",
 							"type": "uint256"
 						},
@@ -329,8 +264,20 @@
 							"type": "uint8"
 						},
 						{
-							"name": "renterDescription",
+							"name": "vehiclePlate",
 							"type": "string"
+						},
+						{
+							"name": "vehicleLongitude",
+							"type": "int256"
+						},
+						{
+							"name": "vehicleLatitude",
+							"type": "int256"
+						},
+						{
+							"name": "status",
+							"type": "uint8"
 						}
 					],
 					"name": "",
@@ -374,34 +321,6 @@
 		},
 		{
 			"constant": true,
-			"inputs": [],
-			"name": "LINK_ROPSTEN",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "getEthUsdPriceDecimals",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint8"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
 			"inputs": [
 				{
 					"name": "_owner",
@@ -417,20 +336,6 @@
 				{
 					"name": "",
 					"type": "address[]"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "ETH_USD_CONTRACT",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
 				}
 			],
 			"payable": false,
@@ -509,6 +414,15 @@
 			"type": "function"
 		},
 		{
+			"constant": false,
+			"inputs": [],
+			"name": "test",
+			"outputs": [],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
 			"inputs": [],
 			"payable": true,
 			"stateMutability": "payable",
@@ -551,11 +465,6 @@
 				},
 				{
 					"indexed": false,
-					"name": "_apiTokenHash",
-					"type": "string"
-				},
-				{
-					"indexed": false,
 					"name": "_baseHireFee",
 					"type": "uint256"
 				},
@@ -576,8 +485,18 @@
 				},
 				{
 					"indexed": false,
-					"name": "_description",
+					"name": "_vehiclePlate",
 					"type": "string"
+				},
+				{
+					"indexed": false,
+					"name": "_vehicleLongitude",
+					"type": "int256"
+				},
+				{
+					"indexed": false,
+					"name": "_vehicleLatitude",
+					"type": "int256"
 				}
 			],
 			"name": "vehicleAdded",

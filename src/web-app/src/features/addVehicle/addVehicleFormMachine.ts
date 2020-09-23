@@ -20,12 +20,25 @@ export const addVehicleFormMachine = createMachine({
             invoke: {
                 src: "submitVehicle",
                 onDone: {
-                    target: "done",
-                    actions: (context, event) => { console.log('done') }
+                    target: "requestVehicleApproval",
+                    actions: (context, event) => { console.log('Vehicle submitted successfully.') }
                 },
                 onError: {
                     target: "initial",
-                    actions: (context, event) => { console.log('error') }
+                    actions: (context, event) => { console.error('Error submitting vehicle.') }
+                }
+            }
+        },
+        requestVehicleApproval: {
+            invoke: {
+                src: "requestVehicleApproval",
+                onDone: {
+                    target: "done",
+                    actions: (context, event) => { console.log('Vehicle approval request successfully sent to external adapter.') }
+                },
+                onError: {
+                    target: "initial",
+                    actions: (context, event) => { console.error('Error while validating vehicle against Tesla server.') }
                 }
             }
         },

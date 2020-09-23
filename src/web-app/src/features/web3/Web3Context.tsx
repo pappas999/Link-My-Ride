@@ -44,9 +44,8 @@ export const Web3Provider = ({ children }: ProviderProps) => {
             // @ts-ignore
             setWeb3(new Web3(window.web3.currentProvider))
         }
-        // Non-DApp Browsers
         else {
-            alert('You have to install MetaMask!')
+            console.error('You have to install MetaMask!')
         }
     }, [])
 

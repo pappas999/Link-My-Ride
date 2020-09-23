@@ -6,6 +6,7 @@ import { Web3Context } from "../web3"
 import { Model } from "../../enums"
 import { toSolidityFormat } from "../../utils"
 import { CurrencyContext } from "../currency"
+import axios from "axios"
 
 type ContextProps = {
     current: any,
@@ -38,31 +39,58 @@ type ProviderProps = {
 export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
 
     const { linkMyRideContract, web3 } = useContext(Web3Context)
-    
+
     const { currency: usersCurrency } = useContext(CurrencyContext)
 
+    // Submit the vehicle in an unapproved state
     const submitVehicle = async (context: any, event: any): Promise<any> => {
-        // TODO: Pass the API key to the external adapter to validate it.
-        // If valid, hash it and persist to SC, else error.
-        const fakeApiKeyHash = "123123123"
 
         const addresses = await web3.eth.getAccounts()
 
         return linkMyRideContract.methods.newVehicle(
             addresses[0],
             current.context.vehicleId.toString(),
-            fakeApiKeyHash,
             toSolidityFormat(current.context.hireFee, usersCurrency).toString(),
             toSolidityFormat(current.context.bond, usersCurrency).toString(),
             usersCurrency,
             current.context.selectedVehicleModel,
-            current.context.vehicleDescription
+            current.context.vehicleDescription,
+            "36",
+            "-115"
         ).send({
             from: addresses[0]
         })
     }
 
-    const machineOptions = initAddVehicleFormMachineOptions(submitVehicle)
+    // Pass the vehicle ID and api token to the external adapter to validate it and approve the vehicle
+    const requestVehicleApproval = async (context: any, event: any): Promise<any> => {
+
+        const headers = {
+            "Content-Type": "application/json"
+        }
+
+        const addresses = await web3.eth.getAccounts()
+
+        return await axios.post(
+            "/.netlify/functions/requestVehicleApproval",
+            {
+                "email": process.env.REACT_APP_NODE_USERNAME,
+                "password": process.env.REACT_APP_NODE_PASSWORD,
+                "apiToken": current.context.apiKey.toString(),
+                "vehicleId": current.context.vehicleId.toString(),
+                "address": addresses[0]
+            },
+            {
+                headers
+            }
+        )
+        .catch((err: any) => {
+            console.error(err)
+            throw err
+        })
+    }
+
+    const machineOptions = initAddVehicleFormMachineOptions(submitVehicle, requestVehicleApproval)
     const [current, send] = useMachine(addVehicleFormMachine, machineOptions)
 
     const setSelectedVehicleModel = (model: Model) => {

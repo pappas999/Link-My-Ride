@@ -1,7 +1,8 @@
 import { assign } from "xstate"
 
 export const initAddVehicleFormMachineOptions = (
-    submitVehicle: (context: any, event: any) => Promise<any>
+    submitVehicle: (context: any, event: any) => Promise<any>,
+    requestVehicleApproval: (context: any, event: any) => Promise<any>
 ) => ({
     actions: {
         cacheSelectedVehicleModel: assign((_, event: any) => ({
@@ -27,6 +28,7 @@ export const initAddVehicleFormMachineOptions = (
         }))
     },
     services: {
-        submitVehicle
+        submitVehicle,
+        requestVehicleApproval
     }
 })
