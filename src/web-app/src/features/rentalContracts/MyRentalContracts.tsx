@@ -4,6 +4,7 @@ import { Web3Context } from "../web3"
 import { RentalContract } from "./RentalContract"
 import { Typography } from "@material-ui/core"
 import { NoRentalContract } from "./NoRentalContract"
+import rentalContractSC from "./rentalContractSC.json"
 
 type Props = {
     asOwner?: boolean
@@ -24,11 +25,21 @@ export const MyRentalContracts = ({
         const contractAddresses = await linkMyRideContract.methods.getRentalContracts(asOwner ? 1 : 0, addresses[0]).call()
 
         const contracts = await Promise.all(contractAddresses.map(async (address: string) => {
-            const contract = await linkMyRideContract.methods.getRentalContract(address).call()
+
+            // @ts-ignore
+            const rentalAgreementContract = await new web3.eth.Contract(rentalContractSC.abi, address)
+
+            const agreementDetails = await rentalAgreementContract.methods.getAgreementDetails().call()
+
+            const agreementData = await rentalAgreementContract.methods.getAgreementData().call()
+
+            const paymentDetails = await rentalAgreementContract.methods.getPaymentDetails().call()
 
             return {
                 address,
-                details: contract
+                details: agreementDetails,
+                agreementData,
+                paymentDetails
             }
         }))
 
@@ -49,7 +60,23 @@ export const MyRentalContracts = ({
                 status: contract.details[6],
                 ownerCurrency: vehicle[4],
                 vehicleModel: vehicle[5],
-                vehicleDescription: vehicle[6]
+                vehicleDescription: vehicle[6],
+                startOdometer: contract.agreementData[0],
+                startChargeState: contract.agreementData[1],
+                startVehicleLongitude: contract.agreementData[2],
+                startVehicleLatitude: contract.agreementData[3],
+                endOdometer: contract.agreementData[4],
+                endChargeState: contract.agreementData[5],
+                endVehicleLongitude: contract.agreementData[6],
+                endVehicleLatitude: contract.agreementData[7],
+                rentalAgreementEndDateTime: new Date(contract.paymentDetails[0] * 1000),
+                totalLocationPenalty: contract.paymentDetails[1],
+                totalOdometerPenalty: contract.paymentDetails[2],
+                totalChargePenalty: contract.paymentDetails[3],
+                totalTimePenalty: contract.paymentDetails[4],
+                totalPlatformFee: contract.paymentDetails[5],
+                totalRentPayable: contract.paymentDetails[6],
+                totalBondReturned: contract.paymentDetails[7]
             }
         }))
     }, [asOwner, linkMyRideContract, web3])
