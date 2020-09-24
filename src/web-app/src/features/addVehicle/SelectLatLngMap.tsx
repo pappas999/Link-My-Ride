@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 import GoogleMapReact, { ClickEventValue } from "google-map-react"
 import { MapPin } from "../../components/map/MapPin"
 import { AddVehicleFormContext } from "./AddVehicleFormContext"
-import { toSolidityLatOrLong } from "../../utils"
+import { toSolidityLatOrLong, toRealLatOrLong } from "../../utils"
 
 export const SelectLatLngMap = () => {
 
@@ -13,6 +13,8 @@ export const SelectLatLngMap = () => {
     })
 
     const handleClick = (evt: ClickEventValue) => {
+        console.log(+evt.lat.toFixed(6))
+        console.log(toSolidityLatOrLong(+evt.lat.toFixed(6)))
         setVehicleLat(toSolidityLatOrLong(+evt.lat.toFixed(6)))
         setVehicleLng(toSolidityLatOrLong(+evt.lng.toFixed(6)))
     }
@@ -22,8 +24,8 @@ export const SelectLatLngMap = () => {
             key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ""
         }}
         defaultCenter={{
-            lat: current.context.lat,
-            lng: current.context.lng
+            lat: toRealLatOrLong(current.context.lat),
+            lng: toRealLatOrLong(current.context.lng)
         }}
         defaultZoom={12}
         onClick={handleClick}
@@ -31,8 +33,8 @@ export const SelectLatLngMap = () => {
         {
             current.context.lat && current.context.lng && <MapPin
                 key={0}
-                lat={current.context.lat}
-                lng={current.context.lng} />
+                lat={toRealLatOrLong(current.context.lat)}
+                lng={toRealLatOrLong(current.context.lng)} />
 
         }
     </GoogleMapReact>

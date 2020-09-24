@@ -59,8 +59,8 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
             usersCurrency,
             current.context.selectedVehicleModel,
             current.context.vehicleDescription,
-            "36000000",
-            "-115000000"
+            current.context.lat,
+            current.context.lng
         ).send({
             from: addresses[0]
         })
