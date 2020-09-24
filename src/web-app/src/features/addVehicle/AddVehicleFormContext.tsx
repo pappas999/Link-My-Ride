@@ -16,7 +16,9 @@ type ContextProps = {
     setVehicleId: (id: string) => void,
     setApiKey: (apiKey: string) => void,
     setHireFee: (hireFee: string) => void,
-    setBond: (bond: string) => void
+    setBond: (bond: string) => void,
+    setVehicleLat: (lat: number) => void,
+    setVehicleLng: (lng: number) => void
 }
 
 const defaultValues = {
@@ -27,7 +29,9 @@ const defaultValues = {
     setVehicleId: () => { },
     setApiKey: () => { },
     setHireFee: () => { },
-    setBond: () => { }
+    setBond: () => { },
+    setVehicleLat: () => { },
+    setVehicleLng: () => { }
 }
 
 export const AddVehicleFormContext = createContext<ContextProps>(defaultValues)
@@ -84,10 +88,10 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
                 headers
             }
         )
-        .catch((err: any) => {
-            console.error(err)
-            throw err
-        })
+            .catch((err: any) => {
+                console.error(err)
+                throw err
+            })
     }
 
     const machineOptions = initAddVehicleFormMachineOptions(submitVehicle, requestVehicleApproval)
@@ -135,11 +139,36 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
         })
     }
 
+    const setVehicleLat = (lat: number) => {
+        send({
+            type: "SET_LAT",
+            lat
+        })
+    }
+
+    const setVehicleLng = (lng: number) => {
+        send({
+            type: "SET_LNG",
+            lng
+        })
+    }
+
     const submitAddVehicleForm = () => {
         send("SUBMIT")
     }
 
-    return <AddVehicleFormContext.Provider value={{ current, submitAddVehicleForm, setSelectedVehicleModel, setVehicleDescription, setVehicleId, setApiKey, setHireFee, setBond }}>
+    return <AddVehicleFormContext.Provider value={{
+        current,
+        submitAddVehicleForm,
+        setSelectedVehicleModel,
+        setVehicleDescription,
+        setVehicleId,
+        setApiKey,
+        setHireFee,
+        setBond,
+        setVehicleLat,
+        setVehicleLng
+    }}>
         {children}
     </AddVehicleFormContext.Provider>
 }

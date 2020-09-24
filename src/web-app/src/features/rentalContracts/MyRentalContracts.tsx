@@ -47,9 +47,9 @@ export const MyRentalContracts = ({
                 totalRentCost: contract.details[4],
                 totalBond: contract.details[5],
                 status: contract.details[6],
-                ownerCurrency: vehicle[5],
-                vehicleModel: vehicle[6],
-                vehicleDescription: vehicle[7]
+                ownerCurrency: vehicle[4],
+                vehicleModel: vehicle[5],
+                vehicleDescription: vehicle[6]
             }
         }))
     }, [asOwner, linkMyRideContract, web3])

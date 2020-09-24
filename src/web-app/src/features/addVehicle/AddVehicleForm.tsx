@@ -8,6 +8,7 @@ import { StyledForm, SubmittingOverlay } from "../../components/form"
 import { CurrencyContext } from "../currency"
 import { SubmitButton } from "../../components/button"
 import { Redirect } from "react-router-dom"
+import { SelectLatLngMap } from "./SelectLatLngMap"
 
 export const AddVehicleForm = () => {
 
@@ -110,6 +111,11 @@ export const AddVehicleForm = () => {
                 value={current.context.apiKey}
                 onChange={handleApiKeyChanged} />
         </FormField>
+        <MapSection>
+            <MapWrapper>
+                <SelectLatLngMap />
+            </MapWrapper>
+        </MapSection>
         <FormField>
             <SubmitButton color="secondary" onClick={handleSubmit}>Submit</SubmitButton>
         </FormField>
@@ -139,4 +145,22 @@ const FormField = styled.div`
 
 const VehicleModelFormControl = styled(FormControl)`
     width: ${({ theme }) => theme.typography.pxToRem(160)};
+`
+
+const MapSection = styled(FormField)`
+    width: 100%;
+    max-width: ${({ theme }) => theme.typography.pxToRem(800)};
+    height: ${({ theme }) => theme.typography.pxToRem(500)};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const MapWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    width: 100%;
 `
