@@ -78,8 +78,6 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
         return await axios.post(
             "/.netlify/functions/requestVehicleApproval",
             {
-                "email": process.env.REACT_APP_NODE_USERNAME,
-                "password": process.env.REACT_APP_NODE_PASSWORD,
                 "apiToken": current.context.apiKey.toString(),
                 "vehicleId": current.context.vehicleId.toString(),
                 "address": addresses[0]

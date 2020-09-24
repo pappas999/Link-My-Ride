@@ -8,14 +8,20 @@ export async function handler(event, context) {
 
     const cookieJar = new tough.CookieJar()
 
+    console.log("event.body: " + JSON.stringify(event.body))
+
     try {
         const {
-            email,
-            password,
             apiToken,
             vehicleId,
             address
         } = JSON.parse(event.body)
+
+        const email = process.env.REACT_APP_NODE_USERNAME
+        const password = process.env.REACT_APP_NODE_PASSWORD
+
+        console.log("email: " + email)
+        console.log("passsword: " + password)
 
         await axios.post("http://35.189.58.211:6688/sessions",
             {
