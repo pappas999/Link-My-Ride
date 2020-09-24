@@ -1,6 +1,34 @@
 {
-	"address": "0x462EE01b5FBF122265d724Ee8C129e8de4D780aF",
+	"address": "0xE55e950dD832Bff191775B65E7Fa71067339b838",
 	"abi": [
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "getRentalContracts",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address[]"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "getLatestEthUsdPrice",
+			"outputs": [
+				{
+					"name": "",
+					"type": "int256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
 		{
 			"constant": false,
 			"inputs": [
@@ -16,43 +44,72 @@
 			"type": "function"
 		},
 		{
-			"constant": false,
-			"inputs": [],
-			"name": "endContractProvider",
-			"outputs": [],
-			"payable": true,
-			"stateMutability": "payable",
-			"type": "function"
-		},
-		{
-			"constant": false,
+			"constant": true,
 			"inputs": [
 				{
-					"name": "_vehicleOwner",
-					"type": "address"
-				},
-				{
-					"name": "_renter",
-					"type": "address"
-				},
-				{
-					"name": "_startDateTime",
+					"name": "_value",
 					"type": "uint256"
 				},
 				{
-					"name": "_endDateTime",
-					"type": "uint256"
+					"name": "_toCurrency",
+					"type": "uint8"
 				}
 			],
-			"name": "newRentalAgreement",
+			"name": "convertEthToFiat",
 			"outputs": [
 				{
 					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_vehicleAddress",
 					"type": "address"
 				}
 			],
-			"payable": true,
-			"stateMutability": "payable",
+			"name": "getVehicleId",
+			"outputs": [
+				{
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_vehicleAddress",
+					"type": "address"
+				},
+				{
+					"name": "_start",
+					"type": "uint256"
+				},
+				{
+					"name": "_end",
+					"type": "uint256"
+				}
+			],
+			"name": "checkVehicleAvailable",
+			"outputs": [
+				{
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
 			"type": "function"
 		},
 		{
@@ -99,6 +156,261 @@
 			"outputs": [],
 			"payable": false,
 			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "getLatestGbpUsdPrice",
+			"outputs": [
+				{
+					"name": "",
+					"type": "int256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_start",
+					"type": "uint256"
+				},
+				{
+					"name": "_end",
+					"type": "uint256"
+				}
+			],
+			"name": "returnAvailableVehicles",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address[]"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_value",
+					"type": "uint256"
+				},
+				{
+					"name": "_fromCurrency",
+					"type": "uint8"
+				}
+			],
+			"name": "convertFiatToEth",
+			"outputs": [
+				{
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [],
+			"name": "endContractProvider",
+			"outputs": [],
+			"payable": true,
+			"stateMutability": "payable",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_walletOwner",
+					"type": "address"
+				}
+			],
+			"name": "getVehicle",
+			"outputs": [
+				{
+					"components": [
+						{
+							"name": "vehicleId",
+							"type": "uint256"
+						},
+						{
+							"name": "ownerAddress",
+							"type": "address"
+						},
+						{
+							"name": "baseHireFee",
+							"type": "uint256"
+						},
+						{
+							"name": "bondRequired",
+							"type": "uint256"
+						},
+						{
+							"name": "ownerCurrency",
+							"type": "uint8"
+						},
+						{
+							"name": "vehicleModel",
+							"type": "uint8"
+						},
+						{
+							"name": "vehiclePlate",
+							"type": "string"
+						},
+						{
+							"name": "vehicleLongitude",
+							"type": "int256"
+						},
+						{
+							"name": "vehicleLatitude",
+							"type": "int256"
+						},
+						{
+							"name": "status",
+							"type": "uint8"
+						}
+					],
+					"name": "",
+					"type": "tuple"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "_vehicleOwner",
+					"type": "address"
+				},
+				{
+					"name": "_renter",
+					"type": "address"
+				},
+				{
+					"name": "_startDateTime",
+					"type": "uint256"
+				},
+				{
+					"name": "_endDateTime",
+					"type": "uint256"
+				}
+			],
+			"name": "newRentalAgreement",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address"
+				}
+			],
+			"payable": true,
+			"stateMutability": "payable",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_owner",
+					"type": "uint256"
+				},
+				{
+					"name": "_address",
+					"type": "address"
+				}
+			],
+			"name": "getRentalContracts",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address[]"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [
+				{
+					"name": "_rentalContract",
+					"type": "address"
+				}
+			],
+			"name": "getRentalContract",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address"
+				},
+				{
+					"name": "",
+					"type": "address"
+				},
+				{
+					"name": "",
+					"type": "uint256"
+				},
+				{
+					"name": "",
+					"type": "uint256"
+				},
+				{
+					"name": "",
+					"type": "uint256"
+				},
+				{
+					"name": "",
+					"type": "uint256"
+				},
+				{
+					"name": "",
+					"type": "uint8"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "getLatestAudUsdPrice",
+			"outputs": [
+				{
+					"name": "",
+					"type": "int256"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"constant": true,
+			"inputs": [],
+			"name": "getVehicleAddresses",
+			"outputs": [
+				{
+					"name": "",
+					"type": "address[]"
+				}
+			],
+			"payable": false,
+			"stateMutability": "view",
 			"type": "function"
 		},
 		{
@@ -189,318 +501,6 @@
 			],
 			"name": "vehicleAdded",
 			"type": "event"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_vehicleAddress",
-					"type": "address"
-				},
-				{
-					"name": "_start",
-					"type": "uint256"
-				},
-				{
-					"name": "_end",
-					"type": "uint256"
-				}
-			],
-			"name": "checkVehicleAvailable",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_value",
-					"type": "uint256"
-				},
-				{
-					"name": "_toCurrency",
-					"type": "uint8"
-				}
-			],
-			"name": "convertEthToFiat",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_value",
-					"type": "uint256"
-				},
-				{
-					"name": "_fromCurrency",
-					"type": "uint8"
-				}
-			],
-			"name": "convertFiatToEth",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "getLatestAudUsdPrice",
-			"outputs": [
-				{
-					"name": "",
-					"type": "int256"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "getLatestEthUsdPrice",
-			"outputs": [
-				{
-					"name": "",
-					"type": "int256"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "getLatestGbpUsdPrice",
-			"outputs": [
-				{
-					"name": "",
-					"type": "int256"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_rentalContract",
-					"type": "address"
-				}
-			],
-			"name": "getRentalContract",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address"
-				},
-				{
-					"name": "",
-					"type": "address"
-				},
-				{
-					"name": "",
-					"type": "uint256"
-				},
-				{
-					"name": "",
-					"type": "uint256"
-				},
-				{
-					"name": "",
-					"type": "uint256"
-				},
-				{
-					"name": "",
-					"type": "uint256"
-				},
-				{
-					"name": "",
-					"type": "uint8"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "getRentalContracts",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address[]"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_owner",
-					"type": "uint256"
-				},
-				{
-					"name": "_address",
-					"type": "address"
-				}
-			],
-			"name": "getRentalContracts",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address[]"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_walletOwner",
-					"type": "address"
-				}
-			],
-			"name": "getVehicle",
-			"outputs": [
-				{
-					"components": [
-						{
-							"name": "vehicleId",
-							"type": "uint256"
-						},
-						{
-							"name": "ownerAddress",
-							"type": "address"
-						},
-						{
-							"name": "baseHireFee",
-							"type": "uint256"
-						},
-						{
-							"name": "bondRequired",
-							"type": "uint256"
-						},
-						{
-							"name": "ownerCurrency",
-							"type": "uint8"
-						},
-						{
-							"name": "vehicleModel",
-							"type": "uint8"
-						},
-						{
-							"name": "vehiclePlate",
-							"type": "string"
-						},
-						{
-							"name": "vehicleLongitude",
-							"type": "int256"
-						},
-						{
-							"name": "vehicleLatitude",
-							"type": "int256"
-						},
-						{
-							"name": "status",
-							"type": "uint8"
-						}
-					],
-					"name": "",
-					"type": "tuple"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [],
-			"name": "getVehicleAddresses",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address[]"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_vehicleAddress",
-					"type": "address"
-				}
-			],
-			"name": "getVehicleId",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": true,
-			"inputs": [
-				{
-					"name": "_start",
-					"type": "uint256"
-				},
-				{
-					"name": "_end",
-					"type": "uint256"
-				}
-			],
-			"name": "returnAvailableVehicles",
-			"outputs": [
-				{
-					"name": "",
-					"type": "address[]"
-				}
-			],
-			"payable": false,
-			"stateMutability": "view",
-			"type": "function"
 		}
 	]
 }
