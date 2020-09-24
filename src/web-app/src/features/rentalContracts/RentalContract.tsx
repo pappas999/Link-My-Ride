@@ -137,6 +137,8 @@ export const RentalContract = ({
 
     const isActive = +status === RentalAgreementStatus.ACTIVE
 
+    const isCompleted = +status === RentalAgreementStatus.COMPLETED || +status === RentalAgreementStatus.ENDED_ERROR
+
     const ownerCanTerminateContract = isActive && isAfter(new Date(), addHours(endDateTime, CONTRACT_TERMINATION_GRACE_PERIOD_HOURS))
 
     const handleRejectContract = async () => {
@@ -220,65 +222,69 @@ export const RentalContract = ({
                 <RentalAgreementStatusIndicator variant="h6" component="span">{getRentalContractStatusString(status)}</RentalAgreementStatusIndicator>
             </Field>
         </ContractDetailsWrapper>
-        <hr />
-        <VehicleDetailsWrapper>
-            <VehicleDetailsColumn>
-                <Typography variant="h6" component="span">Veh. Stats</Typography>
-                <Typography variant="h6" component="span">Odometer</Typography>
-                <Typography variant="h6" component="span">Charge</Typography>
-                <Typography variant="h6" component="span">Lat.</Typography>
-                <Typography variant="h6" component="span">Long.</Typography>
-            </VehicleDetailsColumn>
-            <VehicleDetailsColumn>
-                <Typography variant="h6" component="span">Start</Typography>
-                <Typography variant="h6" component="span" color="primary">{startOdometer}km</Typography>
-                <Typography variant="h6" component="span" color="primary">{startChargeState}%</Typography>
-                <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(startVehicleLatitude).toFixed(2)}</Typography>
-                <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(startVehicleLongitude).toFixed(2)}</Typography>
-            </VehicleDetailsColumn>
-            <VehicleDetailsColumn>
-                <Typography variant="h6" component="span">End</Typography>
-                <Typography variant="h6" component="span" color="primary">{endOdometer}km</Typography>
-                <Typography variant="h6" component="span" color="primary">{endChargeState}%</Typography>
-                <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(endVehicleLatitude).toFixed(2)}</Typography>
-                <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(endVehicleLongitude).toFixed(2)}</Typography>
-            </VehicleDetailsColumn>
-        </VehicleDetailsWrapper>
-        <hr />
-        <PaymentDetailsWrapper>
-            <Field>
-                <Typography variant="h6" component="span">Contract End:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{format(rentalAgreementEndDateTime, "dd MMM yyyy HH:mm")}</span></Typography>
-            </Field>
-            <Field>
-                <Typography variant="h6" component="span">Location Penalty:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedLocationPenalty, usersCurrency).toString()}</Typography>
-            </Field>
-            <Field>
-                <Typography variant="h6" component="span">Odometer Penalty:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedOdometerPenalty, usersCurrency).toString()}</Typography>
-            </Field>
-            <Field>
-                <Typography variant="h6" component="span">Charge Penalty:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedChargePenalty, usersCurrency).toString()}</Typography>
-            </Field>
-            <Field>
-                <Typography variant="h6" component="span">Time Penalty:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedTimePenalty, usersCurrency).toString()}</Typography>
-            </Field>
-            <Field>
-                <Typography variant="h6" component="span">Platform Fee:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedPlatformFee, usersCurrency).toString()}</Typography>
-            </Field>
-            <Field>
-                <Typography variant="h6" component="span">Rent Payable:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedRentPayable, usersCurrency).toString()}</Typography>
-            </Field>
-            <Field>
-                <Typography variant="h6" component="span">Returned Bond:</Typography>
-                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedBondReturned, usersCurrency).toString()}</Typography>
-            </Field>
-        </PaymentDetailsWrapper>
+        {
+            isCompleted && <>
+                <hr />
+                <VehicleDetailsWrapper>
+                    <VehicleDetailsColumn>
+                        <Typography variant="h6" component="span">Veh. Stats</Typography>
+                        <Typography variant="h6" component="span">Odometer</Typography>
+                        <Typography variant="h6" component="span">Charge</Typography>
+                        <Typography variant="h6" component="span">Lat.</Typography>
+                        <Typography variant="h6" component="span">Long.</Typography>
+                    </VehicleDetailsColumn>
+                    <VehicleDetailsColumn>
+                        <Typography variant="h6" component="span">Start</Typography>
+                        <Typography variant="h6" component="span" color="primary">{startOdometer}km</Typography>
+                        <Typography variant="h6" component="span" color="primary">{startChargeState}%</Typography>
+                        <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(startVehicleLatitude).toFixed(2)}</Typography>
+                        <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(startVehicleLongitude).toFixed(2)}</Typography>
+                    </VehicleDetailsColumn>
+                    <VehicleDetailsColumn>
+                        <Typography variant="h6" component="span">End</Typography>
+                        <Typography variant="h6" component="span" color="primary">{endOdometer}km</Typography>
+                        <Typography variant="h6" component="span" color="primary">{endChargeState}%</Typography>
+                        <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(endVehicleLatitude).toFixed(2)}</Typography>
+                        <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(endVehicleLongitude).toFixed(2)}</Typography>
+                    </VehicleDetailsColumn>
+                </VehicleDetailsWrapper>
+                <hr />
+                <PaymentDetailsWrapper>
+                    <Field>
+                        <Typography variant="h6" component="span">Contract End:</Typography>
+                        <Typography variant="h6" color="primary" component="span">&nbsp;<span>{format(rentalAgreementEndDateTime, "dd MMM yyyy HH:mm")}</span></Typography>
+                    </Field>
+                    <Field>
+                        <Typography variant="h6" component="span">Location Penalty:</Typography>
+                        <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedLocationPenalty, usersCurrency).toString()}</Typography>
+                    </Field>
+                    <Field>
+                        <Typography variant="h6" component="span">Odometer Penalty:</Typography>
+                        <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedOdometerPenalty, usersCurrency).toString()}</Typography>
+                    </Field>
+                    <Field>
+                        <Typography variant="h6" component="span">Charge Penalty:</Typography>
+                        <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedChargePenalty, usersCurrency).toString()}</Typography>
+                    </Field>
+                    <Field>
+                        <Typography variant="h6" component="span">Time Penalty:</Typography>
+                        <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedTimePenalty, usersCurrency).toString()}</Typography>
+                    </Field>
+                    <Field>
+                        <Typography variant="h6" component="span">Platform Fee:</Typography>
+                        <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedPlatformFee, usersCurrency).toString()}</Typography>
+                    </Field>
+                    <Field>
+                        <Typography variant="h6" component="span">Rent Payable:</Typography>
+                        <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedRentPayable, usersCurrency).toString()}</Typography>
+                    </Field>
+                    <Field>
+                        <Typography variant="h6" component="span">Returned Bond:</Typography>
+                        <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedBondReturned, usersCurrency).toString()}</Typography>
+                    </Field>
+                </PaymentDetailsWrapper>
+            </>
+        }
         {
             asOwner && isAwaitingApproval &&
             <StyledCardActions>
