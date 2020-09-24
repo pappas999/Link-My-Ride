@@ -89,8 +89,8 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
             return linkMyRideContract.methods.newRentalAgreement(
                 carAddress,
                 addresses[0],
-                +startDate,
-                +endDate
+                +startDate.toString(),
+                +endDate.toString()
             ).send({
                 from: addresses[0],
                 value: new BigNumber(hireFeeAsEth).plus(bondRequiredAsEth)

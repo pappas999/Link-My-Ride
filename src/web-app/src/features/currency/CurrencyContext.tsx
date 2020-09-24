@@ -35,7 +35,7 @@ export const CurrencyProvider = ({ children }: ProviderProps) => {
         // First get the value as ETH
         let asEth = value
         if (fromCurrency !== Currency.ETH) {
-            asEth = await linkMyRideContract.methods.convertFiatToEth(value, fromCurrency).call()
+            asEth = await linkMyRideContract.methods.convertFiatToEth(value.toString(), fromCurrency.toString()).call()
         }
 
         // Convert from ETH and return
@@ -43,7 +43,7 @@ export const CurrencyProvider = ({ children }: ProviderProps) => {
             return asEth
         }
         else {
-            return await linkMyRideContract.methods.convertEthToFiat(asEth, toCurrency).call()
+            return await linkMyRideContract.methods.convertEthToFiat(asEth.toString(), toCurrency.toString()).call()
         }
     }
 

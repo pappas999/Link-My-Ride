@@ -56,11 +56,11 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
             current.context.vehicleId.toString(),
             toSolidityFormat(current.context.hireFee, usersCurrency).toString(),
             toSolidityFormat(current.context.bond, usersCurrency).toString(),
-            usersCurrency,
-            current.context.selectedVehicleModel,
+            usersCurrency.toString(),
+            current.context.selectedVehicleModel.toString(),
             current.context.vehicleDescription,
-            current.context.lat,
-            current.context.lng
+            current.context.lat.toString(),
+            current.context.lng.toString()
         ).send({
             from: addresses[0]
         })

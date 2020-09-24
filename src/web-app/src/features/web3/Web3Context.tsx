@@ -28,9 +28,7 @@ export const Web3Provider = ({ children }: ProviderProps) => {
 
     const detectProvider = async () => {
         const provider = await detectEthereumProvider()
-        console.log(provider)
-
-        // Modern DApp Browsers
+        
         // @ts-ignore
         if (provider) {
             // @ts-ignore
