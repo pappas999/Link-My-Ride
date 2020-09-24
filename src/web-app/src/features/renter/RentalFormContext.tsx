@@ -45,22 +45,17 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
         // TODO: Filter to only available vehicles
         const vehicleData = await Promise.all(addresses.map(async (address: string) => await getVehicleByAddress(address)))
 
-        // TODO: Remove. This is just for dev purposes
-        const getRandomCoord = (min: number, max: number) => {
-            return Math.random() * (max - min) + min
-        }
-
         return vehicleData.map((vehicle: any) => ({
-            id: vehicle[0],
+            id: +vehicle[0],
             address: vehicle[1],
-            apiTokenHash: vehicle[2],
-            baseHireFee: new BigNumber(vehicle[3]),
-            bondRequired: new BigNumber(vehicle[4]),
-            currency: vehicle[5],
-            model: vehicle[6],
-            description: vehicle[7],
-            lat: getRandomCoord(36.14, 36.16),
-            lng: getRandomCoord(-115.12, -115.16),
+            baseHireFee: vehicle[2],
+            bondRequired: vehicle[3],
+            currency: vehicle[4],
+            model: vehicle[5],
+            description: vehicle[6],
+            lat: +vehicle[7],
+            lng: +vehicle[8],
+            status: vehicle[9]
         }))
     }
 
@@ -77,13 +72,19 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
             const toEpochSeconds = (dateTime: Date) => dateTime.getTime() / 1000
 
             const startDate = toEpochSeconds(context.selectedDate)
-            const endDate = toEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + 2)))
-            const hireFee: BigNumber = baseHireFee.multipliedBy(+(context.hireDuration))
+            const endDate = toEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + +context.hireDuration)))
+            const hireFee: BigNumber = new BigNumber(baseHireFee).multipliedBy(+(context.hireDuration))
 
             const hireFeeAsEth = await convertCurrency(hireFee, currency, Currency.ETH)
             const bondRequiredAsEth = await convertCurrency(bondRequired, currency, Currency.ETH)
 
             const addresses = await web3.eth.getAccounts()
+
+            console.log(carAddress)
+            console.log(addresses[0])
+            console.log(+startDate)
+            console.log(+endDate)
+            console.log(new BigNumber(hireFeeAsEth).plus(bondRequiredAsEth).toString())
 
             return linkMyRideContract.methods.newRentalAgreement(
                 carAddress,

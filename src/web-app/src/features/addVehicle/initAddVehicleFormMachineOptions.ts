@@ -25,6 +25,12 @@ export const initAddVehicleFormMachineOptions = (
         })),
         cacheBond: assign((_, event: any) => ({
             bond: event.value
+        })),
+        cacheLat: assign((_, event: any) => ({
+            lat: event.lat
+        })),
+        cacheLng: assign((_, event: any) => ({
+            lng: event.lng
         }))
     },
     services: {

@@ -17,15 +17,24 @@ export const Map = ({
 
     const addCoords = (runningTotal: number, coord: number) => runningTotal + coord
 
-    const getDefaultCenter = useMemo(() => {
+    const convertCoordToReal = (coord: number) => coord / (10 ** 6)
 
+    const getDefaultCenter = useMemo(() => {
         const numCars = cars.length
+
+        if (numCars < 1) {
+            return {
+                lat: 0,
+                lng: 0
+            }
+        }
+
         const averageLat = cars.map((car: Car) => car.lat).reduce(addCoords, 0) / numCars
         const averageLng = cars.map((car: Car) => car.lng).reduce(addCoords, 0) / numCars
 
         return {
-            lat: averageLat,
-            lng: averageLng
+            lat: convertCoordToReal(averageLat),
+            lng: convertCoordToReal(averageLng)
         }
     }, [cars])
 
@@ -41,8 +50,8 @@ export const Map = ({
             cars
                 .map((car: Car) => <MapPin
                     key={car.id}
-                    lat={car.lat}
-                    lng={car.lng} />)
+                    lat={convertCoordToReal(car.lat)}
+                    lng={convertCoordToReal(car.lng)} />)
         }
     </GoogleMapReact>
 }

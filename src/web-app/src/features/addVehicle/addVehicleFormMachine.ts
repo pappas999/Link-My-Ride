@@ -10,7 +10,9 @@ export const addVehicleFormMachine = createMachine({
         vehicleId: "",
         apiKey: "",
         hireFee: "",
-        bond: ""
+        bond: "",
+        lat: -34.9285,
+        lng: 138.6007
     },
     states: {
         initial: {
@@ -65,6 +67,12 @@ export const addVehicleFormMachine = createMachine({
         },
         SET_BOND: {
             actions: "cacheBond"
+        },
+        SET_LAT: {
+            actions: "cacheLat"
+        },
+        SET_LNG: {
+            actions: "cacheLng"
         },
         SUBMIT: {
             target: "submitting"

@@ -19,16 +19,16 @@ export const MyVehicle = () => {
 
         if (vehicle[0] !== "0") {
             setMyVehicle({
-                id: vehicle[0],
+                id: +vehicle[0],
                 address: vehicle[1],
-                apiTokenHash: vehicle[2],
-                baseHireFee: vehicle[3],
-                bondRequired: vehicle[4],
-                currency: vehicle[5],
-                model: vehicle[6],
-                description: vehicle[7],
-                lat: 0,
-                lng: 0
+                baseHireFee: vehicle[2],
+                bondRequired: vehicle[3],
+                currency: vehicle[4],
+                model: vehicle[5],
+                description: vehicle[6],
+                lat: +vehicle[7],
+                lng: +vehicle[8],
+                status: vehicle[9]
             })
         }
     }, [linkMyRideContract, web3])

@@ -1,13 +1,14 @@
 import React, { useContext } from "react"
 import styled from "styled-components"
 import { AddVehicleFormContext } from "./AddVehicleFormContext"
-import { FormControl, Input, InputLabel, Select, MenuItem, TextField, InputAdornment } from "@material-ui/core"
+import { FormControl, Typography, Input, InputLabel, Select, MenuItem, TextField, InputAdornment } from "@material-ui/core"
 import { Model } from "../../enums"
 import { getCarModelString, getCurrencyString } from "../../utils"
 import { StyledForm, SubmittingOverlay } from "../../components/form"
 import { CurrencyContext } from "../currency"
 import { SubmitButton } from "../../components/button"
 import { Redirect } from "react-router-dom"
+import { SelectLatLngMap } from "./SelectLatLngMap"
 
 export const AddVehicleForm = () => {
 
@@ -110,6 +111,12 @@ export const AddVehicleForm = () => {
                 value={current.context.apiKey}
                 onChange={handleApiKeyChanged} />
         </FormField>
+        <MapSection>
+            <MapWrapper>
+            <BigFieldLabel>Please select where you would like your vehicle to be collected from and returned to.</BigFieldLabel>
+                <SelectLatLngMap />
+            </MapWrapper>
+        </MapSection>
         <FormField>
             <SubmitButton color="secondary" onClick={handleSubmit}>Submit</SubmitButton>
         </FormField>
@@ -131,6 +138,8 @@ const FormWrapper = styled(StyledForm)`
     justify-content: flex-start;
     padding: ${({ theme }) => theme.spacing(8)};
     color: ${({ theme }) => theme.palette.common.white};
+    width: 100%;
+    max-width: ${({ theme }) => theme.typography.pxToRem(600)};
 `
 
 const FormField = styled.div`   
@@ -139,4 +148,30 @@ const FormField = styled.div`
 
 const VehicleModelFormControl = styled(FormControl)`
     width: ${({ theme }) => theme.typography.pxToRem(160)};
+`
+
+const MapSection = styled(FormField)`
+    width: 100%;
+    max-width: ${({ theme }) => theme.typography.pxToRem(800)};
+    height: ${({ theme }) => theme.typography.pxToRem(500)};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const MapWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    width: 100%;
+`
+
+const BigFieldLabel = styled(Typography)`
+    &.MuiTypography-body1 {
+        font-size: ${({ theme }) => theme.typography.pxToRem(24)};
+        margin: ${({ theme }) => theme.typography.pxToRem(24)};
+        text-align: center;
+    }
 `
