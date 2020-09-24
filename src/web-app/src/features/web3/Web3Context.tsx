@@ -1,6 +1,8 @@
 import React, { createContext, useEffect, useState } from "react"
 import Web3 from "web3"
 import contract from "./contract.json"
+// @ts-ignore
+import detectEthereumProvider from "@metamask/detect-provider"
 
 type ContextProps = {
     linkMyRideContract: any,
@@ -23,30 +25,36 @@ export const Web3Provider = ({ children }: ProviderProps) => {
     const [web3, setWeb3] = useState()
     const [linkMyRideContract, setLinkMyRideContract] = useState(null)
 
-    useEffect(() => {
+    const detectProvider = async () => {
+        const provider = await detectEthereumProvider()
+        console.log(provider)
+
         // Modern DApp Browsers
         // @ts-ignore
-        if (window.ethereum) {
+        if (provider) {
             // @ts-ignore
-            setWeb3(new Web3(window.ethereum))
+            if (provider !== window.ethereum) {
+                console.error('Do you have multiple wallets installed?')
+            }
+
+            // @ts-ignore
+            setWeb3(new Web3(provider))
             try {
                 // @ts-ignore
-                window.ethereum.enable().then(function () {
+                provider.enable().then(function () {
                     // User has allowed account access to DApp...
                 })
             } catch (e) {
                 // User has denied account access to DApp...
             }
         }
-        // Legacy DApp Browsers
-        // @ts-ignore
-        else if (window.web3) {
-            // @ts-ignore
-            setWeb3(new Web3(window.web3.currentProvider))
-        }
         else {
-            console.error('You have to install MetaMask!')
+            alert('Please install an Ethereum-compatible browser or extension like MetaMask to use this dApp')
         }
+    }
+
+    useEffect(() => {
+        detectProvider()
     }, [])
 
     useEffect(() => {

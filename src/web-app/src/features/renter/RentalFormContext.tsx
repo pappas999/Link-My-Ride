@@ -72,7 +72,7 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
             const toEpochSeconds = (dateTime: Date) => dateTime.getTime() / 1000
 
             const startDate = toEpochSeconds(context.selectedDate)
-            const endDate = toEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + 2)))
+            const endDate = toEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + +context.hireDuration)))
             const hireFee: BigNumber = new BigNumber(baseHireFee).multipliedBy(+(context.hireDuration))
 
             const hireFeeAsEth = await convertCurrency(hireFee, currency, Currency.ETH)
