@@ -3,7 +3,7 @@ import styled from "styled-components"
 import { Typography } from "@material-ui/core"
 import { Card } from "../../components/card"
 import { CarImage } from "../../components/car"
-import { getCurrencyString, getCarModelString, fromSolidityFormat } from "../../utils"
+import { getCurrencyString, getCarModelString, fromSolidityFormat, getVehicleStatusString } from "../../utils"
 import { CurrencyContext } from "../currency"
 import BigNumber from "bignumber.js"
 
@@ -35,7 +35,7 @@ export const Vehicle = ({
 
     if (!car) return null
 
-    const { model, description } = car
+    const { model, description, status } = car
 
     return <StyledCard>
         <CarDetailsWrapper>
@@ -53,6 +53,9 @@ export const Vehicle = ({
             <Field>
                 <Typography variant="h6" component="span">Hourly Hire Fee:</Typography>
                 <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedHireFee, usersCurrency).toString()}</Typography>
+            </Field>
+            <Field>
+                <VehicleStatusIndicator variant="h6" component="span">{getVehicleStatusString(status)}</VehicleStatusIndicator>
             </Field>
         </ContractDetailsWrapper>
     </StyledCard>
@@ -100,3 +103,7 @@ const ContractDetailsWrapper = styled.div`
     align-items: flex-end;
     justify-content: flex-start;
 `
+
+const VehicleStatusIndicator = styled(Typography)`
+    text-transform: uppercase;
+` as typeof Typography

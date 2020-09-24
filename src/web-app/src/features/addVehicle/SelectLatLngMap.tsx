@@ -13,8 +13,6 @@ export const SelectLatLngMap = () => {
     })
 
     const handleClick = (evt: ClickEventValue) => {
-        console.log(+evt.lat.toFixed(6))
-        console.log(toSolidityLatOrLong(+evt.lat.toFixed(6)))
         setVehicleLat(toSolidityLatOrLong(+evt.lat.toFixed(6)))
         setVehicleLng(toSolidityLatOrLong(+evt.lng.toFixed(6)))
     }

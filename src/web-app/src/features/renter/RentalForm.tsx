@@ -90,10 +90,10 @@ export const RentalForm = () => {
                         <MenuItem value={1}>1 hour</MenuItem>
                         <MenuItem value={2}>2 hours</MenuItem>
                         <MenuItem value={3}>3 hours</MenuItem>
-                        <MenuItem value={3}>5 hours</MenuItem>
-                        <MenuItem value={3}>7 hours</MenuItem>
-                        <MenuItem value={3}>9 hours</MenuItem>
-                        <MenuItem value={3}>12 hours</MenuItem>
+                        <MenuItem value={5}>5 hours</MenuItem>
+                        <MenuItem value={7}>7 hours</MenuItem>
+                        <MenuItem value={9}>9 hours</MenuItem>
+                        <MenuItem value={12}>12 hours</MenuItem>
                     </Select>
                 </HireDurationFormControl>
             </>
