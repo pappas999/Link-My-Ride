@@ -18,8 +18,15 @@ export const Map = ({
     const addCoords = (runningTotal: number, coord: number) => runningTotal + coord
 
     const getDefaultCenter = useMemo(() => {
-
         const numCars = cars.length
+
+        if (numCars < 1) {
+            return {
+                lat: 0,
+                lng: 0
+            }
+        }
+
         const averageLat = cars.map((car: Car) => car.lat).reduce(addCoords, 0) / numCars
         const averageLng = cars.map((car: Car) => car.lng).reduce(addCoords, 0) / numCars
 

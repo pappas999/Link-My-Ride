@@ -73,12 +73,18 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
 
             const startDate = toEpochSeconds(context.selectedDate)
             const endDate = toEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + 2)))
-            const hireFee: BigNumber = baseHireFee.multipliedBy(+(context.hireDuration))
+            const hireFee: BigNumber = new BigNumber(baseHireFee).multipliedBy(+(context.hireDuration))
 
             const hireFeeAsEth = await convertCurrency(hireFee, currency, Currency.ETH)
             const bondRequiredAsEth = await convertCurrency(bondRequired, currency, Currency.ETH)
 
             const addresses = await web3.eth.getAccounts()
+
+            console.log(carAddress)
+            console.log(addresses[0])
+            console.log(+startDate)
+            console.log(+endDate)
+            console.log(new BigNumber(hireFeeAsEth).plus(bondRequiredAsEth).toString())
 
             return linkMyRideContract.methods.newRentalAgreement(
                 carAddress,

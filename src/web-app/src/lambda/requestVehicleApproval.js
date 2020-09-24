@@ -29,7 +29,7 @@ export async function handler(event, context) {
             })
 
         const response = axios.post(
-            "http://35.189.58.211:6688/v2/specs/7ce899554ccc4e70b514ff9417bbf645/runs",
+            "http://35.189.58.211:6688/v2/specs/4ab0af1059d64a9497eeaa61ee84b1d3/runs",
             {
                 "apiToken": apiToken,
                 "vehicleId": vehicleId,

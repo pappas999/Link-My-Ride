@@ -20,7 +20,8 @@ export const RentalForm = () => {
     const { currency: usersCurrency, convertCurrency } = useContext(CurrencyContext)
 
     const handleChildClick = (key: any, childProps: any) => {
-        setSelectedCar(current.context.availableCars && current.context.availableCars.filter((car: Car) => car.id === key)[0])
+        const selectedCar = current.context.availableCars && current.context.availableCars.filter((car: Car) => car.id.toString() === key.toString())[0]
+        setSelectedCar(selectedCar)
     }
 
     const handleHireDurationSelected = (event: any) => {
