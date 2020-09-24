@@ -1,0 +1,1 @@
+export const toRealLatOrLong = (coord: number) => coord / (10 ** 6)

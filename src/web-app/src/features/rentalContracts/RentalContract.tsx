@@ -3,7 +3,7 @@ import styled from "styled-components"
 import { Typography, CardActions, Button } from "@material-ui/core"
 import { Card } from "../../components/card"
 import { CarImage } from "../../components/car"
-import { toLongDateTime, getCarModelString, getRentalContractStatusString, fromSolidityFormat, getCurrencyString } from "../../utils"
+import { toLongDateTime, getCarModelString, getRentalContractStatusString, fromSolidityFormat, getCurrencyString, toRealLatOrLong } from "../../utils"
 import { RentalAgreementStatus } from "../../enums"
 import { Web3Context } from "../web3"
 import { CurrencyContext } from "../currency"
@@ -11,6 +11,7 @@ import rentalContractSC from "./rentalContractSC.json"
 import { isAfter, addHours } from "date-fns"
 import BigNumber from "bignumber.js"
 import { Currency } from "../../enums"
+import { format } from "date-fns"
 
 type Props = {
     contract: Contract,
@@ -26,10 +27,41 @@ export const RentalContract = ({
 
     const CONTRACT_TERMINATION_GRACE_PERIOD_HOURS = 2
 
-    const { address, startDateTime, endDateTime, totalRentCost, totalBond, vehicleModel, vehicleDescription, status } = contract
+    const {
+        address,
+        startDateTime,
+        endDateTime,
+        totalRentCost,
+        totalBond,
+        vehicleModel,
+        vehicleDescription,
+        status,
+        startOdometer,
+        startChargeState,
+        startVehicleLongitude,
+        startVehicleLatitude,
+        endOdometer,
+        endChargeState,
+        endVehicleLongitude,
+        endVehicleLatitude,
+        rentalAgreementEndDateTime,
+        totalLocationPenalty,
+        totalOdometerPenalty,
+        totalChargePenalty,
+        totalTimePenalty,
+        totalPlatformFee,
+        totalRentPayable,
+        totalBondReturned } = contract
 
     const [convertedBond, setConvertedBond] = useState(new BigNumber(0))
     const [convertedHireFee, setConvertedHireFee] = useState(new BigNumber(0))
+    const [convertedLocationPenalty, setConvertedLocationPenalty] = useState(new BigNumber(0))
+    const [convertedOdometerPenalty, setConvertedOdometerPenalty] = useState(new BigNumber(0))
+    const [convertedChargePenalty, setConvertedChargePenalty] = useState(new BigNumber(0))
+    const [convertedTimePenalty, setConvertedTimePenalty] = useState(new BigNumber(0))
+    const [convertedPlatformFee, setConvertedPlatformFee] = useState(new BigNumber(0))
+    const [convertedRentPayable, setConvertedRentPayable] = useState(new BigNumber(0))
+    const [convertedBondReturned, setConvertedBondReturned] = useState(new BigNumber(0))
 
     const getConvertedBond = useCallback(async () => {
         setConvertedBond(await convertCurrency(new BigNumber(totalBond), Currency.ETH, usersCurrency))
@@ -39,10 +71,56 @@ export const RentalContract = ({
         setConvertedHireFee(await convertCurrency(new BigNumber(totalRentCost), Currency.ETH, usersCurrency))
     }, [usersCurrency, convertCurrency, setConvertedHireFee, totalRentCost])
 
+    const getConvertedLocationPenalty = useCallback(async () => {
+        setConvertedLocationPenalty(await convertCurrency(new BigNumber(totalLocationPenalty), Currency.ETH, usersCurrency))
+    }, [usersCurrency, convertCurrency, setConvertedLocationPenalty, totalLocationPenalty])
+
+    const getConvertedOdometerPenalty = useCallback(async () => {
+        setConvertedOdometerPenalty(await convertCurrency(new BigNumber(totalOdometerPenalty), Currency.ETH, usersCurrency))
+    }, [usersCurrency, convertCurrency, setConvertedOdometerPenalty, totalOdometerPenalty])
+
+    const getConvertedChargePenalty = useCallback(async () => {
+        setConvertedChargePenalty(await convertCurrency(new BigNumber(totalChargePenalty), Currency.ETH, usersCurrency))
+    }, [usersCurrency, convertCurrency, setConvertedChargePenalty, totalChargePenalty])
+
+    const getConvertedTimePenalty = useCallback(async () => {
+        setConvertedTimePenalty(await convertCurrency(new BigNumber(totalTimePenalty), Currency.ETH, usersCurrency))
+    }, [usersCurrency, convertCurrency, setConvertedTimePenalty, totalTimePenalty])
+
+    const getConvertedPlatformFee = useCallback(async () => {
+        setConvertedPlatformFee(await convertCurrency(new BigNumber(totalPlatformFee), Currency.ETH, usersCurrency))
+    }, [usersCurrency, convertCurrency, setConvertedPlatformFee, totalPlatformFee])
+
+    const getConvertedRentPayable = useCallback(async () => {
+        setConvertedRentPayable(await convertCurrency(new BigNumber(totalRentPayable), Currency.ETH, usersCurrency))
+    }, [usersCurrency, convertCurrency, setConvertedRentPayable, totalRentPayable])
+
+    const getConvertedBondReturned = useCallback(async () => {
+        setConvertedBondReturned(await convertCurrency(new BigNumber(totalBondReturned), Currency.ETH, usersCurrency))
+    }, [usersCurrency, convertCurrency, setConvertedBondReturned, totalBondReturned])
+
+
     useEffect(() => {
         getConvertedBond()
         getConvertedHireFee()
-    }, [usersCurrency, getConvertedBond, getConvertedHireFee])
+        getConvertedLocationPenalty()
+        getConvertedOdometerPenalty()
+        getConvertedChargePenalty()
+        getConvertedTimePenalty()
+        getConvertedPlatformFee()
+        getConvertedRentPayable()
+        getConvertedBondReturned()
+    }, [usersCurrency,
+        getConvertedBond,
+        getConvertedHireFee,
+        getConvertedLocationPenalty,
+        getConvertedOdometerPenalty,
+        getConvertedChargePenalty,
+        getConvertedTimePenalty,
+        getConvertedPlatformFee,
+        getConvertedRentPayable,
+        getConvertedBondReturned
+    ])
 
     const { web3 } = useContext(Web3Context)
 
@@ -142,6 +220,65 @@ export const RentalContract = ({
                 <RentalAgreementStatusIndicator variant="h6" component="span">{getRentalContractStatusString(status)}</RentalAgreementStatusIndicator>
             </Field>
         </ContractDetailsWrapper>
+        <hr />
+        <VehicleDetailsWrapper>
+            <VehicleDetailsColumn>
+                <Typography variant="h6" component="span">Veh. Stats</Typography>
+                <Typography variant="h6" component="span">Odometer</Typography>
+                <Typography variant="h6" component="span">Charge</Typography>
+                <Typography variant="h6" component="span">Lat.</Typography>
+                <Typography variant="h6" component="span">Long.</Typography>
+            </VehicleDetailsColumn>
+            <VehicleDetailsColumn>
+                <Typography variant="h6" component="span">Start</Typography>
+                <Typography variant="h6" component="span" color="primary">{startOdometer}km</Typography>
+                <Typography variant="h6" component="span" color="primary">{startChargeState}%</Typography>
+                <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(startVehicleLatitude).toFixed(2)}</Typography>
+                <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(startVehicleLongitude).toFixed(2)}</Typography>
+            </VehicleDetailsColumn>
+            <VehicleDetailsColumn>
+                <Typography variant="h6" component="span">End</Typography>
+                <Typography variant="h6" component="span" color="primary">{endOdometer}km</Typography>
+                <Typography variant="h6" component="span" color="primary">{endChargeState}%</Typography>
+                <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(endVehicleLatitude).toFixed(2)}</Typography>
+                <Typography variant="h6" component="span" color="primary">{toRealLatOrLong(endVehicleLongitude).toFixed(2)}</Typography>
+            </VehicleDetailsColumn>
+        </VehicleDetailsWrapper>
+        <hr />
+        <PaymentDetailsWrapper>
+            <Field>
+                <Typography variant="h6" component="span">Contract End:</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{format(rentalAgreementEndDateTime, "dd MMM yyyy HH:mm")}</span></Typography>
+            </Field>
+            <Field>
+                <Typography variant="h6" component="span">Location Penalty:</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedLocationPenalty, usersCurrency).toString()}</Typography>
+            </Field>
+            <Field>
+                <Typography variant="h6" component="span">Odometer Penalty:</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedOdometerPenalty, usersCurrency).toString()}</Typography>
+            </Field>
+            <Field>
+                <Typography variant="h6" component="span">Charge Penalty:</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedChargePenalty, usersCurrency).toString()}</Typography>
+            </Field>
+            <Field>
+                <Typography variant="h6" component="span">Time Penalty:</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedTimePenalty, usersCurrency).toString()}</Typography>
+            </Field>
+            <Field>
+                <Typography variant="h6" component="span">Platform Fee:</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedPlatformFee, usersCurrency).toString()}</Typography>
+            </Field>
+            <Field>
+                <Typography variant="h6" component="span">Rent Payable:</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedRentPayable, usersCurrency).toString()}</Typography>
+            </Field>
+            <Field>
+                <Typography variant="h6" component="span">Returned Bond:</Typography>
+                <Typography variant="h6" color="primary" component="span">&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedBondReturned, usersCurrency).toString()}</Typography>
+            </Field>
+        </PaymentDetailsWrapper>
         {
             asOwner && isAwaitingApproval &&
             <StyledCardActions>
@@ -217,6 +354,27 @@ const CarDetailsTextWrapper = styled.div`
 `
 
 const ContractDetailsWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-start;
+`
+
+const VehicleDetailsWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+`
+
+const VehicleDetailsColumn = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+`
+
+const PaymentDetailsWrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-end;

@@ -1,46 +1,98 @@
 {
 	"abi": [
         {
-            "constant": false,
+            "constant": true,
             "inputs": [],
-            "name": "activateRentalContract",
-            "outputs": [],
+            "name": "getChainlinkToken",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address"
+                }
+            ],
             "payable": false,
-            "stateMutability": "nonpayable",
+            "stateMutability": "view",
             "type": "function"
         },
         {
-            "constant": false,
+            "constant": true,
+            "inputs": [],
+            "name": "getAgreementStatus",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint8"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "getAgreementData",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "int256"
+                },
+                {
+                    "name": "",
+                    "type": "int256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "int256"
+                },
+                {
+                    "name": "",
+                    "type": "int256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
             "inputs": [
                 {
-                    "name": "_vehicleData",
+                    "name": "s",
                     "type": "string"
                 }
             ],
-            "name": "activeteRentalContractFallback",
+            "name": "stringToUint",
             "outputs": [
                 {
-                    "name": "",
+                    "name": "result",
                     "type": "uint256"
                 }
             ],
             "payable": false,
-            "stateMutability": "nonpayable",
+            "stateMutability": "view",
             "type": "function"
         },
         {
-            "constant": false,
+            "constant": true,
             "inputs": [],
-            "name": "approveContract",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [],
-            "name": "endRentalContract",
+            "name": "getAgreementEndTime",
             "outputs": [
                 {
                     "name": "",
@@ -48,40 +100,7 @@
                 }
             ],
             "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "name": "_vehicleData",
-                    "type": "string"
-                }
-            ],
-            "name": "endRentalContractFallback",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [],
-            "name": "forceEndRentalContract",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "nonpayable",
+            "stateMutability": "view",
             "type": "function"
         },
         {
@@ -95,8 +114,253 @@
         },
         {
             "constant": false,
+            "inputs": [
+                {
+                    "name": "_requestId",
+                    "type": "bytes32"
+                },
+                {
+                    "name": "_vehicleData",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "endRentalContractFallback",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "getVehicleRenter",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "approveContract",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "_requestId",
+                    "type": "bytes32"
+                },
+                {
+                    "name": "_vehicleData",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "activeteRentalContractFallback",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
             "inputs": [],
             "name": "renounceOwnership",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "activateRentalContract",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "forceEndRentalContract",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "_requestId",
+                    "type": "bytes32"
+                },
+                {
+                    "name": "_vehicleData",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "forceEndRentalContractFallback",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "owner",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "x",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "bytes32ToString",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "getAgreementDetails",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address"
+                },
+                {
+                    "name": "",
+                    "type": "address"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint8"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "getPaymentDetails",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "getVehicleOwner",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "getAgreementStartTime",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "endRentalContract",
             "outputs": [],
             "payable": false,
             "stateMutability": "nonpayable",
@@ -204,6 +468,134 @@
             "anonymous": false,
             "inputs": [
                 {
+                    "indexed": false,
+                    "name": "_startOdometer",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_startChargeState",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_startVehicleLongitude",
+                    "type": "int256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_startVehicleLatitude",
+                    "type": "int256"
+                }
+            ],
+            "name": "contractActive",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "name": "_endOdometer",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_endChargeState",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_endVehicleLongitude",
+                    "type": "int256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_endVehicleLatitide",
+                    "type": "int256"
+                }
+            ],
+            "name": "contractCompleted",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "name": "_endOdometer",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_endChargeState",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_endVehicleLongitude",
+                    "type": "int256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_endVehicleLatitide",
+                    "type": "int256"
+                }
+            ],
+            "name": "contractCompletedError",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "name": "_platformFee",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_totalRent",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_totalBondKept",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_totalBondForfeitted",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_timePenality",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_chargePenalty",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_locationPenalty",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "name": "_milesPenalty",
+                    "type": "uint256"
+                }
+            ],
+            "name": "agreementPayments",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
                     "indexed": true,
                     "name": "previousOwner",
                     "type": "address"
@@ -264,142 +656,6 @@
             ],
             "name": "ChainlinkCancelled",
             "type": "event"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "getAgreementDetails",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "address"
-                },
-                {
-                    "name": "",
-                    "type": "address"
-                },
-                {
-                    "name": "",
-                    "type": "uint256"
-                },
-                {
-                    "name": "",
-                    "type": "uint256"
-                },
-                {
-                    "name": "",
-                    "type": "uint256"
-                },
-                {
-                    "name": "",
-                    "type": "uint256"
-                },
-                {
-                    "name": "",
-                    "type": "uint8"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "getAgreementEndTime",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "getAgreementStartTime",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "getAgreementStatus",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint8"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "getChainlinkToken",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "getVehicleOwner",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "getVehicleRenter",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "owner",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
         }
     ]
 }

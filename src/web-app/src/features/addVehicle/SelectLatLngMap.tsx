@@ -2,6 +2,7 @@ import React, { useContext } from "react"
 import GoogleMapReact, { ClickEventValue } from "google-map-react"
 import { MapPin } from "../../components/map/MapPin"
 import { AddVehicleFormContext } from "./AddVehicleFormContext"
+import { toSolidityLatOrLong } from "../../utils"
 
 export const SelectLatLngMap = () => {
 
@@ -12,8 +13,8 @@ export const SelectLatLngMap = () => {
     })
 
     const handleClick = (evt: ClickEventValue) => {
-        setVehicleLat(+evt.lat.toFixed(6))
-        setVehicleLng(+evt.lng.toFixed(6))
+        setVehicleLat(toSolidityLatOrLong(+evt.lat.toFixed(6)))
+        setVehicleLng(toSolidityLatOrLong(+evt.lng.toFixed(6)))
     }
 
     return <GoogleMapReact

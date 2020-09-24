@@ -1,0 +1,1 @@
+export const toSolidityLatOrLong = (coord: number) => coord * (10 ** 6)
