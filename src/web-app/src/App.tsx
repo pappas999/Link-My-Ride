@@ -15,6 +15,8 @@ import { CurrencyProvider } from "./features/currency"
 import { OwnerDashboard } from "./features/ownerDashboard"
 import { RenterDashboard } from "./features/renterDashboard"
 import { AddVehicle } from "./features/addVehicle"
+import { ToastContainer, Flip } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 export const App = () => {
   return (
@@ -24,6 +26,18 @@ export const App = () => {
           <CurrencyProvider>
             <Router>
               <Main>
+                <StyledToastContainer
+                  position="top-center"
+                  autoClose={5000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                  transition={Flip}
+                />
                 <Switch>
                   <Route exact path="/">
                     <Home />
@@ -57,4 +71,10 @@ const Main = styled.main`
   background: linear-gradient(0deg, rgba(15,43,112,1) 0%, rgba(36,93,232,1) 100%);
   min-height: 100vh;
   width: 100%;
+`
+
+const StyledToastContainer = styled(ToastContainer)`
+  & .Toastify__toast-body {
+    font-family: 'Solway', serif;
+  }
 `

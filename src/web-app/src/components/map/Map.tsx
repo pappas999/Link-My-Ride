@@ -1,6 +1,7 @@
 import React, { useMemo } from "react"
 import GoogleMapReact from "google-map-react"
 import { MapPin } from "./MapPin"
+import { toRealLatOrLong } from "../../utils"
 
 type Props = {
     cars: Car[],
@@ -17,8 +18,6 @@ export const Map = ({
 
     const addCoords = (runningTotal: number, coord: number) => runningTotal + coord
 
-    const convertCoordToReal = (coord: number) => coord / (10 ** 6)
-
     const getDefaultCenter = useMemo(() => {
         const numCars = cars.length
 
@@ -33,8 +32,8 @@ export const Map = ({
         const averageLng = cars.map((car: Car) => car.lng).reduce(addCoords, 0) / numCars
 
         return {
-            lat: convertCoordToReal(averageLat),
-            lng: convertCoordToReal(averageLng)
+            lat: toRealLatOrLong(averageLat),
+            lng: toRealLatOrLong(averageLng)
         }
     }, [cars])
 
@@ -50,8 +49,8 @@ export const Map = ({
             cars
                 .map((car: Car) => <MapPin
                     key={car.id}
-                    lat={convertCoordToReal(car.lat)}
-                    lng={convertCoordToReal(car.lng)} />)
+                    lat={toRealLatOrLong(car.lat)}
+                    lng={toRealLatOrLong(car.lng)} />)
         }
     </GoogleMapReact>
 }

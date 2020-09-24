@@ -3,6 +3,7 @@ import Web3 from "web3"
 import contract from "./contract.json"
 // @ts-ignore
 import detectEthereumProvider from "@metamask/detect-provider"
+import { toast } from "react-toastify"
 
 type ContextProps = {
     linkMyRideContract: any,
@@ -38,7 +39,16 @@ export const Web3Provider = ({ children }: ProviderProps) => {
             }
 
             // @ts-ignore
-            setWeb3(new Web3(provider))
+            const web3 = new Web3(provider)
+            setWeb3(web3)
+
+            const network = await web3.eth.net.getNetworkType()
+            if (network !== "kovan") {
+                toast.error('🧪 Please switch to the Kovan Testnet', {
+                    autoClose: false
+                })
+            }
+
             try {
                 // @ts-ignore
                 provider.enable().then(function () {
@@ -49,7 +59,9 @@ export const Web3Provider = ({ children }: ProviderProps) => {
             }
         }
         else {
-            alert('Please install an Ethereum-compatible browser or extension like MetaMask to use this dApp')
+            toast.error('🤖 Please install an Ethereum-compatible browser or extension like MetaMask to use this dApp', {
+                autoClose: false
+            })
         }
     }
 
