@@ -7,7 +7,7 @@ import { toast } from "react-toastify"
 
 type ContextProps = {
     linkMyRideContract: any,
-    web3: Web3 | null
+    web3: Web3
 }
 
 const defaultValues = {
@@ -23,7 +23,7 @@ type ProviderProps = {
 
 export const Web3Provider = ({ children }: ProviderProps) => {
 
-    const [web3, setWeb3] = useState<Web3 | null>(null)
+    const [web3, setWeb3] = useState()
     const [linkMyRideContract, setLinkMyRideContract] = useState(null)
 
     const detectProvider = async () => {

@@ -91,7 +91,7 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
             "Content-Type": "application/json"
         }
 
-        const addresses = await web3 && web3.eth.getAccounts()
+        const addresses = await web3.eth.getAccounts()
 
         return await axios.post(
             "/.netlify/functions/requestVehicleApproval",
