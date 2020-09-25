@@ -9,8 +9,8 @@ export const addVehicleFormMachine = createMachine({
         vehicleDescription: "",
         vehicleId: "",
         apiKey: "",
-        hireFee: "",
-        bond: "",
+        hireFee: 0,
+        bond: 0,
         lat: -34928500,
         lng: 138600700
     },

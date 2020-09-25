@@ -4,6 +4,8 @@ import BigNumber from "bignumber.js"
 // Converts human-friendly amount to BigNumber with the amount of decimal places expected by the Solidity
 export const toSolidityFormat = (amount: string, currency: Currency) => {
 
+    if (!amount) return amount
+
     const ETH = new BigNumber("1e18")
     const FIAT = new BigNumber("1e8")
 
