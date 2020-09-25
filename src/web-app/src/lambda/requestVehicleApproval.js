@@ -4,9 +4,11 @@ const tough = require('tough-cookie');
 
 export async function handler(event, context) {
 
+    console.log("axiosCookieJarSupport: " + axiosCookieJarSupport)
     axiosCookieJarSupport(axios)
 
     const cookieJar = new tough.CookieJar()
+    console.log("cookieJar: " + cookieJar)
 
     console.log("event.body: " + JSON.stringify(event.body))
 
@@ -20,10 +22,11 @@ export async function handler(event, context) {
         const email = process.env.REACT_APP_NODE_USERNAME
         const password = process.env.REACT_APP_NODE_PASSWORD
 
+        console.log("posting to: http://35.189.58.211:6688/sessions")
         console.log("email: " + email)
-        console.log("passsword: " + password)
+        console.log("password: " + password)
 
-        await axios.post("http://35.189.58.211:6688/sessions",
+        const authResponse = await axios.post("http://35.189.58.211:6688/sessions",
             {
                 "email": email,
                 "password": password
@@ -34,7 +37,14 @@ export async function handler(event, context) {
                 withCredentials: true
             })
 
-        const response = axios.post(
+        console.log("Auth response: " + JSON.stringify(authResponse))
+
+        console.log("posting to: http://35.189.58.211:6688/v2/specs/fb89c07b096943a6b1b7652d63177708/runs")
+        console.log("apiToken: " + apiToken)
+        console.log("vehicleId: " + vehicleId)
+        console.log("address: " + address)
+
+        const response = await axios.post(
             "http://35.189.58.211:6688/v2/specs/fb89c07b096943a6b1b7652d63177708/runs",
             {
                 "apiToken": apiToken,
@@ -49,8 +59,11 @@ export async function handler(event, context) {
             }
         )
 
+        console.log("Second response: " + JSON.stringify(response))
+
         const data = response.data
 
+        console.log("Returning successful response 200")
         return {
             statusCode: 200,
             body: JSON.stringify({ msg: data })

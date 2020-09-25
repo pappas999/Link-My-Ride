@@ -104,6 +104,10 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
                 headers
             }
         )
+            .then((response: any) => {
+                console.log(JSON.stringify(response))
+                return response
+            })
             .catch((err: any) => {
                 console.error(err)
                 throw err
