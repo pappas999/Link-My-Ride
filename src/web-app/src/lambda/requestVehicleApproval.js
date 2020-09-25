@@ -3,14 +3,9 @@ const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const tough = require('tough-cookie');
 
 export async function handler(event, context) {
-
-    console.log("axiosCookieJarSupport: " + axiosCookieJarSupport)
     axiosCookieJarSupport(axios)
 
     const cookieJar = new tough.CookieJar()
-    console.log("cookieJar: " + cookieJar)
-
-    console.log("event.body: " + JSON.stringify(event.body))
 
     try {
         const {
@@ -37,8 +32,6 @@ export async function handler(event, context) {
                 withCredentials: true
             })
 
-        console.log("Auth response: " + JSON.stringify(authResponse))
-
         console.log("posting to: http://35.189.58.211:6688/v2/specs/fb89c07b096943a6b1b7652d63177708/runs")
         console.log("apiToken: " + apiToken)
         console.log("vehicleId: " + vehicleId)
@@ -58,8 +51,6 @@ export async function handler(event, context) {
                 withCredentials: true
             }
         )
-
-        console.log("Second response: " + JSON.stringify(response))
 
         const data = response.data
 
