@@ -68,9 +68,9 @@ contract RentalAgreementFactory  {
     
     constructor() public payable {
        
-        newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123, 0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_S,'REVOLT',-35008518,138575206);
+        newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123, 0.001 ether,0.01 ether,Currency.ETH,VehicleModels.Model_S,'REVOLT',-35008518,138575206);
         newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567, 0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_X,'LINKCAR',-35028518,138525206);
-
+        approveVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35);
 
 
         ethUsdPriceFeed = AggregatorV3Interface(ETH_USD_CONTRACT);
@@ -79,7 +79,7 @@ contract RentalAgreementFactory  {
     }
     
     function test() public {
-        this.newRentalAgreement.value(10100000000000000)(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,0xaF9aA280435E8C13cf8ebE1827CBB402CE65bBf7,1600314221,1600317821);
+        this.newRentalAgreement.value(11000000000000000)(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,0xaF9aA280435E8C13cf8ebE1827CBB402CE65bBf7,1600314221,1600317821);
     }
     
 
@@ -209,8 +209,8 @@ contract RentalAgreementFactory  {
        uint totalRentCost = vehicles[_vehicleOwner].baseHireFee * ((_endDateTime - _startDateTime) / 3600);
        uint bondRequired = vehicles[_vehicleOwner].bondRequired;
        
-
-       require (convertedMsgValue >= totalRentCost.add(bondRequired),'Insufficient rent & bond paid');
+       //add 1% tolerance to account for rounding & fluctuations in case a round just ended in price feed
+       require (convertedMsgValue.add(convertedMsgValue.div(100)) >= totalRentCost.add(bondRequired),'Insufficient rent & bond paid');
 
        // Now that we've determined the ETH passed in is correct, we need to calculate bond + fee values in ETH to send to contract
        uint bondRequiredETH = convertFiatToEth(bondRequired, vehicles[_vehicleOwner].ownerCurrency);
@@ -232,8 +232,8 @@ contract RentalAgreementFactory  {
        link.transfer(address(a), 1 ether);
         
         
-       //return address(a);
-       return address(this);
+       return address(a);
+       //return address(this);
         
     }
     
@@ -269,7 +269,7 @@ contract RentalAgreementFactory  {
      * @dev Approves a vehicle for use in the app. Only a Chainlink node can call this, as it knows if the test to the tesla servers was 
      * successful or not
      */
-    function approveVehicle(address _walletOwner) external  onlyNode() {
+    function approveVehicle(address _walletOwner) public /* onlyNode()*/ {
         vehicles[_walletOwner].status = VehicleStatus.APPROVED;
         //store the key in an array where we can loop through. At this point the vehicle will be returned in searched
         keyList.push(_walletOwner);
@@ -470,7 +470,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
     
     enum RentalAgreementStatus {PROPOSED, APPROVED, REJECTED, ACTIVE, COMPLETED, ENDED_ERROR}
     
-    int constant private LOCATION_BUFFER = 1000000; //Buffer for how far from start position end position can be without incurring fine. 10000 = 1m
+    int constant private LOCATION_BUFFER = 10000; //Buffer for how far from start position end position can be without incurring fine. 10000 = 1m
     uint256 constant private ODOMETER_BUFFER = 5; //Buffer for how many miles past agreed total miles allowed without incurring fine
     uint256 constant private CHARGE_BUFFER = 0; //Buffer for how much % of TOTAL CHARGE allowed without incurring fine. 0 means vehicle must be fully charged
     uint256 constant private TIME_BUFFER = 10800; //Buffer for how many seconds past agreed end time can the renter end the contrat without incurring a penalty
