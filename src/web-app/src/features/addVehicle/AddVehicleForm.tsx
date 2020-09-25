@@ -25,6 +25,9 @@ export const AddVehicleForm = () => {
 
     const { currency: usersCurrency } = useContext(CurrencyContext)
 
+    console.log("lat: " + current.context.lat)
+    console.log("lng: " + current.context.lng)
+
     const handleVehicleModelSelected = (event: any) => {
         setSelectedVehicleModel(event.target.value)
     }

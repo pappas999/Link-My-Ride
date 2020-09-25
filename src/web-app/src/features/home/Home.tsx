@@ -12,13 +12,13 @@ export const Home = () => <>
     <ActionButtonsWrapper>
       <BigActionImageButton
         imageSrc={ownerJpg}
-        label="I am a vehicle owner"
+        label="Vehicle Owners"
         component={Link}
         to="/owner-dashboard"
       />
       <BigActionImageButton
         imageSrc={renterJpg}
-        label="I'd like to hire a vehicle"
+        label="Vehicle Renters"
         component={Link}
         to="/renter-dashboard"
       />

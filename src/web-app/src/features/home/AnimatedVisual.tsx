@@ -2,6 +2,7 @@ import React from "react"
 import styled from "styled-components"
 import bgSvg from "./web3-streets.svg"
 import { AnimatedLogo } from "../../components/logo"
+import { Typography } from "@material-ui/core"
 
 export const AnimatedVisual = ({ ...rest }) => {
 
@@ -10,6 +11,7 @@ export const AnimatedVisual = ({ ...rest }) => {
     <Overlay />
     <LogoWrapper>
       <AnimatedLogo />
+      <Slogan variant="h3" component="h2">Decentralized vehicle rental platform.<br/>#PoweredByChainlink</Slogan>
     </LogoWrapper>
   </Container>
 }
@@ -60,3 +62,17 @@ const Scroller = styled.div<{ svg: string }>`
   width: 2000em;
   position: absolute;
 `
+
+const Slogan = styled(Typography)`
+  z-index: 1;
+  color: ${({theme}) => theme.palette.common.white};
+  text-align: center;
+
+  &.MuiTypography-root {
+    margin-top: ${({theme}) => theme.spacing(6)};
+
+    @media(max-width: 600px) {
+      font-size: 2rem;
+    }
+  }
+` as typeof Typography

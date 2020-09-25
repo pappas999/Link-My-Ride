@@ -37,6 +37,8 @@ export const Map = ({
         }
     }, [cars])
 
+    console.log("Maps API key: " + process.env.REACT_APP_GOOGLE_MAPS_API_KEY)
+
     return <GoogleMapReact
         bootstrapURLKeys={{
             key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ""
