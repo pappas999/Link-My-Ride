@@ -26,5 +26,7 @@ export const fromSolidityFormat = (amount: BigNumber, currency: Currency) => {
             break
     }
 
-    return result.decimalPlaces(2).toFixed(2)
+    const decimalPlaces = +currency === Currency.ETH ? 3 : 2
+
+    return result.decimalPlaces(decimalPlaces).toFixed(decimalPlaces)
 }

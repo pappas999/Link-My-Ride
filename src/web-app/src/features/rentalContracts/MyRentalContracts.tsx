@@ -5,6 +5,7 @@ import { RentalContract } from "./RentalContract"
 import { Typography } from "@material-ui/core"
 import { NoRentalContract } from "./NoRentalContract"
 import rentalContractSC from "./rentalContractSC.json"
+import { useInterval } from "../../utils"
 
 type Props = {
     asOwner?: boolean
@@ -13,6 +14,8 @@ type Props = {
 export const MyRentalContracts = ({
     asOwner = false
 }: Props) => {
+
+    const POLLING_INTERVAL = 5000 // Poll for updates every 5 seconds
 
     const { linkMyRideContract, web3 } = useContext(Web3Context)
 
@@ -87,11 +90,19 @@ export const MyRentalContracts = ({
         }
     }, [web3, linkMyRideContract, getMyContracts])
 
+    useInterval(async () => {
+        if (web3 && linkMyRideContract) {
+            getMyContracts()
+        }
+    }, [POLLING_INTERVAL])
+
+
     return <Wrapper>
         <Heading variant="h4">My rental contracts:</Heading>
         <ContractsContainer>
             {
-                myContracts.length > 0 ? myContracts.map(contract => <RentalContract
+                myContracts.length > 0 ? myContracts.map((contract, index) => <RentalContract
+                    key={index}
                     contract={contract}
                     asOwner={asOwner}
                 />) : <NoRentalContract asOwner={asOwner} />
@@ -111,7 +122,7 @@ const Heading = styled(Typography)`
     color: ${({ theme }) => theme.palette.common.white};
 
     &.MuiTypography-root {
-        margin-top: ${({theme}) => theme.spacing(8)};
+        margin-top: ${({ theme }) => theme.spacing(8)};
     }
     
 `
@@ -121,5 +132,5 @@ const ContractsContainer = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    padding: ${({theme}) => theme.spacing(2)};
+    padding: ${({ theme }) => theme.spacing(2)};
 `

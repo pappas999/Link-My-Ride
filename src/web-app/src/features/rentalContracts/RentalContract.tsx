@@ -146,6 +146,7 @@ export const RentalContract = ({
 
         const addresses = await web3.eth.getAccounts()
 
+        // @ts-ignore
         await rentalContractSmartContract.methods.rejectContract()
             .send({
                 from: addresses[0]
@@ -157,6 +158,7 @@ export const RentalContract = ({
 
         const addresses = await web3.eth.getAccounts()
 
+        // @ts-ignore
         await rentalContractSmartContract.methods.approveContract()
             .send({
                 from: addresses[0]
@@ -168,6 +170,7 @@ export const RentalContract = ({
 
         const addresses = await web3.eth.getAccounts()
 
+        // @ts-ignore
         await rentalContractSmartContract.methods.activateRentalContract()
             .send({
                 from: addresses[0]
@@ -179,6 +182,7 @@ export const RentalContract = ({
 
         const addresses = await web3.eth.getAccounts()
 
+        // @ts-ignore
         await rentalContractSmartContract.methods.endRentalContract()
             .send({
                 from: addresses[0]
@@ -190,6 +194,7 @@ export const RentalContract = ({
 
         const addresses = await web3.eth.getAccounts()
 
+        // @ts-ignore
         await rentalContractSmartContract.methods.forceEndRentalContract()
             .send({
                 from: addresses[0]

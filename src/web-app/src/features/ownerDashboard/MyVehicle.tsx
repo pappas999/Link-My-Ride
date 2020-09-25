@@ -4,8 +4,11 @@ import { Web3Context } from "../web3"
 import { Typography } from "@material-ui/core"
 import { NoVehicle } from "./NoVehicle"
 import { Vehicle } from "./Vehicle"
+import { useInterval } from "../../utils"
 
 export const MyVehicle = () => {
+
+    const POLLING_INTERVAL = 5000 // Poll for updates every 5 seconds
 
     const { linkMyRideContract, web3 } = useContext(Web3Context)
 
@@ -38,6 +41,12 @@ export const MyVehicle = () => {
             getMyVehicle()
         }
     }, [web3, linkMyRideContract, getMyVehicle])
+
+    useInterval(async () => {
+        if (web3 && linkMyRideContract) {
+            getMyVehicle()
+        }
+    }, [POLLING_INTERVAL])
 
     return <Wrapper>
         <Heading variant="h4">My vehicle:</Heading>

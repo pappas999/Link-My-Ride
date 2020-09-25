@@ -17,7 +17,6 @@ export async function handler(event, context) {
         const email = process.env.REACT_APP_NODE_USERNAME
         const password = process.env.REACT_APP_NODE_PASSWORD
 
-        console.log("posting to: http://35.189.58.211:6688/sessions")
         console.log("email: " + email)
         console.log("password: " + password)
 
@@ -32,7 +31,6 @@ export async function handler(event, context) {
                 withCredentials: true
             })
 
-        console.log("posting to: http://35.189.58.211:6688/v2/specs/fc2498cbfa984f7d94812802e46b7508/runs")
         console.log("apiToken: " + apiToken)
         console.log("vehicleId: " + vehicleId)
         console.log("address: " + address)
