@@ -11,7 +11,7 @@ export const AnimatedVisual = ({ ...rest }) => {
     <Overlay />
     <LogoWrapper>
       <AnimatedLogo />
-      <Slogan variant="h3" component="h2">Trust minimized vehicle rental platform.<br/>#PoweredByChainlink</Slogan>
+      <Slogan variant="h3" component="h2">Decentralized vehicle rental platform.<br/>#PoweredByChainlink</Slogan>
     </LogoWrapper>
   </Container>
 }
