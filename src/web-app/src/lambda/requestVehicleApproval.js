@@ -32,7 +32,7 @@ export async function handler(event, context) {
                 withCredentials: true
             })
 
-        console.log("posting to: http://35.189.58.211:6688/v2/specs/fb89c07b096943a6b1b7652d63177708/runs")
+        console.log("posting to: http://35.189.58.211:6688/v2/specs/fc2498cbfa984f7d94812802e46b7508/runs")
         console.log("apiToken: " + apiToken)
         console.log("vehicleId: " + vehicleId)
         console.log("address: " + address)
