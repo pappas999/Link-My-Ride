@@ -68,9 +68,9 @@ contract RentalAgreementFactory  {
     
     constructor() public payable {
        
-        newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123, 0.001 ether,0.01 ether,Currency.ETH,VehicleModels.Model_S,'REVOLT',-35008518,138575206);
-        newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567, 0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_X,'LINKCAR',-35028518,138525206);
-        approveVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35);
+        //newVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,123, 0.001 ether,0.01 ether,Currency.ETH,VehicleModels.Model_S,'REVOLT',-35008518,138575206);
+        //newVehicle(0x20442A67128F4a2d9eb123e353893c8f05429AcB,567, 0.01 * 0.01 ether,0.01 ether,Currency.ETH,VehicleModels.Model_X,'LINKCAR',-35028518,138525206);
+        //approveVehicle(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35);
 
 
         ethUsdPriceFeed = AggregatorV3Interface(ETH_USD_CONTRACT);
@@ -78,11 +78,6 @@ contract RentalAgreementFactory  {
         gbpUsdPriceFeed = AggregatorV3Interface(GBP_USD_CONTRACT);
     }
     
-    function test() public {
-        this.newRentalAgreement.value(11000000000000000)(0x54a47c5e6a6CEc35eEB23E24C6b3659eE205eE35,0xaF9aA280435E8C13cf8ebE1827CBB402CE65bBf7,1600314221,1600317821);
-    }
-    
-
 
     modifier onlyOwner() {
         require(dappWallet == msg.sender,'Only Insurance provider can do this');
@@ -269,7 +264,7 @@ contract RentalAgreementFactory  {
      * @dev Approves a vehicle for use in the app. Only a Chainlink node can call this, as it knows if the test to the tesla servers was 
      * successful or not
      */
-    function approveVehicle(address _walletOwner) public /* onlyNode()*/ {
+    function approveVehicle(address _walletOwner) public  onlyNode() {
         vehicles[_walletOwner].status = VehicleStatus.APPROVED;
         //store the key in an array where we can loop through. At this point the vehicle will be returned in searched
         keyList.push(_walletOwner);
@@ -881,7 +876,8 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
         }
         
         //finally, pay renter back any remaining bond
-        renter.transfer(address(this).balance);
+        totalBondReturned = address(this).balance;
+        renter.transfer(totalBondReturned);
         
         //Transfers all completed, now we just need to set contract status to successfully completed 
         agreementStatus = RentalAgreementFactory.RentalAgreementStatus.COMPLETED;
