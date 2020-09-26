@@ -310,11 +310,11 @@ contract RentalAgreementFactory  {
         //because we need to know exact size of final memory array, first we need to iterate and count how many will be in the final result
         for (uint i = 0; i < rentalAgreements.length; i++) {
            if (_owner == 1) { //owner scenario
-              if (rentalAgreements[i].getVehicleOwner() == _address) {
+              if (rentalAgreements[0].getVehicleOwner() == _address) {
                  finalResultCount = finalResultCount + 1;
               }
             } else {  //renter scenario
-               if (rentalAgreements[i].getVehicleRenter() == _address) {
+               if (rentalAgreements[0].getVehicleRenter() == _address) {
                  finalResultCount = finalResultCount + 1;
                 }
             }

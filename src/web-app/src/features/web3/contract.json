@@ -1,5 +1,5 @@
 {
-	"address": "0xfF8AD9F49da6fE106889EFc543fceabD601b55A4",
+	"address": "0x0584e9E9a9Ae9c1684f1bCf4bcAc76581C762E73",
 	"abi": [
 		{
 			"constant": true,
@@ -411,15 +411,6 @@
 			],
 			"payable": false,
 			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"constant": false,
-			"inputs": [],
-			"name": "test",
-			"outputs": [],
-			"payable": false,
-			"stateMutability": "nonpayable",
 			"type": "function"
 		},
 		{

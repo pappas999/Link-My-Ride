@@ -36,7 +36,7 @@ export async function handler(event, context) {
         console.log("address: " + address)
 
         const response = await axios.post(
-            "http://35.189.58.211:6688/v2/specs/af7344f3f167419db37f281220b6664e/runs",
+            "http://35.189.58.211:6688/v2/specs/438c678adcc24df18c33266059d841a8/runs",
             {
                 "apiToken": apiToken,
                 "vehicleId": vehicleId,
