@@ -14,10 +14,10 @@ export async function handler(event, context) {
             address
         } = JSON.parse(event.body)
 
-        const email = process.env.REACT_APP_NODE_USERNAME
-        const password = process.env.REACT_APP_NODE_PASSWORD
-        const nodeAddress = process.env.REACT_APP_NODE_ADDRESS
-        const jobSpecId = process.env.REACT_APP_JOBSPEC_ID
+        const email = process.env.NODE_USERNAME
+        const password = process.env.NODE_PASSWORD
+        const nodeAddress = process.env.NODE_ADDRESS
+        const jobSpecId = process.env.JOBSPEC_ID
 
         console.log(`Posting to: ${nodeAddress}/sessions`)
         console.log("email: " + email)
