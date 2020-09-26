@@ -63,6 +63,24 @@ export const RentalForm = () => {
                 />
             </MuiPickersUtilsProvider>
         </FormField>
+        <FormField>
+            <BigFieldLabel>How long would you like to hire it for?</BigFieldLabel>
+            <HireDurationFormControl>
+                <InputLabel>Hire Duration</InputLabel>
+                <Select
+                    value={current.context.hireDuration}
+                    onChange={handleHireDurationSelected}
+                >
+                    <MenuItem value={1}>1 hour</MenuItem>
+                    <MenuItem value={2}>2 hours</MenuItem>
+                    <MenuItem value={3}>3 hours</MenuItem>
+                    <MenuItem value={5}>5 hours</MenuItem>
+                    <MenuItem value={7}>7 hours</MenuItem>
+                    <MenuItem value={9}>9 hours</MenuItem>
+                    <MenuItem value={12}>12 hours</MenuItem>
+                </Select>
+            </HireDurationFormControl>
+        </FormField>
         {
             <MapSection>
                 {
@@ -80,26 +98,10 @@ export const RentalForm = () => {
             current.context.selectedCar && <>
                 <BigFieldLabel>You selected:</BigFieldLabel>
                 <Vehicle car={current.context.selectedCar} />
-                <BigFieldLabel>How long would you like to hire it for?</BigFieldLabel>
-                <HireDurationFormControl>
-                    <InputLabel>Hire Duration</InputLabel>
-                    <Select
-                        value={current.context.hireDuration}
-                        onChange={handleHireDurationSelected}
-                    >
-                        <MenuItem value={1}>1 hour</MenuItem>
-                        <MenuItem value={2}>2 hours</MenuItem>
-                        <MenuItem value={3}>3 hours</MenuItem>
-                        <MenuItem value={5}>5 hours</MenuItem>
-                        <MenuItem value={7}>7 hours</MenuItem>
-                        <MenuItem value={9}>9 hours</MenuItem>
-                        <MenuItem value={12}>12 hours</MenuItem>
-                    </Select>
-                </HireDurationFormControl>
             </>
         }
         {
-            current.context.hireDuration && <>
+            current.context.selectedDate && current.context.hireDuration && current.context.selectedCar && <>
                 <StyledHr />
                 <BigFieldLabel>Total cost:</BigFieldLabel>
                 <Total>&nbsp;<span>{getCurrencyString(usersCurrency)}</span>&nbsp;{fromSolidityFormat(convertedTotalCost, usersCurrency).toString()}</Total>
@@ -128,6 +130,10 @@ const FormWrapper = styled(StyledForm)`
 
 const FormField = styled.div`   
     margin: ${({ theme }) => `${theme.spacing(4)} 0`};
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
 `
 
 const DatePicker = styled(DateTimePicker)`
@@ -172,6 +178,5 @@ const Total = styled(Typography)`
 const HireDurationFormControl = styled(FormControl)`
     &.MuiFormControl-root {
         width: ${({ theme }) => theme.typography.pxToRem(160)};
-        margin-bottom: ${({ theme }) => theme.spacing(12)};
     }
 `

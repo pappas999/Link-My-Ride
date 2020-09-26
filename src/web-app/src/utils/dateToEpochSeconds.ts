@@ -1,0 +1,1 @@
+export const dateToEpochSeconds = (dateTime: Date) => dateTime.getTime() / 1000

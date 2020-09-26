@@ -18,6 +18,9 @@ export const initRentalFormMachineOptions = (
             hireDuration: event.duration
         }))
     },
+    guards: {  
+        hasDateRangeSelected: (context: any, event: any) => context.selectedDate && context.hireDuration
+    },
     services: {
         getAvailableCars,
         createRentalAgreement

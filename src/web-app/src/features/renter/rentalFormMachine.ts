@@ -16,6 +16,19 @@ export const rentalFormMachine = createMachine({
                 dateUnselected: {
 
                 },
+                checkDateSelecting: {
+                    on: {
+                        "": [
+                            {
+                                cond: "hasDateRangeSelected",
+                                target: "dateSelecting"
+                            },
+                            {
+                                target: "dateUnselected"
+                            }
+                        ]
+                    }
+                },
                 dateSelecting: {
                     invoke: {
                         src: "getAvailableCars",
@@ -33,9 +46,6 @@ export const rentalFormMachine = createMachine({
                         SET_SELECTED_CAR: {
                             actions: "cacheSelectedCar"
                         },
-                        SET_SELECTED_HIRE_DURATION: {
-                            actions: "cacheSelectedHireDuration"
-                        },
                         SUBMIT: {
                             target: "#rentalForm.submitting"
                         }
@@ -46,7 +56,11 @@ export const rentalFormMachine = createMachine({
                 SET_SELECTED_DATE: {
                     // todo: check selected date is not empty. If it is transition to 'dateUnselected' state instead
                     actions: "cacheSelectedDate",
-                    target: ".dateSelecting"
+                    target: ".checkDateSelecting"
+                },
+                SET_SELECTED_HIRE_DURATION: {
+                    actions: "cacheSelectedHireDuration",
+                    target: ".checkDateSelecting"
                 }
             }
         },

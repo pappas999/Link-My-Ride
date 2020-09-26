@@ -6,6 +6,7 @@ import { Web3Context } from "../web3"
 import { CurrencyContext } from "../currency"
 import { Currency } from "../../enums"
 import BigNumber from "bignumber.js"
+import { dateToEpochSeconds } from "../../utils"
 
 type ContextProps = {
     current: any,
@@ -36,7 +37,10 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
     const { convertCurrency } = useContext(CurrencyContext)
 
     const getAvailableCars = async (context: any, event: any): Promise<Car[]> => {
-        const getVehicleAddresses = async () => linkMyRideContract.methods.getVehicleAddresses().call()
+        const startDate = dateToEpochSeconds(context.selectedDate)
+        const endDate = dateToEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + +context.hireDuration)))
+
+        const getVehicleAddresses = async () => linkMyRideContract.methods.returnAvailableVehicles(startDate.toString(), endDate.toString()).call()
 
         const getVehicleByAddress = async (address: string) => linkMyRideContract.methods.getVehicle(address).call()
 
@@ -69,10 +73,8 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
                 currency
             } = context.selectedCar
 
-            const toEpochSeconds = (dateTime: Date) => dateTime.getTime() / 1000
-
-            const startDate = toEpochSeconds(context.selectedDate)
-            const endDate = toEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + +context.hireDuration)))
+            const startDate = dateToEpochSeconds(context.selectedDate)
+            const endDate = dateToEpochSeconds(new Date(context.selectedDate.setHours(context.selectedDate.getHours() + +context.hireDuration)))
             const hireFee: BigNumber = new BigNumber(baseHireFee).multipliedBy(+(context.hireDuration))
 
             const hireFeeAsEth = await convertCurrency(hireFee, currency, Currency.ETH)
