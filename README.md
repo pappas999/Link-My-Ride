@@ -2,7 +2,9 @@
 
 ## A decentralized vehicle rental platform powered by Chainlink and Ethereum.
 
-## Video
+TODO - Add logo here?
+
+## Demo video
 
 TODO - Add video here?
 
@@ -29,4 +31,6 @@ TODO - Add diagram
 - Add form validation in web app
 
 - Better responding to events emitted from smart contract in web app
+
+- Expand to other API-enabled vehicles
 
