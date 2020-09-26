@@ -5,9 +5,11 @@ import { Link } from "react-router-dom"
 import { BigActionImageButton } from "../../components/button"
 import ownerJpg from "../../images/owner.jpg"
 import renterJpg from "../../images/renter.jpg"
+import { GitHubLink } from "./GitHubLink"
 
 export const Home = () => <>
   <StyledAnimatedVisual />
+  <GitHubLink />
   <Content>
     <ActionButtonsWrapper>
       <BigActionImageButton
