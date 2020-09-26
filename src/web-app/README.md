@@ -1,8 +1,8 @@
 The Link My Ride web app was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## See a live version of this web app [here](https://linkmyri.de/) or run it yourself...
+## See a live version of this web app [here](https://linkmyri.de/) or read on for how to run it yourself...
 
-### Note - The web app calls out to a lambda function to initiate the job on the Chainlink node which validates entered vehicle details against the Tesla API (or mocked Tesla API) using the external adapter, before relaying the results to the `RentalAgreementFactory` smart contract. <b>The lambda function is therefore required in order for added vehicles to change from the `PENDING` to `APPROVED` status.</b>
+#### Note - The web app calls out to a lambda function to initiate the job on the Chainlink node which validates entered vehicle details against the Tesla API (or mocked Tesla API) using the external adapter, before relaying the results to the `RentalAgreementFactory` smart contract. <b>The lambda function is therefore required in order for added vehicles to update from the `PENDING` to `APPROVED` status, which is required for them to be available to rent.</b>
 
 Firstly run `npm install` to fetch dependencies. Then...
 
@@ -12,7 +12,7 @@ Firstly run `npm install` to fetch dependencies. Then...
 
 Install the CLI globally with `npm install netlify-cli -g`.
 
-Replace placeholders in the `netlify.toml` file with your own Chainlink node details.
+Uncomment line and replace placeholders in the `netlify.toml` file with your own Chainlink node details.
 
 Replace placeholders in the `.env` file with your own values.
 
