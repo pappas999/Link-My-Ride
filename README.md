@@ -24,13 +24,11 @@ TODO - Add diagram
 
 - Ensure financial incentive for both vehicle owner and renter are sufficient to promote good behaviour
 
-- Cover all essential insurance
-
-- Use user's timezone (Currently all times in the web app are in UTC)
-
-- Add form validation in web app
-
-- Better responding to events emitted from smart contract in web app
+- Add features to facilitate vehicle fleet management including reporting and analytics
 
 - Expand to other API-enabled vehicles
+
+- Cover all essential insurance
+
+- Improve UI/UX (Form validation, responding to events emitted from smart contract, use user's timezone [currently all times in the web app are in UTC] and more)
 
