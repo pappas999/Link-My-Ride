@@ -2,6 +2,10 @@
 
 ## A decentralized vehicle rental platform powered by Chainlink and Ethereum.
 
+## Video
+
+TODO - Add video here?
+
 This repository consists of:
 
 - [Tesla External Adapter](https://github.com/pappas999/Link-My-Ride/tree/master/src/Tesla-External-Adapter)
@@ -20,7 +24,7 @@ TODO - Add diagram
 
 - Cover all essential insurance
 
-- Use user's timezone (All times in the web app are currently UTC)
+- Use user's timezone (Currently all times in the web app are in UTC)
 
 - Add form validation in web app
 
