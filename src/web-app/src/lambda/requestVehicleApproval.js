@@ -16,11 +16,14 @@ export async function handler(event, context) {
 
         const email = process.env.REACT_APP_NODE_USERNAME
         const password = process.env.REACT_APP_NODE_PASSWORD
+        const nodeAddress = process.env.REACT_APP_NODE_ADDRESS
+        const jobSpecId = process.env.REACT_APP_JOBSPEC_ID
 
+        console.log(`Posting to: ${nodeAddress}/sessions`)
         console.log("email: " + email)
         console.log("password: " + password)
 
-        const authResponse = await axios.post("http://35.189.58.211:6688/sessions",
+        await axios.post(`${nodeAddress}/sessions`,
             {
                 "email": email,
                 "password": password
@@ -31,12 +34,13 @@ export async function handler(event, context) {
                 withCredentials: true
             })
 
+        console.log(`Posting to: ${nodeAddress}/v2/specs/${jobSpecId}/runs`)
         console.log("apiToken: " + apiToken)
         console.log("vehicleId: " + vehicleId)
         console.log("address: " + address)
 
         const response = await axios.post(
-            "http://35.189.58.211:6688/v2/specs/438c678adcc24df18c33266059d841a8/runs",
+            `${nodeAddress}/v2/specs/${jobSpecId}/runs`,
             {
                 "apiToken": apiToken,
                 "vehicleId": vehicleId,
