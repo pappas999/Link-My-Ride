@@ -42,7 +42,7 @@ This repository consists of:
 npm install
 
 # compile contracts
-truffle complie
+truffle compile
 
 # migrate contract
 # You can update truffle-config to migrate to Kovan, or you can take the Solidity, paste directly into Remix, change the imports to be the remix ones and deploy/run from there
