@@ -43,3 +43,8 @@ The build is minified and the filenames include the hashes.<br />
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+---
+
+## To change the smart contract address
+
+Edit the address found in `/src/features/web/contract.json`
