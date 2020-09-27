@@ -7,7 +7,7 @@
 
 # Description
 
-In the past, people have integrated a Smart Contract to an electric vehicle via the use of specialized hardware that plugs directly into the vehicle to obtain vehicle data. Not only was it just restricted to pulling data, but it also didn't scale well, as each vehicle requires special hardware and an always on internet connection. When the vehicle has a proper feature rich API that can be leveraged to obtain vehicle data & change its state, we can create a customer external adapter to connect to the vehicle via a Chainlink Oracle, giving the Smart Contract full access to the given vehicles data & ability to change its state.
+In the past, people have integrated a Smart Contract to an electric vehicle via the use of specialized hardware that plugs directly into the vehicle to obtain vehicle data. Not only was it just restricted to pulling data, but it also didn't scale well, as each vehicle requires special hardware and an always on internet connection. When the vehicle has a proper feature rich API that can be leveraged to obtain vehicle data & change its state, we can create a custom external adapter to connect to the vehicle via a Chainlink Oracle, giving the Smart Contract full access to the given vehicles data & ability to change its state.
 
 This submission demonstrates this design pattern, applying it to the use case of the peer to peer sharing economy. More specifically, it demonstrates that a Smart Contract can be used to facilitate a digital agreement between a Vehicle Owner & Vehicle Renter in a trust minimized & secure way. 
 
