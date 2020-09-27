@@ -27,7 +27,7 @@ https://linkmyri.de/
 ![alt](https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/architecture.png)
 
 # Build & Run platform
-This repository consists of:
+This repository includes:
 
 - [Tesla External Adapter](https://github.com/pappas999/Link-My-Ride/tree/master/src/Tesla-External-Adapter)
 
