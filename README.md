@@ -29,11 +29,26 @@ https://linkmyri.de/
 # Build & Run platform
 This repository includes:
 
-- [Tesla External Adapter](https://github.com/pappas999/Link-My-Ride/tree/master/src/Tesla-External-Adapter)
+# [Tesla External Adapter](https://github.com/pappas999/Link-My-Ride/tree/master/src/Tesla-External-Adapter)
+This is a custom external adapter to be used by a Chainlink Node to connect to the Tesla Servers via the [Tesla API](https://www.teslaapi.io/), which then connect to the Tesla Cars. There is some config/parameters required to connect to your own Google Cloud Firestore DB (project-id, collection-name). 
 
-- [Mock Tesla API](https://github.com/pappas999/Link-My-Ride/tree/master/src/Teslamock)
+In addition to this, the BASE_URL parameter should be modified according to which Tesla Server endpoint you want to connect to:
+- http://127.0.0.1:7777 - For a local deployment of the mock server
+- https://australia-southeast1-link-my-ride.cloudfunctions.net/teslamock/` - To connect to our adapter deployed on Google Cloud as a Serveless Function. Currently pointing to the mock server also deployed on Google Cloud
+- https://owner-api.teslamotors.com/ - If you want to connect to the Production Tesla Servers
 
-- [Web App](https://github.com/pappas999/Link-My-Ride/tree/master/src/web-app)
+# [Mock Tesla API](https://github.com/pappas999/Link-My-Ride/tree/master/src/Teslamock)
+This is a mock Tesla server that imitates the Tesla servers, all the end points and the responses, so you can use the app even if you don't have a Tesla. Taken from [https://github.com/mseminatore/teslamock](https://github.com/mseminatore/teslamock)
+
+Take note we have added an endpoint '/values' which you can POST to to update the parameters that we care about. Here is an example json input:
+```sh
+{ "batteryLevel": "124",
+   "odometer": "123.123",
+   "longitude": "-22.234242",
+   "latitude": "123214.23" 
+}
+```
+# [Web App](https://github.com/pappas999/Link-My-Ride/tree/master/src/web-app)
 
 #### Install dependencies
 
