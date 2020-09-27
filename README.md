@@ -82,6 +82,8 @@ To deploy the adapter to GCP as a serverless function, you implement the 'gcpser
 cd /src/web-app
 npm install
 npm start
+
+# Check the web app's README for more detailed instructions on running it
 ```
 
 Once the application is running it can be accessed by local URL <a href="http://localhost:3000/">http://localhost:3000/</a>
