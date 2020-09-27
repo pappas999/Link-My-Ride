@@ -1,12 +1,18 @@
-# Link My Ride
+ <div align=”center”>
+
+![alt](https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/lmr.png)
+ </div>
 
 ## A decentralized vehicle rental platform powered by Chainlink and Ethereum.
 
-TODO - Add logo here?
-
 ## Demo video
 
-TODO - Add video here?
+<p align="center">
+   <a target="_blank" href="https://youtu.be/yFnXwSGstus">
+    <img src="https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/youtube.png"/>
+   </a>
+</p>
+
 
 This repository consists of:
 
@@ -17,8 +23,7 @@ This repository consists of:
 - [Web App](https://github.com/pappas999/Link-My-Ride/tree/master/src/web-app)
 
 ## Architecture diagram
-
-TODO - Add diagram
+![alt](https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/architecture.png)
 
 ## If we had more time to take this proof of concept further we would...
 
