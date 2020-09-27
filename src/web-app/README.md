@@ -47,4 +47,4 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## To change the smart contract address
 
-Edit the address found in `/src/features/web/contract.json`
+Edit the address found in `/src/features/web3/contract.json`
