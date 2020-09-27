@@ -81,12 +81,6 @@ export const RentalFormProvider = ({ children }: ProviderProps) => {
 
             const addresses = await web3.eth.getAccounts()
 
-            console.log(carAddress)
-            console.log(addresses[0])
-            console.log(+startDate)
-            console.log(+endDate)
-            console.log(new BigNumber(hireFeeAsEth).plus(bondRequiredAsEth).toString())
-
             return linkMyRideContract.methods.newRentalAgreement(
                 carAddress,
                 addresses[0],

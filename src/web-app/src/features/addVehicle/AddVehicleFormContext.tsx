@@ -54,16 +54,6 @@ export const AddVehicleFormProvider = ({ children }: ProviderProps) => {
             const hireFee = toSolidityFormat(current.context.hireFee.toString(), usersCurrency).toString()
             const bond = toSolidityFormat(current.context.bond.toString(), usersCurrency).toString()
 
-            console.log(addresses[0])
-            console.log(current.context.vehicleId.toString())
-            console.log(hireFee)
-            console.log(bond)
-            console.log(usersCurrency.toString())
-            console.log(current.context.selectedVehicleModel.toString())
-            console.log(current.context.vehicleDescription)
-            console.log(current.context.lat.toString())
-            console.log(current.context.lng.toString())
-
             return linkMyRideContract.methods.newVehicle(
                 addresses[0],
                 current.context.vehicleId.toString(),
