@@ -2,17 +2,19 @@ pragma solidity 0.4.24;
 pragma experimental ABIEncoderV2;
 
 //Truffle Imports
-//import "chainlink/contracts/ChainlinkClient.sol";
-//import "chainlink/contracts/vendor/Ownable.sol";
-//import "chainlink/contracts/interfaces/LinkTokenInterface.sol";
+import "@chainlink/contracts/src/v0.4/ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.4/vendor/Ownable.sol";
+import "@chainlink/contracts/src/v0.4/interfaces/LinkTokenInterface.sol";
+import "@chainlink/contracts/src/v0.4/interfaces/AggregatorV3Interface.sol";
+import "./strings.sol";
 
-//Remix imports - used when testing in remix 
-import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/ChainlinkClient.sol";
-import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/vendor/Ownable.sol";
+//Remix Imports
+//import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/ChainlinkClient.sol";
+//import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/vendor/Ownable.sol";
+//import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/interfaces/LinkTokenInterface.sol";
+//import "https://github.com/smartcontractkit/chainlink/blob/master/evm-contracts/src/v0.4/interfaces/AggregatorV3Interface.sol";
+//import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
-import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/interfaces/LinkTokenInterface.sol";
-import "https://github.com/smartcontractkit/chainlink/blob/master/evm-contracts/src/v0.4/interfaces/AggregatorV3Interface.sol";
-import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
 contract RentalAgreementFactory  {
     
@@ -214,8 +216,7 @@ contract RentalAgreementFactory  {
        uint totalRentCostETH = msg.value - bondRequiredETH; 
       
        //create new Rental Agreement
-       RentalAgreement a = (new RentalAgreement).value(totalRentCostETH.add(bondRequiredETH))(_vehicleOwner, _renter, _startDateTime, _endDateTime, totalRentCostETH, bondRequiredETH, 
-                                                 LINK_KOVAN, ORACLE_CONTRACT, ORACLE_PAYMENT, JOB_ID);
+       RentalAgreement a = (new RentalAgreement).value(totalRentCostETH.add(bondRequiredETH))(_vehicleOwner, _renter, _startDateTime, _endDateTime, totalRentCostETH, bondRequiredETH,LINK_KOVAN, ORACLE_CONTRACT, ORACLE_PAYMENT, JOB_ID);
        
        //store new agreement in array of agreements
        rentalAgreements.push(a);
@@ -224,11 +225,10 @@ contract RentalAgreementFactory  {
         
        //now that contract has been created, we need to fund it with enough LINK tokens to fulfil 1 Oracle request per day
        LinkTokenInterface link = LinkTokenInterface(a.getChainlinkToken());
-       link.transfer(address(a), 1 ether);
-        
+       link.transfer(address(a), 1 ether);       
         
        return address(a);
-       //return address(this);
+
         
     }
     
@@ -310,11 +310,11 @@ contract RentalAgreementFactory  {
         //because we need to know exact size of final memory array, first we need to iterate and count how many will be in the final result
         for (uint i = 0; i < rentalAgreements.length; i++) {
            if (_owner == 1) { //owner scenario
-              if (rentalAgreements[0].getVehicleOwner() == _address) {
+              if (rentalAgreements[i].getVehicleOwner() == _address) {
                  finalResultCount = finalResultCount + 1;
               }
             } else {  //renter scenario
-               if (rentalAgreements[0].getVehicleRenter() == _address) {
+               if (rentalAgreements[i].getVehicleRenter() == _address) {
                  finalResultCount = finalResultCount + 1;
                 }
             }
@@ -328,13 +328,14 @@ contract RentalAgreementFactory  {
            if (_owner == 1) { //owner scenario
               if (rentalAgreements[j].getVehicleOwner() == _address) {
                  addresses[addrCountInserted] = address(rentalAgreements[j]);
+                 addrCountInserted = addrCountInserted + 1;
               }
             } else {  //renter scenario
                if (rentalAgreements[j].getVehicleRenter() == _address) {
                   addresses[addrCountInserted] = address(rentalAgreements[j]);
+                  addrCountInserted = addrCountInserted + 1;
                 }
             }
-            addrCountInserted = addrCountInserted + 1;
         }
         
         
@@ -382,7 +383,7 @@ contract RentalAgreementFactory  {
        
     }    
     
- /**
+   /**
      * @dev Function that takes a start & end epochs and then returns all vehicle addresses that are available
      */
     function returnAvailableVehicles(uint _start, uint _end) public view returns (address[]) {
@@ -1069,6 +1070,7 @@ contract RentalAgreement is ChainlinkClient, Ownable  {
             }
         }
     }
-    
+	
+   
     
 }
