@@ -2,7 +2,7 @@ The Link My Ride web app was bootstrapped with [Create React App](https://github
 
 ## See a live version of this web app [here](https://linkmyri.de/) or read on for how to run it yourself...
 
-#### Note - To avoid CORS issues the web app calls out to a lambda function on the same domain to initiate the job on the Chainlink node which validates entered vehicle details against the Tesla API (or mocked Tesla API) using the external adapter, before relaying the results to the `RentalAgreementFactory` smart contract. <b>The lambda function is therefore required in order for added vehicles to update from the `PENDING` to `APPROVED` status, which is required for them to be available to rent.</b>
+#### Note - To avoid [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) issues the web app calls out to a lambda function on the same domain to initiate the job on the Chainlink node which validates entered vehicle details against the Tesla API (or mocked Tesla API) using the external adapter, before relaying the results to the `RentalAgreementFactory` smart contract. <b>The lambda function is therefore required in order for added vehicles to update from the `PENDING` to `APPROVED` status, which is required for them to be available to rent.</b>
 
 Firstly run `npm install` to fetch dependencies. Then...
 
