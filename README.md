@@ -3,13 +3,15 @@
 ![alt](https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/lmr.png)
  </div>
 
-## Link My Ride: A decentralized vehicle rental platform powered by Chainlink and Ethereum.
+# A decentralized vehicle rental platform powered by Chainlink and Ethereum.
 
 # Description
 
-In the past, people have integrated a Smart Contract to an electric vehicle via the use of specialized hardware that plugs directly into the vehicle to obtain vehicle data. This doesn't scale well, as each vehicle requires special hardware and an internet connection. When the vehicle has a proper API that can be leveraged to obtain vehicle data & change its state, we can create a Chainlink external adapter to connect to the vehicle, giving the Smart Contract full access to the given vehicle.
+In the past, people have integrated a Smart Contract to an electric vehicle via the use of specialized hardware that plugs directly into the vehicle to obtain vehicle data. Not only was it just restricted to pulling data, but it also didn't scale well, as each vehicle requires special hardware and an always on internet connection. When the vehicle has a proper feature rich API that can be leveraged to obtain vehicle data & change its state, we can create a customer external adapter to connect to the vehicle via a Chainlink Oracle, giving the Smart Contract full access to the given vehicles data & ability to change its state.
 
-This submission demonstrates this design pattern, applying it to the use case of the peer to peer sharing economy. More specifically, it demonstrates that a Smart Cotnract can be used to facilitate a digital agreement between a Vehicle Owner & Vehicle Renter in a trust minimized & secure way.
+This submission demonstrates this design pattern, applying it to the use case of the peer to peer sharing economy. More specifically, it demonstrates that a Smart Contract can be used to facilitate a digital agreement between a Vehicle Owner & Vehicle Renter in a trust minimized & secure way. 
+
+In traditional vehicle rental platforms, the vehicle renter relies on the 'brand power' of the company, and trusts that the bond they submit will be returned if they adhered to the conditions. And as a vehicle owner/provider, going through a trusted centralized platform usually costs 30% of revenue. But in a peer to peer scenario, both renter and owner are strangers. This is where a Smart contract connected to external data and events can be leveraged.
 
 
 ## Demo video
