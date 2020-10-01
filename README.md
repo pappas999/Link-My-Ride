@@ -11,7 +11,7 @@ This example demonstrates the design pattern described above, applying it to the
 
 <p align="center">
    <a target="_blank" href="https://youtu.be/yFnXwSGstus">
-    <img src="https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/youtube.png"/>
+    <img src="https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/youtubeprev.png"/>
    </a>
 </p>
 
