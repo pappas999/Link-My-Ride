@@ -1,8 +1,3 @@
- <div align=”center”>
-
-![alt](https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/lmr.png)
- </div>
-
 # A decentralized vehicle rental platform powered by Chainlink and Ethereum.
 
 # Description
