@@ -19,7 +19,7 @@ This example demonstrates the design pattern described above, applying it to the
 https://linkmyri.de/
 
 ## Architecture diagram
-![alt](https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/architecture.png)
+![alt](https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/Link-My-Ride-architecture.png)
 
 # Build & Run platform
 This repository includes:
