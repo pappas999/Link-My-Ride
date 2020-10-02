@@ -1,4 +1,4 @@
-# A decentralized vehicle rental platform powered by Chainlink and Ethereum.
+# Link My Ride: A decentralized vehicle rental platform powered by Chainlink and Ethereum.
 
 # Description
 
