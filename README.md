@@ -15,9 +15,6 @@ This example demonstrates the design pattern described above, applying it to the
    </a>
 </p>
 
-## Live Demo (Kovan network)
-https://linkmyri.de/
-
 ## Architecture diagram
 ![alt](https://github.com/pappas999/Link-My-Ride/blob/master/src/web-app/public/Link-My-Ride-architecture.png)
 
